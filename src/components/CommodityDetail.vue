@@ -56,11 +56,7 @@ export default {
         return
       }
 
-      let scriptHash = '472848200412d9a7abbb0ed0bfb568a47745e4ba'
       let operation = 'sendToken'
-      let gasPrice = 500
-      let gasLimit = 30000
-      let requireIdentity = true
 
       // 构造args
       let account = await client.api.asset.getAccount()
@@ -68,7 +64,7 @@ export default {
       let demander = account
       demander = client.api.utils.addressToHex(demander)
       console.log(demander)
-      let provider = this.detailList.ontid      
+      let provider = this.detailList.ontid
       let idxstr = provider.lastIndexOf(':')
       console.log(idxstr)
       console.log('provider', provider)
@@ -76,7 +72,8 @@ export default {
       console.log('provider', provider)
       provider = client.api.utils.addressToHex(provider)
       console.log(provider)
-      let token_address = '0000000000000000000000000000000000000002'
+      let token_address = this.$store.state.token_address
+      console.log(this.$store.state.token_address)
       let id = this.$route.query.commodityId
       id = client.api.utils.strToHex(id)
       console.log('id', id)
@@ -96,7 +93,7 @@ export default {
         }
       ]
 
-      let wait_send_msg_time = 60000
+      let wait_send_msg_time = 120
 
       let args = [
         {
@@ -121,23 +118,27 @@ export default {
           value: wait_send_msg_time
         },
       ]
-      console.log(args)
+      let params = {
+        operation,
+        args
+      }
 
       try {
         this.signing = true
-        const result = await client.api.smartContract.invoke({
-          scriptHash,
-          operation,
-          args,
-          gasPrice,
-          gasLimit,
-          requireIdentity
-        });
-        console.log(result)
+        const result = await this.$store.dispatch('dapiInvoke', params)
+        console.log('result', result)
         if (result && result.transaction) {
           this.$message({
             message: '购买成功！',
             type: 'success',
+            center: true,
+            duration: 2000
+          });
+          this.signing = false
+        } else {
+          this.$message({
+            message: '购买失败，请重试！',
+            type: 'error',
             center: true,
             duration: 2000
           });

@@ -1,9 +1,10 @@
 <template>
   <div>
+    <el-button style="margin-bottom: 20px; float: right;" @click="toAddData()" type="primary">新增商品</el-button>
     <el-table border :data="tableData" style="width: 100%">
       <el-table-column type="index" :index="indexMethod" align="center"></el-table-column>
-      <el-table-column prop="data_demander" label="买家" style="width: 20%" align="center"></el-table-column>
-      <el-table-column prop="order_id" label="订单号" width="260" align="center"></el-table-column>
+      <el-table-column prop="dataDemander" label="买家" style="width: 20%" align="center"></el-table-column>
+      <el-table-column prop="orderId" label="订单号" width="260" align="center"></el-table-column>
       <el-table-column label="订单状态" align="center" width="180">
         <template slot-scope="scope">
           <el-tag size="medium" v-if="scope.row.state === 'boughtOnchain'">待发货</el-tag>
@@ -25,28 +26,40 @@
           <el-tag size="medium" type="info" v-else>订单已取消</el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="buy_date" label="购买日期" width="180" align="center"></el-table-column>
+      <el-table-column prop="buyDate" label="购买日期" width="180" align="center"></el-table-column>
       <el-table-column label="操作" width="180" align="center">
         <template slot-scope="scope">
           <el-button
-            @click="toShip(scope.row)"
+            @click="collectMoney(scope.row)"
             type="primary"
-            v-if="scope.row.state === 'boughtOnchain'"
-          >立即发货</el-button>
+            v-if="scope.row.state === 'deliveredOnchain' && scope.row.isRecvToken === 0"
+          >收款</el-button>
           <el-button
             @click="collectMoney(scope.row)"
             type="primary"
-            v-else-if="scope.row.state === 'deliveredOnchain'"
-          >收钱</el-button>
+            v-else-if="scope.row.state === 'buyerRecvMsgOnchain' && scope.row.isRecvToken === 0"
+          >收款</el-button>
+          <el-tag size="medium" type="info" v-else-if="scope.row.isRecvToken === 1">订单已完成</el-tag>
           <el-tag
             size="medium"
-            type="info"
-            v-else-if="scope.row.state === 'sellerRecvTokenOnchain'"
-          >订单已完成</el-tag>
-          <el-tag size="medium" type="info" v-else>订单已取消</el-tag>
+            type="danger"
+            v-else-if="scope.row.state === 'buyerCancelOnchain'"
+          >订单已取消</el-tag>
+          <!-- <el-button @click="toShip(scope.row)" type="primary" v-else>立即发货</el-button> -->
+          <el-button @click="openMsgBox(scope.row)" type="primary" v-else>立即发货</el-button>
         </template>
       </el-table-column>
     </el-table>
+
+    <div class="paginatio">
+      <el-pagination
+        @current-change="handleCurrentChange"
+        background
+        layout="prev, pager, next"
+        :total="orderCount"
+        :page-size="pageSize"
+      ></el-pagination>
+    </div>
   </div>
 </template>
 
@@ -57,25 +70,22 @@ export default {
   data() {
     return {
       tableData: [],
-      accountid: ''
+      accountid: '',
+      orderCount: 0,
+      pageSize: 2,
+      pageNum: 1
     }
   },
   methods: {
-    async toShip(data) {
+    async toShip(data, value) {
       console.log(data)
       // 构造数据
-      let scriptHash = '472848200412d9a7abbb0ed0bfb568a47745e4ba'
       let operation = 'sendEncMessage'
-      let gasPrice = 500
-      let gasLimit = 30000
-      let requireIdentity = true
-
       // 构造args
-      let exchange_id = data.order_id     //   ByteArray
+      let exchange_id = data.orderId     //   ByteArray
       console.log(exchange_id)
-      //   exchange_id = client.api.utils.addressToHex(exchange_id)
 
-      let str = 'lijie'
+      let str = value   // 发货的数据
       str = client.api.utils.strToHex(str)
       let message_list = [
         {
@@ -94,27 +104,48 @@ export default {
           value: message_list
         }
       ]
-
-
-      const result = await client.api.smartContract.invoke({
-        scriptHash,
+      let params = {
         operation,
-        args,
-        gasPrice,
-        gasLimit,
-        requireIdentity
-      });
-      console.log(result)
+        args
+      }
+      try {
+        const result = await this.$store.dispatch('dapiInvoke', params)
+        console.log(result)
+        if (result && result.transaction) {
+          this.getSellOrder()
+          this.$message({
+            message: '发货成功！',
+            type: 'success',
+            center: true,
+            duration: 2000
+          });
+        } else {
+          this.$message({
+            message: '发货失败，请重试！',
+            type: 'error',
+            center: true,
+            duration: 2000
+          })
+        }
+      } catch (error) {
+        this.$message({
+          message: '发货失败，请重试！',
+          type: 'error',
+          center: true,
+          duration: 2000
+        })
+      }
     },
     indexMethod(index) {
-      return index + 1
+      return (this.pageNum - 1) * this.pageSize + index + 1
     },
     async getSellOrder() {
       try {
-        let res = await this.$http.get(`http://192.168.50.96:10335/api/v1/data-dealer/tools/orders/1?ontid=did:ont:${this.accountid}`)
+        let res = await this.$http.get(`http://192.168.50.96:10335/api/v1/data-dealer/tools/orders/1?ontid=did:ont:${this.accountid}&pageNum=${this.pageNum}&pageSize=${this.pageSize}`)
         console.log('sellerorder', res)
-        if (res.status === 200 && res.data.desc === 'SUCCESS') {
-          this.tableData = res.data.result
+        if (res.status === 200 && res.data.msg === 'SUCCESS') {
+          this.tableData = res.data.result.list
+          this.orderCount = res.data.result.total
         }
       } catch (error) {
         this.tableData = []
@@ -123,30 +154,67 @@ export default {
     },
     async collectMoney(data) {
       // 构造数据
-      let scriptHash = '472848200412d9a7abbb0ed0bfb568a47745e4ba'
       let operation = 'receiveToken'
-      let gasPrice = 500
-      let gasLimit = 30000
-      let requireIdentity = true
-
       // 构造args
-      let exchange_id = data.order_id
+      let exchange_id = data.orderId
       let args = [
         {
           type: 'ByteArray',
           value: exchange_id
         }
       ]
-
-      const result = await client.api.smartContract.invoke({
-        scriptHash,
+      let params = {
         operation,
-        args,
-        gasPrice,
-        gasLimit,
-        requireIdentity
+        args
+      }
+      console.log(params)
+      try {
+        const result = await this.$store.dispatch('dapiInvoke', params)
+        console.log('result', result)
+
+        if (result && result.transaction) {
+          this.getSellOrder()
+          this.$message({
+            message: '收钱成功！',
+            type: 'success',
+            center: true,
+            duration: 2000
+          });
+        } else {
+          this.$message({
+            message: '收钱失败，请重试！',
+            type: 'error',
+            center: true,
+            duration: 2000
+          })
+        }
+      } catch (error) {
+        this.$message({
+          message: '收钱失败，请重试！',
+          type: 'error',
+          center: true,
+          duration: 2000
+        })
+      }
+
+    },
+    handleCurrentChange(val) {
+      this.pageNum = val
+      this.getSellOrder()
+    },
+    openMsgBox(data) {
+      this.$prompt('请输入内容', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        inputPattern: /\S/,
+        inputErrorMessage: '内容不能为空'
+      }).then(({ value }) => {
+        this.toShip(data, value)
+      }).catch(() => {
       });
-      console.log(result)
+    },
+    toAddData() {
+      this.$router.push({ path: 'addnewdata' })
     }
   },
   async  mounted() {
@@ -160,5 +228,8 @@ export default {
 }
 </script>
 
-<style>
+<style lang='less' scoped>
+.paginatio {
+  margin: 20px auto;
+}
 </style>

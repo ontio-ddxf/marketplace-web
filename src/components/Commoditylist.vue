@@ -22,7 +22,7 @@
         <el-table-column prop="createTime" align="center" label="日期" width="200"></el-table-column>
         <el-table-column label="操作" align="center" width="100">
           <template slot-scope="scope">
-            <el-button @click="handleClick(scope.row)" type="text" size="small">点击购买</el-button>
+            <el-button @click="handleClick(scope.row)" type="text" size="small">进入详情</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -46,7 +46,7 @@ export default {
       recordCount: 0,
       searchText: '',
       tableData: [],
-      pageSize: 1,
+      pageSize: 4,
       currentPage: 0
     }
   },

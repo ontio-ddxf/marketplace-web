@@ -61,7 +61,7 @@ export default {
     toOrder() {
       this.$router.push({ path: 'ordercenter' });
     }
-  },
+  }
 }
 </script>
 

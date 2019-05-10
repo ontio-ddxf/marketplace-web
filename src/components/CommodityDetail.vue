@@ -158,7 +158,7 @@ export default {
     async getDetail(id) {
 
       try {
-        let res = await this.$http.get(`http://192.168.50.96:8182/api/v1/dataset/${id}`)
+        let res = await this.$http.get(`${process.env.VUE_APP_SELECT}/api/v1/dataset/${id}`)
         if (res.status === 200 && res.data.msg === 'SUCCESS') {
           this.detailList = res.data.result
         }

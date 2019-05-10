@@ -118,7 +118,7 @@ export default {
       }
       console.log(params)
       try {
-        let res = await this.$http.put('http://192.168.50.96:8182/api/v1/dataset', params)
+        let res = await this.$http.put(process.env.VUE_APP_SELECT + '/api/v1/dataset', params)
         console.log('addnewdata', res)
         if (res && res.data.msg === 'SUCCESS') {
           this.$message({

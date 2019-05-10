@@ -70,7 +70,7 @@ export default {
         ]
       }
       try {
-        let res = await this.$http.post(`http://192.168.50.96:8182/api/v1/dataset`, params)
+        let res = await this.$http.post(`${process.env.VUE_APP_SELECT}/api/v1/dataset`, params)
         console.log(res)
 
         if (res.status === 200 && res.data.msg === 'SUCCESS') {
@@ -93,6 +93,7 @@ export default {
   },
   mounted() {
     this.getSearch()
+    console.log(process.env.VUE_APP_SELECT)
   },
 }
 </script>

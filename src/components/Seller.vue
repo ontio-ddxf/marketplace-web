@@ -142,7 +142,7 @@ export default {
     },
     async getSellOrder() {
       try {
-        let res = await this.$http.get(`http://192.168.50.96:10335/api/v1/data-dealer/tools/orders/1?ontid=did:ont:${this.accountid}&pageNum=${this.pageNum}&pageSize=${this.pageSize}`)
+        let res = await this.$http.get(`${process.env.VUE_APP_ORFDER}/api/v1/data-dealer/tools/orders/1?ontid=did:ont:${this.accountid}&pageNum=${this.pageNum}&pageSize=${this.pageSize}`)
         console.log('sellerorder', res)
         if (res.status === 200 && res.data.msg === 'SUCCESS') {
           this.tableData = res.data.result.list

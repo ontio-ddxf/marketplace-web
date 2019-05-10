@@ -89,7 +89,7 @@ export default {
     },
     async getBuyOrder() {
       try {
-        let res = await this.$http.get(`http://192.168.50.96:10335/api/v1/data-dealer/tools/orders/0?ontid=did:ont:${this.accountid}&pageNum=${this.pageNum}&pageSize=${this.pageSize}`)
+        let res = await this.$http.get(`${process.env.VUE_APP_ORFDER}/api/v1/data-dealer/tools/orders/0?ontid=did:ont:${this.accountid}&pageNum=${this.pageNum}&pageSize=${this.pageSize}`)
         console.log(res)
         if (res.status === 200 && res.data.msg === 'SUCCESS') {
           this.tableData = res.data.result.list
@@ -203,7 +203,7 @@ export default {
     },
     async viewInfo(data) {
       try {
-        let res = await this.$http.get(`http://192.168.50.96:10335/api/v1/data-dealer/tools/data?orderId=${data.orderId}&ontid=did:ont:${this.accountid}`)
+        let res = await this.$http.get(`${process.env.VUE_APP_ORFDER}/api/v1/data-dealer/tools/data?orderId=${data.orderId}&ontid=did:ont:${this.accountid}`)
         console.log('viewInfo', res)
         if (res.status === 200 && res.data.msg === 'SUCCESS') {
           this.openMsgBox(res.data.result[0])

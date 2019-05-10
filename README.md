@@ -15,6 +15,11 @@ npm run serve
 npm run build
 ```
 
+#### Compiles and minifies test environment
+```
+npm run build:dev
+```
+
 #### Run your tests
 ```
 npm run test

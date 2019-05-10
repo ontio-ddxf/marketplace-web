@@ -2,7 +2,7 @@
   <div class="commodity_box">
     <div class="search_box">
       <el-input placeholder="请输入内容" v-model="searchText" class="input-with-select">
-        <el-button slot="append" icon="el-icon-search" @click="getSearch()"></el-button>
+        <el-button slot="append" icon="el-icon-search" @click="searchClick()"></el-button>
       </el-input>
     </div>
     <div class="list_box">
@@ -53,6 +53,10 @@ export default {
   methods: {
     handleClick(row) {
       this.$router.push({ path: 'commoditydetail', query: { commodityId: row.id } });
+    },
+    searchClick() {
+      this.currentPage = 0
+      this.getSearch()
     },
     async getSearch(pageIndex = 0) {
       let params = {

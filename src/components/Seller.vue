@@ -65,6 +65,7 @@
 
 <script>
 import { client } from 'ontology-dapi'
+import { Base64 } from 'js-base64'
 
 export default {
   data() {
@@ -209,6 +210,8 @@ export default {
         inputPattern: /\S/,
         inputErrorMessage: '内容不能为空'
       }).then(({ value }) => {
+        value = Base64.encode(value)
+        console.log('Base64.encode(value)', value)
         this.toShip(data, value)
       }).catch(() => {
       });

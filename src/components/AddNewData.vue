@@ -118,7 +118,7 @@ export default {
       }
       console.log(params)
       try {
-        let res = await this.$http.put(process.env.VUE_APP_SELECT + '/api/v1/dataset', params)
+        let res = await this.$store.dispatch('addCommodity', params)
         console.log('addnewdata', res)
         if (res && res.data.msg === 'SUCCESS') {
           this.$message({
@@ -140,7 +140,7 @@ export default {
 
       } catch (error) {
         this.$message({
-          message: error,
+          message: '商品添加失败',
           type: 'error',
           center: true,
           duration: 2000

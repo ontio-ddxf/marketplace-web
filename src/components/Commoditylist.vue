@@ -69,8 +69,9 @@ export default {
           }
         ]
       }
+      // this.$store.dispatch('getCommodityList', params)
       try {
-        let res = await this.$http.post(`${process.env.VUE_APP_SELECT}/api/v1/dataset`, params)
+        let res = await this.$store.dispatch('getCommodityList', params)
         console.log(res)
 
         if (res.status === 200 && res.data.msg === 'SUCCESS') {
@@ -93,7 +94,6 @@ export default {
   },
   mounted() {
     this.getSearch()
-    console.log(process.env.VUE_APP_SELECT)
   },
 }
 </script>

@@ -89,11 +89,18 @@ export default {
     },
     async getBuyOrder() {
       try {
-        let res = await this.$http.get(`${process.env.VUE_APP_ORFDER}/api/v1/data-dealer/tools/orders/0?ontid=did:ont:${this.accountid}&pageNum=${this.pageNum}&pageSize=${this.pageSize}`)
+        let params = {
+          accountid: this.accountid,
+          pageNum: this.pageNum,
+          pageSize: this.pageSize
+        }
+        let res = await this.$store.dispatch('getBuyOrder', params)
         console.log(res)
         if (res.status === 200 && res.data.msg === 'SUCCESS') {
           this.tableData = res.data.result.list
           this.orderCount = res.data.result.total
+        } else {
+          this.tableData = []
         }
       } catch (error) {
         this.tableData = []
@@ -202,8 +209,12 @@ export default {
       this.getBuyOrder()
     },
     async viewInfo(data) {
+      let params = {
+        orderId: data.orderId,
+        accountid: this.accountid
+      }
       try {
-        let res = await this.$http.get(`${process.env.VUE_APP_ORFDER}/api/v1/data-dealer/tools/data?orderId=${data.orderId}&ontid=did:ont:${this.accountid}`)
+        let res = await this.$store.dispatch('getViewInfo', params)
         console.log('viewInfo', res)
         if (res.status === 200 && res.data.msg === 'SUCCESS') {
           this.openMsgBox(res.data.result[0])

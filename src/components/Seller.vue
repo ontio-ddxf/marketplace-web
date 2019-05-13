@@ -141,12 +141,20 @@ export default {
       return (this.pageNum - 1) * this.pageSize + index + 1
     },
     async getSellOrder() {
+      let params = {
+        accountid: this.accountid,
+        pageNum: this.pageNum,
+        pageSize: this.pageSize
+      }
       try {
-        let res = await this.$http.get(`${process.env.VUE_APP_ORFDER}/api/v1/data-dealer/tools/orders/1?ontid=did:ont:${this.accountid}&pageNum=${this.pageNum}&pageSize=${this.pageSize}`)
+        this.$store.dispatch('getSellOrderData', params)
+        let res = await this.$store.dispatch('getSellOrderData', params)
         console.log('sellerorder', res)
         if (res.status === 200 && res.data.msg === 'SUCCESS') {
           this.tableData = res.data.result.list
           this.orderCount = res.data.result.total
+        } else {
+          this.tableData = []
         }
       } catch (error) {
         this.tableData = []

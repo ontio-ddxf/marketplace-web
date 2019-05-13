@@ -93,7 +93,7 @@ export default {
         }
       ]
 
-      let wait_send_msg_time = 120
+      let wait_send_msg_time = 6000
 
       let args = [
         {
@@ -156,9 +156,12 @@ export default {
       }
     },
     async getDetail(id) {
-
+      let params = {
+        id
+      }
       try {
-        let res = await this.$http.get(`${process.env.VUE_APP_SELECT}/api/v1/dataset/${id}`)
+        // this.$store.dispatch('getCommodityDetail', params)
+        let res = await this.$store.dispatch('getCommodityDetail', params)
         if (res.status === 200 && res.data.msg === 'SUCCESS') {
           this.detailList = res.data.result
         }

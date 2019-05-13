@@ -7,6 +7,7 @@ import AddNewData from './components/AddNewData'
 
 Vue.use(Router)
 const router = new Router({
+  // mode: 'history',
   routes: [
     {
       path: '/',
@@ -29,6 +30,10 @@ const router = new Router({
           component: AddNewData
         }
       ]
+    },
+    {
+      path: '*',
+      redirect: '/'
     }
   ]
 })

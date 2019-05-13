@@ -15,7 +15,7 @@ npm run serve
 npm run build
 ```
 
-#### Compiles and minifies test environment
+#### Compiles and minifies for test environment
 ```
 npm run build:dev
 ```

@@ -12,6 +12,7 @@
     "core-js": "^2.6.5",
     "element-ui": "^2.8.2",
     "js-base64": "^2.5.1",
+    "js-sha256": "^0.9.0",
     "ontology-dapi": "^0.4.7",
     "vue": "^2.6.10",
     "vue-router": "^3.0.3",

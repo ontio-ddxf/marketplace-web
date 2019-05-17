@@ -49,6 +49,8 @@ export default new Vuex.Store({
     },
     async addCommodity({ dispatch, commit }, params) {
       try {
+        console.log(params);
+
         return await axios.put(
           process.env.VUE_APP_SELECT + "/api/v1/dataset",
           params
@@ -102,6 +104,57 @@ export default new Vuex.Store({
         );
       } catch (error) {
         return error;
+      }
+    },
+    async getCertifier() {
+      try {
+        return await axios.get(
+          process.env.VUE_APP_SELECT + "/api/v1/certifier"
+        );
+      } catch (error) {
+        return error;
+      }
+    },
+    async getJudger() {
+      try {
+        return await axios.get(process.env.VUE_APP_SELECT + "/api/v1/judger");
+      } catch (error) {
+        return error;
+      }
+    },
+    async getCertData({ dispatch, commit }, params) {
+      try {
+        return await axios.get(
+          `${process.env.VUE_APP_SELECT}/api/v1/certifier/${params}`
+        );
+      } catch (error) {
+        return error;
+      }
+    },
+    async toCert({ dispatch, commit }, params) {
+      try {
+        return await axios.post(
+          `${process.env.VUE_APP_SELECT}/api/v1/certifier`,
+          params
+        );
+      } catch (error) {
+        return error;
+      }
+    },
+    async getSellData({ dispatch, commit }, params) {
+      try {
+        return await axios.get(
+          `${process.env.VUE_APP_SELECT}/api/v1/dataset/provider/${params}`
+        );
+      } catch (error) {
+        return error;
+      }
+    },
+    async prodOperat({ dispatch, commit }, params) {
+      try {
+        return await axios.post(`${process.env.VUE_APP_SELECT}/api/v1/dataset/${params}`)
+      } catch (error) {
+        return error
       }
     }
   }

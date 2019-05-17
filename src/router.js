@@ -4,6 +4,8 @@ import Layout from './views/Layout.vue'
 import CommodityDetail from './components/CommodityDetail'
 import OrderCenter from './components/OrderCenter'
 import AddNewData from './components/AddNewData'
+import CommodityManage from './components/CommodityManage'
+import EditData from './components/EditData'
 
 Vue.use(Router)
 const router = new Router({
@@ -28,6 +30,16 @@ const router = new Router({
           path: 'addnewdata',
           name: 'addnewdata',
           component: AddNewData
+        },
+        {
+          path: 'commoditymanage',
+          name: 'commoditymanage',
+          component: CommodityManage
+        },
+        {
+          path: 'editdata',
+          name: 'editdata',
+          component: EditData
         }
       ]
     },

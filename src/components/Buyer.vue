@@ -28,6 +28,7 @@
       <el-table-column prop="buyDate" label="购买日期" width="180" align="center"></el-table-column>
       <el-table-column label="操作" width="180" align="center">
         <template slot-scope="scope">
+          <el-button size='mini' @click="toAppeal(scope.row)">申诉</el-button>
           <el-button
             size="medium"
             type="success"
@@ -35,7 +36,7 @@
             @click="confirmReceipt(scope.row)"
           >确认收货</el-button>
           <el-button
-            size="medium"
+            size="mini"
             type="success"
             v-else-if="scope.row.isRecvMsg === 0 && scope.row.state === 'sellerRecvTokenOnchain'"
             @click="confirmReceipt(scope.row)"
@@ -46,7 +47,7 @@
             type="danger"
             v-else-if="scope.row.state === 'buyerCancelOnchain'"
           >订单已取消</el-tag>
-          <el-button @click="cancelOrder(scope.row)" type="danger" v-else>取消订单</el-button>
+          <el-button @click="cancelOrder(scope.row)" size="mini" type="danger" v-else>取消订单</el-button>
           <el-button
             style="margin-top: 6px;"
             @click="viewInfo(scope.row)"
@@ -242,6 +243,10 @@ export default {
         callback: action => {
         }
       });
+    },
+    toAppeal(data) {
+      console.log(data);
+      
     }
   },
   async mounted() {

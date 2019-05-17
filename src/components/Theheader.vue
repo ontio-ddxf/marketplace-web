@@ -1,8 +1,21 @@
 <template>
   <div class="header_layout">
-    <el-button round size="small" v-show="userAccount" @click="toOrder()">订单中心</el-button>
+    <div class="dropList" v-show="userAccount">
+      <el-dropdown @command="toOrder">
+      <span class="el-dropdown-link">
+        个人中心
+        <i class="el-icon-arrow-down el-icon--right"></i>
+      </span>
+      <el-dropdown-menu slot="dropdown" style="top:auto; top: 40px; padding-bottom: 0;">
+        <el-dropdown-item command="ordercenter">订单中心</el-dropdown-item>
+        <el-dropdown-item command="commoditymanage">商品管理</el-dropdown-item>
+      </el-dropdown-menu>
+    </el-dropdown>
+    </div>
+    
+    <!-- <el-button round size="small" v-show="userAccount" @click="toOrder()">订单中心</el-button> -->
     <el-button round size="small" v-if="userAccount" @click="LoginOut()">退出</el-button>
-    <el-button round size="small" :disabled="logining" v-else @click="getIdenty()">登陆</el-button>
+    <el-button round size="small" :disabled="logining" v-else @click="getIdenty()">登录</el-button>
     <span class="userAccount">{{userAccount}}</span>
   </div>
 </template>
@@ -37,6 +50,19 @@ export default {
     async getIdenty() {
       try {
         this.logining = true
+        let message = 'Welcome to MarketPlace'
+        let result = await client.api.message.signMessage({ message });
+        if (!result.data || !result.publicKey) {
+          this.$message({
+          message: '登陆失败，请重试！',
+          type: 'error',
+          center: true,
+          duration: 2000
+        });
+        this.logining = false
+        }
+        // console.log(result);
+        // return
         let res = await client.api.identity.getIdentity()
         sessionStorage.setItem("user_ontid", res)
         this.userAccount = res
@@ -58,8 +84,9 @@ export default {
         this.logining = false
       }
     },
-    toOrder() {
-      this.$router.push({ path: 'ordercenter' });
+    toOrder(command) {
+      console.log(command)
+      this.$router.push({ path: command });
     }
   }
 }
@@ -83,5 +110,14 @@ export default {
     height: 60px;
     line-height: 60px;
   }
+
+  .dropList {
+    float: right;
+    height: 60px;
+    line-height: 60px;
+  }
+}
+.el-dropdown-menu {
+  top: 40px !important;
 }
 </style>

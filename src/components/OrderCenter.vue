@@ -10,6 +10,12 @@
       <el-tab-pane label="卖家中心" name="second">
         <Seller></Seller>
       </el-tab-pane>
+      <el-tab-pane label="认证中心" name="third">
+        <Certifier></Certifier>
+      </el-tab-pane>
+      <el-tab-pane label="仲裁中心" name="fourth">
+        <Judger></Judger>
+      </el-tab-pane>
     </el-tabs>
   </div>
 </template>
@@ -17,9 +23,11 @@
 <script>
 import Buyer from './Buyer'
 import Seller from './Seller'
+import Certifier from './Certifier'
+import Judger from './Judger'
 export default {
   components: {
-    Buyer, Seller
+    Buyer, Seller, Certifier, Judger
   },
   data() {
     return {

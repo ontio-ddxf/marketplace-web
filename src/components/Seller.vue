@@ -1,6 +1,5 @@
 <template>
   <div>
-    <el-button style="margin-bottom: 20px; float: right;" @click="toAddData()" type="primary">新增商品</el-button>
     <el-table border :data="tableData" style="width: 100%">
       <el-table-column type="index" :index="indexMethod" align="center"></el-table-column>
       <el-table-column prop="dataDemander" label="买家" style="width: 20%" align="center"></el-table-column>
@@ -32,12 +31,14 @@
           <el-button
             @click="collectMoney(scope.row)"
             type="primary"
+            size="mini"
             v-if="scope.row.state === 'deliveredOnchain' && scope.row.isRecvToken === 0"
           >收款</el-button>
           <el-button
             @click="collectMoney(scope.row)"
             type="primary"
             v-else-if="scope.row.state === 'buyerRecvMsgOnchain' && scope.row.isRecvToken === 0"
+            size="mini"
           >收款</el-button>
           <el-tag size="medium" type="info" v-else-if="scope.row.isRecvToken === 1">订单已完成</el-tag>
           <el-tag
@@ -46,7 +47,7 @@
             v-else-if="scope.row.state === 'buyerCancelOnchain'"
           >订单已取消</el-tag>
           <!-- <el-button @click="toShip(scope.row)" type="primary" v-else>立即发货</el-button> -->
-          <el-button @click="openMsgBox(scope.row)" type="primary" v-else>立即发货</el-button>
+          <el-button @click="openMsgBox(scope.row)" type="primary" v-else size="mini">立即发货</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -223,9 +224,6 @@ export default {
         this.toShip(data, value)
       }).catch(() => {
       });
-    },
-    toAddData() {
-      this.$router.push({ path: 'addnewdata' })
     }
   },
   async  mounted() {

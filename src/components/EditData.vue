@@ -1,6 +1,6 @@
 <template>
   <div class="addBox">
-    <h2>新增商品</h2>
+    <h2>修改商品</h2>
     <div style="overflow: hidden; margin-bottom: 20px;">
       <el-button @click="toIndex()" type="primary" plain style="float: right">返回首页</el-button>
     </div>
@@ -83,11 +83,7 @@
         </el-form-item>
         <!-- 仲裁方 -->
         <el-form-item label="仲裁方">
-          <el-select
-            style="float: left;"
-            v-model="dynamicValidateForm.judger"
-            placeholder="请选择仲裁方"
-          >
+          <el-select style="float: left;" v-model="dynamicValidateForm.judger" placeholder="请选择仲裁方">
             <el-option
               v-for="item in judgerArr"
               :key="item.id"
@@ -126,9 +122,10 @@
         </el-form-item>
 
         <el-form-item>
-          <el-button type="primary" @click="submitForm('dynamicValidateForm')">添加</el-button>
+          <el-button type="primary" @click="submitForm('dynamicValidateForm')">修改</el-button>
           <el-button @click="addtag">新增标签</el-button>
           <el-button @click="resetForm('dynamicValidateForm')">重置</el-button>
+          <el-button @click="back()">取消修改</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -164,9 +161,7 @@ export default {
   data() {
     return {
       dynamicValidateForm: {
-        tags: [{
-          value: ''
-        }],
+        tags: [],
         price: '',
         coin: 'ONG',
         data: {
@@ -197,9 +192,9 @@ export default {
         datePublished: new Date()
       },
       ont_id: null,
-      certifierArr: [
-      ],
-      judgerArr: []
+      certifierArr: [],
+      judgerArr: [],
+      detailList: { data: {} }
     };
   },
   methods: {
@@ -253,11 +248,15 @@ export default {
       }
       try {
         console.log('asdfasdfasdf', this.dataParams)
+        // to do add data id
+        this.dataParams.id = this.detailList.id
+        console.log('this.dataParams', this.dataParams);
+        // return
         let res = await this.$store.dispatch('addCommodity', this.dataParams)
         console.log('addnewdata', res)
         if (res && res.data.msg === 'SUCCESS') {
           this.$message({
-            message: '商品添加成功',
+            message: '商品修改成功',
             type: 'success',
             center: true,
             duration: 2000
@@ -266,7 +265,7 @@ export default {
         } else {
           console.log('err1')
           this.$message({
-            message: '商品添加失败',
+            message: '商品修改失败',
             type: 'error',
             center: true,
             duration: 2000
@@ -276,7 +275,7 @@ export default {
       } catch (error) {
         console.log('err2')
         this.$message({
-          message: '商品添加失败',
+          message: '商品修改失败',
           type: 'error',
           center: true,
           duration: 2000
@@ -333,9 +332,60 @@ export default {
     },
     toDataId() {
       this.dynamicValidateForm.data.dataId = uuid()
+    },
+    async getDetail(id) {
+      let params = {
+        id
+      }
+      try {
+        let res = await this.$store.dispatch('getCommodityDetail', params)
+        if (res.status === 200 && res.data.msg === 'SUCCESS') {
+          this.detailList = res.data.result
+          console.log('this.detailList', this.detailList)
+          //   tags: [{
+          //   value: ''
+          // }],
+          // price: '',
+          // coin: 'ONG',
+          // data: {
+          //   dataId: null,
+          //   name: null,
+          //   desc: null,
+          //   token: null,
+          //   keywords: [],
+          //   img: null,
+          //   metadata: null
+          // },
+          // certifier: '',
+          // judger: ''
+          this.dynamicValidateForm.certifier = this.detailList.certifier
+          this.dynamicValidateForm.judger = this.detailList.judger
+          // this.dynamicValidateForm.price = new Number(this.detailList.price)
+          this.dynamicValidateForm.price = +this.detailList.price
+          this.dynamicValidateForm.coin = this.detailList.coin
+          this.dynamicValidateForm.data.name = this.detailList.data.name
+          this.dynamicValidateForm.data.desc = this.detailList.data.desc
+          this.dynamicValidateForm.data.img = this.detailList.data.img
+
+          this.detailList.data.keywords.map(x => {
+            let a = {}
+            a.value = x
+            console.log(x)
+            this.dynamicValidateForm.tags.push(a)
+          })
+          console.log(this.dynamicValidateForm)
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    back() {
+      this.$router.go(-1)
     }
   },
   async mounted() {
+    console.log(this.$route.query.commodityId)
+
     this.accountid = await client.api.asset.getAccount()
     this.ont_id = await client.api.identity.getIdentity()
     try {
@@ -365,6 +415,9 @@ export default {
       this.judgerArr = []
       this.dynamicValidateForm.judger = ''
     }
+
+    let data_id = this.$route.query.commodityId
+    this.getDetail(data_id)
   },
   computed: {
     dataParams() {

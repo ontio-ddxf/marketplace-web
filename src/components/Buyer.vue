@@ -96,7 +96,7 @@ export default {
           pageSize: this.pageSize
         }
         let res = await this.$store.dispatch('getBuyOrder', params)
-        console.log(res)
+        // console.log(res)
         if (res.status === 200 && res.data.msg === 'SUCCESS') {
           this.tableData = res.data.result.list
           this.orderCount = res.data.result.total
@@ -109,7 +109,7 @@ export default {
 
     },
     async cancelOrder(data) {   // 取消订单
-      console.log(data)
+      // console.log(data)
       // 构造数据
       let operation = 'cancelExchange'
 
@@ -159,7 +159,7 @@ export default {
 
     },
     async confirmReceipt(data) {   //  确认收货
-      console.log(data)
+      // console.log(data)
       // 构造数据
       let operation = 'receiveEncMessage'
       // 构造args

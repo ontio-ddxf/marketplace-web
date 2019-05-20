@@ -318,8 +318,8 @@ export default {
             })
             return
           }
-          console.log(this.metadata)
-          console.log(this.dataParams)
+          // console.log(this.metadata)
+          // console.log(this.dataParams)
           this.dataParams.data.dToken = ''
           this.dynamicValidateForm.data.token = sha256(JSON.stringify(this.dataParams))
           this.dataParams.data.dToken = this.dynamicValidateForm.data.token

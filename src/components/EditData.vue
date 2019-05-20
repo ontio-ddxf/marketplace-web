@@ -342,25 +342,8 @@ export default {
         if (res.status === 200 && res.data.msg === 'SUCCESS') {
           this.detailList = res.data.result
           console.log('this.detailList', this.detailList)
-          //   tags: [{
-          //   value: ''
-          // }],
-          // price: '',
-          // coin: 'ONG',
-          // data: {
-          //   dataId: null,
-          //   name: null,
-          //   desc: null,
-          //   token: null,
-          //   keywords: [],
-          //   img: null,
-          //   metadata: null
-          // },
-          // certifier: '',
-          // judger: ''
           this.dynamicValidateForm.certifier = this.detailList.certifier
           this.dynamicValidateForm.judger = this.detailList.judger
-          // this.dynamicValidateForm.price = new Number(this.detailList.price)
           this.dynamicValidateForm.price = +this.detailList.price
           this.dynamicValidateForm.coin = this.detailList.coin
           this.dynamicValidateForm.data.name = this.detailList.data.name
@@ -370,7 +353,6 @@ export default {
           this.detailList.data.keywords.map(x => {
             let a = {}
             a.value = x
-            console.log(x)
             this.dynamicValidateForm.tags.push(a)
           })
           console.log(this.dynamicValidateForm)
@@ -384,8 +366,6 @@ export default {
     }
   },
   async mounted() {
-    console.log(this.$route.query.commodityId)
-
     this.accountid = await client.api.asset.getAccount()
     this.ont_id = await client.api.identity.getIdentity()
     try {

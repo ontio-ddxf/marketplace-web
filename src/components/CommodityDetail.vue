@@ -74,7 +74,7 @@ export default {
     }
   },
   created() {
-    console.log(this.$route.query.commodityId)
+    // console.log(this.$route.query.commodityId)
     let id = this.$route.query.commodityId
     this.getDetail(id)
     this.isCert = sessionStorage.getItem('isCert')

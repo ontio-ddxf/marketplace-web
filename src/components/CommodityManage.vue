@@ -84,17 +84,13 @@ export default {
   },
   methods: {
     certificatKYC() {
-      console.log(123123)
-      // return
       let callback_url = window.location.origin + '/#/commoditymanage';
-      // let appontid = 'did:ont:ANqiHycikgyzkfz36faP5ymXLVg1uovhXh';
       let access_token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJhdWQiOiJkaWQ6b250OkFQZUUxcGlKcmhzRVRncG5nSHNUM2htdXZyakFpRFF0NE4iLCJpc3MiOiJkaWQ6b250OkFkajdXNVoyaFRlS0g3WXdKc2ZNekx1d2lENjcxbXZKNlgiLCJleHAiOjE1NTc5OTM3MDEsImlhdCI6MTU1NzkwNzMwMSwianRpIjoiZmY2MWIyNDdmZTZjNGFlNjg3MDNlNjJlZDMxYTM0ODgiLCJjb250ZW50Ijp7InR5cGUiOiJhY2Nlc3NfdG9rZW4iLCJvbnRpZCI6ImRpZDpvbnQ6QWF0YmdWMThhOExRMkhhZWJ6cVEzZmtqUnFURzV0V0FHcSJ9fQ.MDEwYWY0OWI4ZmFhZDRhZjM1MDhmMjg2MGFlYTI3MjZhZDE2NGVhNDIyYjgzNTU0N2U1ODVlODA3ZTRlOWE2MGY1MDE0ZjVjNmZmNWJlODIxNTc5NmZlODVjY2UzMDcxNzI5ZTczNzU4MDA2MGIyN2NhZTlmMzlmMWVmYjFkNDA2NQ'
       let ontid = 'did:ont:AatbgV18a8LQ2HaebzqQ3fkjRqTG5tWAGq'
       console.log(ontid + '&' + access_token + '&' + callback_url + '&' + 'zh')
       let value = window.encodeURIComponent(ontid + '&' + access_token + '&' + callback_url + '&' + 'zh');
       console.log(value)
-      window.location.href = 'https://kyc.ont.io/#/' + value;
-      console.log(123123)
+      window.location.href = 'https://kyc.ont.io/#/mgmtHome?params=' + value;
     },
     async walletAddress() {
       this.address = await client.api.asset.getAccount()
@@ -133,14 +129,10 @@ export default {
         let res = await this.$store.dispatch('prodOperat', row.id)
         console.log(res);
         if (res.status === 200 && res.data.msg === "SUCCESS") {
-          // setTimeout(()=> {
-          //   console.log('over')
-          // },3000)
-            this.getSellData()
-          
+          this.getSellData()
         }
       } catch (error) {
-        // return error
+        return error
       }
     }
   },

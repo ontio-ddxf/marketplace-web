@@ -34,3 +34,6 @@ new Vue({
   store,
   render: h => h(App)
 }).$mount('#app')
+
+
+localStorage.setItem('net', 'TEST_NET');

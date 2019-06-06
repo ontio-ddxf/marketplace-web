@@ -19,11 +19,11 @@
         <p>标签:</p>
         <el-tag v-for="(item, idx) in detailList.data.keywords" :key="idx">{{item}}</el-tag>
       </div>
-      <div class="item">
+      <div class="item" v-show="detailList.coin">
         <p>币种:</p>
         {{detailList.coin}}
       </div>
-      <div class="item">
+      <div class="item" v-show="detailList.price">
         <p>价格:</p>
         {{detailList.price}}
       </div>
@@ -40,15 +40,12 @@
         <el-tag type="info" v-if="detailList.isCertificated === 0">认证中</el-tag>
         <el-tag type="success" v-else>已认证</el-tag>
       </div>
-      <div class="item">
-        <p>仲裁方:</p>
-        {{detailList.judger}}
-      </div>
-      <div class="item">
+      
+      <div class="item" v-show="detailList.data.dToken">
         <p>dToken:</p>
         {{detailList.data.dToken}}
       </div>
-      <div class="item">
+      <div class="item" v-show="detailList.data.dataId">
         <p>dataId:</p>
         {{detailList.data.dataId}}
       </div>
@@ -57,8 +54,9 @@
         {{detailList.createTime}}
       </div>
     </div>
-    <el-button type="success" :disabled="signing" round v-if="isCert" @click="toCert()">立即认证</el-button>
-    <el-button type="success" :disabled="signing" v-else @click="toBuy()" round>立即购买</el-button>
+    <el-button type="success" :disabled="signing" round v-if="isCert === 0" @click="toCert()">立即认证</el-button>
+    <el-button type="success" :disabled="signing" round v-else-if="isCert === 1">认证成功</el-button>
+    <el-button type="success" :disabled="signing" v-else round>详情</el-button>
   </div>
 </template>
 
@@ -70,15 +68,15 @@ export default {
     return {
       signing: false,
       detailList: { data: {} },
-      isCert: null
+      isCert: null,
+      OJlist: null
     }
   },
   created() {
-    // console.log(this.$route.query.commodityId)
     let id = this.$route.query.commodityId
     this.getDetail(id)
-    this.isCert = sessionStorage.getItem('isCert')
-    sessionStorage.removeItem('isCert')
+    this.isCert = +sessionStorage.getItem('isCert')
+    console.log(this.isCert)
   },
   methods: {
     toIndex() {
@@ -201,6 +199,7 @@ export default {
       }
       try {
         let res = await this.$store.dispatch('getCommodityDetail', params)
+        console.log(res)
         if (res.status === 200 && res.data.msg === 'SUCCESS') {
           this.detailList = res.data.result
         }
@@ -213,6 +212,8 @@ export default {
       params.id = this.detailList.id
       params.certifier = this.detailList.certifier
       try {
+        console.log('params', params)
+        // return
         let res = await this.$store.dispatch('toCert', params)
         console.log(res);
         if (res.status === 200 && res.data.msg === 'SUCCESS') {
@@ -222,6 +223,8 @@ export default {
             center: true,
             duration: 2000
           });
+          sessionStorage.setItem('isCert', 1)
+          this.isCert = 1
           window.location.reload();
         } else {
           this.$message({

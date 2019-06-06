@@ -2,20 +2,21 @@
   <div class="header_layout">
     <div class="dropList" v-show="userAccount">
       <el-dropdown @command="toOrder">
-      <span class="el-dropdown-link">
-        个人中心
-        <i class="el-icon-arrow-down el-icon--right"></i>
-      </span>
-      <el-dropdown-menu slot="dropdown" style="top:auto; top: 40px; padding-bottom: 0;">
-        <el-dropdown-item command="ordercenter">订单中心</el-dropdown-item>
-        <el-dropdown-item command="commoditymanage">商品管理</el-dropdown-item>
-      </el-dropdown-menu>
-    </el-dropdown>
+        <span class="el-dropdown-link">
+          个人中心
+          <i class="el-icon-arrow-down el-icon--right"></i>
+        </span>
+        <el-dropdown-menu slot="dropdown" style="top:auto; top: 40px; padding-bottom: 0;">
+          <el-dropdown-item command="ordercenter">订单中心</el-dropdown-item>
+          <el-dropdown-item command="commoditymanage">商品管理</el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
     </div>
-    
+
     <!-- <el-button round size="small" v-show="userAccount" @click="toOrder()">订单中心</el-button> -->
     <el-button round size="small" v-if="userAccount" @click="LoginOut()">退出</el-button>
     <el-button round size="small" :disabled="logining" v-else @click="getIdenty()">登录</el-button>
+    <el-button round size="small" v-show="!userAccount" @click="toRegister()">注册</el-button>
     <span class="userAccount">{{userAccount}}</span>
   </div>
 </template>
@@ -30,7 +31,7 @@ export default {
     }
   },
   created() {
-    this.userAccount = sessionStorage.getItem('user_ontid')
+    this.userAccount = sessionStorage.getItem('ons')
   },
   methods: {
     LoginOut() {
@@ -41,6 +42,7 @@ export default {
       }).then(() => {//确定
         sessionStorage.removeItem("user_ontid");
         sessionStorage.removeItem("access_token");
+        sessionStorage.removeItem("ons");
         this.userAccount = '';
         this.$router.push({ path: '/' });
       }).catch(() => {
@@ -52,28 +54,54 @@ export default {
         this.logining = true
         let message = 'Welcome to MarketPlace'
         let result = await client.api.message.signMessage({ message });
+        console.log(result)
         if (!result.data || !result.publicKey) {
           this.$message({
-          message: '登陆失败，请重试！',
-          type: 'error',
-          center: true,
-          duration: 2000
-        });
-        this.logining = false
+            message: '登陆失败，请重试！',
+            type: 'error',
+            center: true,
+            duration: 2000
+          });
+          this.logining = false
+          return
         }
         // console.log(result);
         // return
         let res = await client.api.identity.getIdentity()
-        sessionStorage.setItem("user_ontid", res)
-        this.userAccount = res
-        this.logining = false
-        this.$message({
-          message: '登陆成功',
-          type: 'success',
-          center: true,
-          duration: 2000
-        });
-        this.$router.push({ path: '/' });
+
+        try {
+          let result = await this.$store.dispatch('login', res)
+          if (result.data.result) {
+            sessionStorage.setItem("ons", result.data.result)
+            sessionStorage.setItem("user_ontid", res)
+            this.userAccount = result.data.result
+            this.logining = false
+            this.$message({
+              message: '登陆成功',
+              type: 'success',
+              center: true,
+              duration: 2000
+            });
+            this.$router.push({ path: '/' });
+          } else {
+            this.logining = false
+            this.$message({
+              message: 'ONT ID 未注册，请先注册！',
+              type: 'warning',
+              center: true,
+              duration: 2000
+            });
+            this.$router.push({ path: 'register' });
+          }
+        } catch (error) {
+          this.$message({
+            message: '登陆失败，请重试！',
+            type: 'error',
+            center: true,
+            duration: 2000
+          });
+          this.logining = false
+        }
       } catch (error) {
         this.$message({
           message: '登陆失败，请重试！',
@@ -87,6 +115,9 @@ export default {
     toOrder(command) {
       console.log(command)
       this.$router.push({ path: command });
+    },
+    toRegister() {
+      this.$router.push({ path: 'register' });
     }
   }
 }

@@ -27,5 +27,9 @@ export default {
 .layout {
   width: 80%;
   margin: 0 auto;
+  height: 100%;
+  .el-container {
+    height: 100%;
+  }
 }
 </style>

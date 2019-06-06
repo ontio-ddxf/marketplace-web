@@ -13,8 +13,6 @@
             >{{item}}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="coin" align="center" label="币种" width="80"></el-table-column>
-        <el-table-column prop="price" align="center" label="价格" width="80"></el-table-column>
         <el-table-column prop="createTime" align="center" label="日期" width="200"></el-table-column>
         <el-table-column label="操作" align="center" width="100">
           <template slot-scope="scope">
@@ -41,12 +39,16 @@ export default {
       return idx + 1
     },
     async  getCertData() {
-      let params = this.ontid
+      let params = {
+        ontid: this.ontid,
+        pageNum: 0,
+        pageSize: 10
+      }
       try {
         let res = await this.$store.dispatch('getCertData', params)
         console.log('certifier', res)
         if (res.status === 200 && res.data.msg === 'SUCCESS') {
-          this.tableData = res.data.result
+          this.tableData = res.data.result.recordList
         } else {
           this.tableData = []
         }
@@ -55,7 +57,7 @@ export default {
       }
     },
     handleClick(row) {
-      sessionStorage.setItem('isCert', true)
+      sessionStorage.setItem('isCert', 0)
       this.$router.push({ path: 'commoditydetail', query: { commodityId: row.id } });
     }
   },

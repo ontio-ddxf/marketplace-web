@@ -8,17 +8,17 @@
     <div class="list_box">
       <el-table :data="tableData" border style="width: 100%">
         <el-table-column type="index" align="center" width="50" :index="indexMethod"></el-table-column>
-        <el-table-column prop="data.name" align="center" label="商品名" width="180"></el-table-column>
+        <el-table-column prop="name" align="center" label="商品名" width="180"></el-table-column>
         <el-table-column align="center" label="标签">
           <template slot-scope="scope">
             <el-tag
               style="margin-right: 10px;"
-              v-for="(item, idx) in scope.row.data.keywords"
+              v-for="(item, idx) in scope.row.keywords"
               :key="idx"
             >{{item}}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="coin" align="center" label="币种" width="80"></el-table-column>
+        <el-table-column align="center" label="币种" width="80">ONG</el-table-column>
         <el-table-column prop="price" align="center" label="价格" width="80"></el-table-column>
         <el-table-column prop="createTime" align="center" label="日期" width="200"></el-table-column>
         <el-table-column label="操作" align="center" width="100">
@@ -47,21 +47,23 @@ export default {
       recordCount: 0,
       searchText: '',
       tableData: [],
-      pageSize: 4,
+      pageSize: 10,
       currentPage: 0
     }
   },
   methods: {
     handleClick(row) {
-      this.$router.push({ path: 'commoditydetail', query: { commodityId: row.id } });
+      console.log(row)
+      sessionStorage.setItem('orderData', JSON.stringify(row))
+      this.$router.push({ path: 'orderdetail' });
     },
     searchClick() {
       this.currentPage = 0
       this.getSearch()
     },
-    async getSearch(pageIndex = 0) {
+    async getSearch(pageNum = 0) {
       let params = {
-        pageIndex,
+        pageNum,
         pageSize: this.pageSize,
         queryParams: [
           {
@@ -77,7 +79,11 @@ export default {
 
         if (res.status === 200 && res.data.msg === 'SUCCESS') {
           this.tableData = res.data.result.recordList
+          this.tableData.map((item, idx) => {
+            item.price = item.price*Math.pow(10, -9)
+          })
           this.recordCount = res.data.result.recordCount
+          console.log('this.tableData', this.tableData)
         } else {
           this.tableData = []
         }

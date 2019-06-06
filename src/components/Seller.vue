@@ -2,52 +2,24 @@
   <div>
     <el-table border :data="tableData" style="width: 100%">
       <el-table-column type="index" :index="indexMethod" align="center"></el-table-column>
-      <el-table-column prop="dataDemander" label="买家" style="width: 20%" align="center"></el-table-column>
+      <el-table-column prop="demanderOntid" label="买家" style="width: 20%" align="center"></el-table-column>
       <el-table-column prop="orderId" label="订单号" width="260" align="center"></el-table-column>
-      <el-table-column label="订单状态" align="center" width="180">
+      <el-table-column prop="boughtTime" label="购买日期" width="180" align="center"></el-table-column>
+       <el-table-column label="状态" width="180" align="center">
         <template slot-scope="scope">
-          <el-tag size="medium" v-if="scope.row.state === 'boughtOnchain'">待发货</el-tag>
-          <el-tag
-            size="medium"
-            type="success"
-            v-else-if="scope.row.state === 'deliveredOnchain'"
-          >已发货</el-tag>
-          <el-tag
-            size="medium"
-            type="warning"
-            v-else-if="scope.row.state === 'buyerRecvMsgOnchain'"
-          >买家已收货</el-tag>
-          <el-tag
-            size="medium"
-            type="danger"
-            v-else-if="scope.row.state === 'sellerRecvTokenOnchain'"
-          >已收钱</el-tag>
-          <el-tag size="medium" type="info" v-else>订单已取消</el-tag>
-        </template>
+          <el-tag size="medium" type="info" v-if="scope.row.state == 1">正在出售</el-tag> 
+          <el-tag size="medium" type="info" v-else-if="scope.row.state == 2">已下单</el-tag> 
+          <el-tag size="medium" type="info" v-else-if="scope.row.state == 3">交易完成</el-tag> 
+          <el-tag size="medium" type="info" v-else-if="scope.row.state == 4">仲裁中</el-tag> 
+          <el-tag size="medium" type="info" v-else>仲裁结束</el-tag> 
+          </template>
       </el-table-column>
-      <el-table-column prop="buyDate" label="购买日期" width="180" align="center"></el-table-column>
       <el-table-column label="操作" width="180" align="center">
         <template slot-scope="scope">
-          <el-button
-            @click="collectMoney(scope.row)"
-            type="primary"
-            size="mini"
-            v-if="scope.row.state === 'deliveredOnchain' && scope.row.isRecvToken === 0"
-          >收款</el-button>
-          <el-button
-            @click="collectMoney(scope.row)"
-            type="primary"
-            v-else-if="scope.row.state === 'buyerRecvMsgOnchain' && scope.row.isRecvToken === 0"
-            size="mini"
-          >收款</el-button>
-          <el-tag size="medium" type="info" v-else-if="scope.row.isRecvToken === 1">订单已完成</el-tag>
-          <el-tag
-            size="medium"
-            type="danger"
-            v-else-if="scope.row.state === 'buyerCancelOnchain'"
-          >订单已取消</el-tag>
-          <!-- <el-button @click="toShip(scope.row)" type="primary" v-else>立即发货</el-button> -->
-          <el-button @click="openMsgBox(scope.row)" type="primary" v-else size="mini">立即发货</el-button>
+          <el-button v-show="scope.row.state == 2 && scope.row.isExpired == 1" @click="collectMoney(scope.row)" type="primary">收款</el-button>
+          <!-- <el-button  type="success">订单已完成</el-button> -->
+          <!-- <el-button v-else type="info">正在出售</el-button> -->
+          <!-- <el-button @click="openMsgBox(scope.row)" type="primary" v-else size="mini">立即发货</el-button> -->
         </template>
       </el-table-column>
     </el-table>
@@ -67,6 +39,7 @@
 <script>
 import { client } from 'ontology-dapi'
 import { Base64 } from 'js-base64'
+import { OntidContract, TransactionBuilder, TxSignature, Identity, Crypto, RestClient, utils } from 'ontology-ts-sdk';
 
 export default {
   data() {
@@ -74,8 +47,8 @@ export default {
       tableData: [],
       accountid: '',
       orderCount: 0,
-      pageSize: 2,
-      pageNum: 1
+      pageSize: 10,
+      pageNum: 0
     }
   },
   methods: {
@@ -139,21 +112,22 @@ export default {
       }
     },
     indexMethod(index) {
-      return (this.pageNum - 1) * this.pageSize + index + 1
+      return (this.pageNum) * this.pageSize + index + 1
     },
     async getSellOrder() {
       let params = {
-        accountid: this.accountid,
+        ontid: this.accountid,
         pageNum: this.pageNum,
-        pageSize: this.pageSize
+        pageSize: this.pageSize,
+        type: 2
       }
       try {
-        this.$store.dispatch('getSellOrderData', params)
-        let res = await this.$store.dispatch('getSellOrderData', params)
+        // this.$store.dispatch('getSellOrderData', params)
+        let res = await this.$store.dispatch('getBuyOrder', params)
         console.log('sellerorder', res)
         if (res.status === 200 && res.data.msg === 'SUCCESS') {
-          this.tableData = res.data.result.list
-          this.orderCount = res.data.result.total
+          this.tableData = res.data.result.recordList
+          this.orderCount = res.data.result.recordCount
         } else {
           this.tableData = []
         }
@@ -163,50 +137,95 @@ export default {
       }
     },
     async collectMoney(data) {
-      // 构造数据
-      let operation = 'receiveToken'
-      // 构造args
-      let exchange_id = data.orderId
-      let args = [
-        {
-          type: 'ByteArray',
-          value: exchange_id
-        }
-      ]
-      let params = {
-        operation,
-        args
+      let sureParams = {
+        argsList: [
+          { name: "orderId", value: "ByteArray:" + data.orderId }],
+        contractHash: "3da0998e1e759aaed78b41ce1f92151d7b3f1083",
+        method: "confirm"
       }
-      console.log(params)
+      console.log('sureParams', sureParams)
+      // return
+      let paramsData = {
+        txHex: '',
+        pubKeys: '',
+        sigData: ''
+      }
       try {
-        const result = await this.$store.dispatch('dapiInvoke', params)
-        console.log('result', result)
-
-        if (result && result.transaction) {
-          this.getSellOrder()
-          this.$message({
-            message: '收钱成功！',
-            type: 'success',
-            center: true,
-            duration: 2000
-          });
+        let res = await this.$store.dispatch('makeTransaction', sureParams)
+        console.log('makeTransaction', res)
+        // return
+        if (res.data.msg === 'SUCCESS') {
+          paramsData.txHex = res.data.result
+          console.log('paramsData', paramsData)
         } else {
           this.$message({
-            message: '收钱失败，请重试！',
+            message: '收款失败，请重试！',
             type: 'error',
             center: true,
             duration: 2000
           })
+          return
         }
       } catch (error) {
+        console.log(error)
         this.$message({
-          message: '收钱失败，请重试！',
+          message: '收款失败，请重试！',
           type: 'error',
           center: true,
           duration: 2000
         })
+        return
       }
 
+      try {
+        let message = paramsData.txHex
+        message = message.slice(0, message.length - 2)
+        message = utils.sha256(message)
+        message = utils.sha256(message)
+        message = utils.hexstr2str(message)
+        let signData = await client.api.message.signMessage({ message });
+        paramsData.pubKeys = signData.publicKey
+        paramsData.sigData = signData.data
+      } catch (error) {
+        this.$message({
+          message: '收款失败，请重试！',
+          type: 'error',
+          center: true,
+          duration: 2000
+        })
+        return
+      }
+
+      console.log('paramsData', paramsData)
+
+      try {
+        let res = await this.$store.dispatch('sendPass', paramsData)
+        console.log('sendPass', res)
+        if (res.data.msg === 'SUCCESS') {
+          this.$message({
+            message: '收款成功！',
+            type: 'success',
+            center: true,
+            duration: 2000
+          })
+        } else {
+          this.$message({
+            message: '收款失败，请重试！',
+            type: 'error',
+            center: true,
+            duration: 2000
+          })
+          return
+        }
+      } catch (error) {
+        this.$message({
+          message: '收款失败，请重试！',
+          type: 'error',
+          center: true,
+          duration: 2000
+        })
+        return
+      }
     },
     handleCurrentChange(val) {
       this.pageNum = val
@@ -227,7 +246,8 @@ export default {
     }
   },
   async  mounted() {
-    this.accountid = await client.api.asset.getAccount()
+    this.accountid = await client.api.identity.getIdentity();
+    // this.accountid = await client.api.asset.getAccount()
     console.log(this.accountid);
     if (!this.accountid) {
       return

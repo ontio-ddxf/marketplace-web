@@ -11,7 +11,13 @@ export default new Vuex.Store({
     gasPrice: 500,
     gasLimit: 30000,
     requireIdentity: true,
-    token_address: "0000000000000000000000000000000000000002"
+    token_address: "0000000000000000000000000000000000000002",
+    dataId: {
+      scriptHash: "0300000000000000000000000000000000000000",
+      gasPrice: 0,
+      gasLimit: 30000,
+      requireIdentity: true
+    }
   },
   mutations: {},
   actions: {
@@ -40,7 +46,7 @@ export default new Vuex.Store({
       console.log(params);
       try {
         return await axios.post(
-          `${process.env.VUE_APP_SELECT}/api/v1/dataset`,
+          `${process.env.VUE_APP_DDXF_API}/api/v1/order/all`,
           params
         );
       } catch (error) {
@@ -52,7 +58,7 @@ export default new Vuex.Store({
         console.log(params);
 
         return await axios.put(
-          process.env.VUE_APP_SELECT + "/api/v1/dataset",
+          process.env.VUE_APP_DDXF_API + "/api/v1/dataset",
           params
         );
       } catch (error) {
@@ -63,7 +69,7 @@ export default new Vuex.Store({
       let { id } = params;
       try {
         return await axios.get(
-          `${process.env.VUE_APP_SELECT}/api/v1/dataset/${id}`
+          `${process.env.VUE_APP_DDXF_API}/api/v1/dataset/${id}`
         );
       } catch (error) {
         return error;
@@ -71,12 +77,11 @@ export default new Vuex.Store({
     },
     async getBuyOrder({ dispatch, commit }, params) {
       console.log(params);
-      let { accountid, pageNum, pageSize } = params;
+      // let { accountid, pageNum, pageSize } = params;
       try {
-        return await axios.get(
-          `${
-            process.env.VUE_APP_ORFDER
-          }/api/v1/data-dealer/tools/orders/0?ontid=did:ont:${accountid}&pageNum=${pageNum}&pageSize=${pageSize}`
+        return await axios.post(
+          `${process.env.VUE_APP_DDXF_API}/api/v1/order/self`,
+          params
         );
       } catch (error) {
         return error;
@@ -109,7 +114,7 @@ export default new Vuex.Store({
     async getCertifier() {
       try {
         return await axios.get(
-          process.env.VUE_APP_SELECT + "/api/v1/certifier"
+          process.env.VUE_APP_DDXF_API + "/api/v1/certifier"
         );
       } catch (error) {
         return error;
@@ -117,15 +122,18 @@ export default new Vuex.Store({
     },
     async getJudger() {
       try {
-        return await axios.get(process.env.VUE_APP_SELECT + "/api/v1/judger");
+        return await axios.get(process.env.VUE_APP_DDXF_API + "/api/v1/judger");
       } catch (error) {
         return error;
       }
     },
     async getCertData({ dispatch, commit }, params) {
       try {
+        const { ontid, pageNum, pageSize } = params;
         return await axios.get(
-          `${process.env.VUE_APP_SELECT}/api/v1/certifier/${params}`
+          `${
+            process.env.VUE_APP_DDXF_API
+          }/api/v1/certifier/${ontid}?pageNum=${pageNum}&pageSize=${pageSize}`
         );
       } catch (error) {
         return error;
@@ -134,7 +142,7 @@ export default new Vuex.Store({
     async toCert({ dispatch, commit }, params) {
       try {
         return await axios.post(
-          `${process.env.VUE_APP_SELECT}/api/v1/certifier`,
+          `${process.env.VUE_APP_DDXF_API}/api/v1/certifier`,
           params
         );
       } catch (error) {
@@ -143,8 +151,13 @@ export default new Vuex.Store({
     },
     async getSellData({ dispatch, commit }, params) {
       try {
+        console.log("params", params);
+        const { ontid, pageNum, pageSize } = params;
+        console.log("ontid", ontid);
         return await axios.get(
-          `${process.env.VUE_APP_SELECT}/api/v1/dataset/provider/${params}`
+          `${
+            process.env.VUE_APP_DDXF_API
+          }/api/v1/dataset/provider/${ontid}?pageNum=${pageNum}&pageSize=${pageSize}`
         );
       } catch (error) {
         return error;
@@ -152,9 +165,205 @@ export default new Vuex.Store({
     },
     async prodOperat({ dispatch, commit }, params) {
       try {
-        return await axios.post(`${process.env.VUE_APP_SELECT}/api/v1/dataset/${params}`)
+        return await axios.post(
+          `${process.env.VUE_APP_SELECT}/api/v1/dataset/${params}`
+        );
       } catch (error) {
-        return error
+        return error;
+      }
+    },
+    async regiter({ dispatch, commit }, params) {
+      try {
+        console.log(params);
+        return await axios.post(
+          `${process.env.VUE_APP_ORFDER}/api/v1/data-dealer/ons/register`,
+          params
+        );
+      } catch (error) {
+        return error;
+      }
+    },
+    async login({ dispatch, commit }, params) {
+      try {
+        return await axios.get(
+          `${process.env.VUE_APP_ORFDER}/api/v1/data-dealer/ons/login/${params}`
+        );
+      } catch (error) {
+        return error;
+      }
+    },
+    async shelf({ dispatch, commit }, params) {
+      try {
+        return await axios.post(
+          `${process.env.VUE_APP_SELECT}/api/v1/dataset/provide`,
+          params
+        );
+      } catch (error) {
+        return error;
+      }
+    },
+    async setInvoke({ dispatch, commit }, params) {
+      try {
+        console.log(params);
+        // return;
+        return await axios.post(
+          `${process.env.VUE_APP_SELECT}/api/v1/data-dealer/contract/dataid`,
+          params
+        );
+      } catch (error) {
+        return error;
+      }
+    },
+    async dataIdInvoke({ dispatch, commit }, params) {
+      console.log("params", params);
+      const { operation, args } = params;
+      const {
+        scriptHash,
+        gasPrice,
+        gasLimit,
+        requireIdentity
+      } = this.state.dataId;
+      console.log("args", args);
+      console.log("operation", operation);
+      console.log("scriptHash", scriptHash);
+      console.log("gasPrice", gasPrice);
+      console.log("gasLimit", gasLimit);
+      console.log("requireIdentity", requireIdentity);
+      try {
+        console.log("scriptHash", scriptHash);
+        const result = await client.api.smartContract.invoke({
+          scriptHash,
+          operation,
+          args,
+          gasPrice,
+          gasLimit,
+          requireIdentity
+        });
+        console.log(result);
+        return result;
+      } catch (error) {
+        return error;
+      }
+    },
+    async sendPayer({ dispatch, commit }, params) {
+      try {
+        console.log(params);
+        // return;
+        return await axios.post(
+          `${process.env.VUE_APP_SELECT}/api/v1/data-dealer/contract/send`,
+          params
+        );
+      } catch (error) {
+        return error;
+      }
+    },
+    async addProd({ dispatch, commit }, params) {
+      try {
+        return await axios.put(
+          process.env.VUE_APP_DDXF_API + "/api/v1/dataset",
+          params
+        );
+      } catch (error) {
+        return error;
+      }
+    },
+    async getDID({ dispatch, commit }, params) {
+      try {
+        return await axios.post(
+          process.env.VUE_APP_DDXF_API + "/api/v1/contract/dataid",
+          params
+        );
+      } catch (error) {
+        return error;
+      }
+    },
+    async getTID({ dispatch, commit }, params) {
+      try {
+        return await axios.post(
+          process.env.VUE_APP_DDXF_API + "/api/v1/dataset/tokenId",
+          params
+        );
+      } catch (error) {
+        return error;
+      }
+    },
+    async queryTokenNum({ dispatch, commit }, params) {
+      try {
+        return await axios.get(
+          process.env.VUE_APP_DDXF_API +
+            `/api/v1/dataset/token/balance/${params.ontid}/${params.tokenId}`
+        );
+      } catch (error) {
+        return error;
+      }
+    },
+    async queryjuderData({ dispatch, commit }, params) {
+      try {
+        return await axios.get(
+          `${process.env.VUE_APP_DDXF_API}/api/v1/judger/${
+            params.ontid
+          }?pageNum=${params.pageNum}&pageSize=${params.pageSize}`
+        );
+      } catch (error) {
+        return error;
+      }
+    },
+    async makeTransaction({ dispatch, commit }, params) {
+      console.log(params);
+      try {
+        return await axios.post(
+          process.env.VUE_APP_DDXF_API + "/api/v1/contract/transaction",
+          params
+        );
+      } catch (error) {
+        return error;
+      }
+    },
+    async createOrderID({ dispatch, commit }, params) {
+      try {
+        return await axios.post(
+          process.env.VUE_APP_DDXF_API + "/api/v1/order",
+          params
+        );
+      } catch (error) {
+        return error;
+      }
+    },
+    async buyData({ dispatch, commit }, params) {
+      try {
+        return axios.post(
+          process.env.VUE_APP_DDXF_API + "/api/v1/order/purchase",
+          params
+        );
+      } catch (error) {
+        return error;
+      }
+    },
+    async checkData({ dispatch, commit }, params) {
+      try {
+        return axios.post(
+          process.env.VUE_APP_DDXF_API + "/api/v1/order/data",
+          params
+        );
+      } catch (error) {
+        return error;
+      }
+    },
+    async sendPass({ dispatch, commit }, params) {
+      try {
+        return axios.post(
+          process.env.VUE_APP_DDXF_API + "/api/v1/contract/send",
+          params
+        );
+      } catch (error) {
+        return error;
+      }
+    },
+    async sendOJData({ dispatch, commit }, params) {
+      try {
+        return axios.post(process.env.VUE_APP_DDXF_API + "/api/v1/judger/result", params);
+      } catch (error) {
+        return error;
       }
     }
   }

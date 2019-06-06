@@ -6,6 +6,8 @@ import OrderCenter from './components/OrderCenter'
 import AddNewData from './components/AddNewData'
 import CommodityManage from './components/CommodityManage'
 import EditData from './components/EditData'
+import Register from './components/Register'
+import OrderDetail from './components/OrderDetail'
 
 Vue.use(Router)
 const router = new Router({
@@ -40,6 +42,16 @@ const router = new Router({
           path: 'editdata',
           name: 'editdata',
           component: EditData
+        },
+        {
+          path: 'register',
+          name: 'register',
+          component: Register
+        },
+        {
+          path: 'orderdetail',
+          name: 'orderdetail',
+          component: OrderDetail
         }
       ]
     },
@@ -61,7 +73,7 @@ router.beforeEach(async (to, from, next) => {
 
   let toPath = to.name
   // console.log(to)
-  if (toPath === 'commoditydetail') {
+  if (toPath === 'commoditydetail' || toPath === 'register') {
     next()
     return
   }

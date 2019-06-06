@@ -35,8 +35,12 @@
         <el-form-item prop="data.img" label="图片地址">
           <el-input v-model="dynamicValidateForm.data.img"></el-input>
         </el-form-item>
+        <!-- 数据源 -->
+        <el-form-item prop="data.dataSource" label="数据源">
+          <el-input v-model="dynamicValidateForm.dataSource"></el-input>
+        </el-form-item>
         <!-- price -->
-        <el-form-item
+        <!-- <el-form-item
           prop="price"
           label="价格"
           :rules="[
@@ -45,7 +49,7 @@
     ]"
         >
           <el-input v-model.number="dynamicValidateForm.price"></el-input>
-        </el-form-item>
+        </el-form-item> -->
         <!-- 标签 -->
         <el-form-item
           v-for="(tag, index) in dynamicValidateForm.tags"
@@ -60,12 +64,12 @@
           <el-button @click.prevent="removetag(tag)">删除</el-button>
         </el-form-item>
         <!-- 币种 coin -->
-        <el-form-item label="币种">
+        <!-- <el-form-item label="币种">
           <el-select style="float: left;" v-model="dynamicValidateForm.coin" placeholder="请选择币种">
             <el-option label="ONG" value="ONG"></el-option>
             <el-option label="ONT" value="ONT"></el-option>
           </el-select>
-        </el-form-item>
+        </el-form-item> -->
         <!-- 认证方 -->
         <el-form-item label="认证方">
           <el-select
@@ -82,7 +86,7 @@
           </el-select>
         </el-form-item>
         <!-- 仲裁方 -->
-        <el-form-item label="仲裁方">
+        <!-- <el-form-item label="仲裁方">
           <el-select
             style="float: left;"
             v-model="dynamicValidateForm.judger"
@@ -95,9 +99,9 @@
               :value="item.ontid"
             ></el-option>
           </el-select>
-        </el-form-item>
+        </el-form-item> -->
         <!-- dataId -->
-        <el-form-item prop="data.dataId" label="dataId">
+        <!-- <el-form-item prop="data.dataId" label="dataId">
           {{dynamicValidateForm.data.dataId}}
           <el-button
             type="primary"
@@ -106,9 +110,9 @@
             size="medium"
             @click="toDataId()"
           >生成dataId</el-button>
-        </el-form-item>
+        </el-form-item> -->
         <!-- dToken -->
-        <el-form-item prop="data.token" label="dToken">
+        <!-- <el-form-item prop="data.token" label="dToken">
           <span v-show="!dynamicValidateForm.data.token">请生成dToken</span>
           {{dynamicValidateForm.data.token}}
           <el-button
@@ -123,7 +127,7 @@
             size="medium"
             @click="generateOep8('dynamicValidateForm')"
           >oep8生成</el-button>
-        </el-form-item>
+        </el-form-item> -->
 
         <el-form-item>
           <el-button type="primary" @click="submitForm('dynamicValidateForm')">添加</el-button>
@@ -179,7 +183,8 @@ export default {
           metadata: null
         },
         certifier: '',
-        judger: ''
+        judger: '',
+        dataSource: ''
       },
       accountid: '',
       metadata: {
@@ -233,31 +238,14 @@ export default {
       this.$router.push({ path: '/' })
     },
     async addNewData() {
-      if (!this.dynamicValidateForm.data.dataId) {
-        this.$message({
-          message: '请先生成dataId',
-          type: 'error',
-          center: true,
-          duration: 2000
-        })
-        return
-      }
-      if (!this.dataParams.data.dToken) {
-        this.$message({
-          message: '清先生成dToken',
-          type: 'error',
-          center: true,
-          duration: 2000
-        })
-        return
-      }
       try {
         console.log('asdfasdfasdf', this.dataParams)
+        // return
         let res = await this.$store.dispatch('addCommodity', this.dataParams)
         console.log('addnewdata', res)
         if (res && res.data.msg === 'SUCCESS') {
           this.$message({
-            message: '商品添加成功',
+            message: '添加成功',
             type: 'success',
             center: true,
             duration: 2000
@@ -266,7 +254,7 @@ export default {
         } else {
           console.log('err1')
           this.$message({
-            message: '商品添加失败',
+            message: '添加失败',
             type: 'error',
             center: true,
             duration: 2000
@@ -276,7 +264,7 @@ export default {
       } catch (error) {
         console.log('err2')
         this.$message({
-          message: '商品添加失败',
+          message: '添加失败',
           type: 'error',
           center: true,
           duration: 2000
@@ -385,7 +373,8 @@ export default {
       cpas.price = this.dynamicValidateForm.price
       cpas.ontid = this.ont_id
       cpas.certifier = this.dynamicValidateForm.certifier
-      cpas.judger = this.dynamicValidateForm.judger
+      // cpas.judger = this.dynamicValidateForm.judger
+      cpas.dataSource = this.dynamicValidateForm.dataSource
       console.log('this.dynamicValidateForm.data.desc', this.dynamicValidateForm.data.desc);
 
 

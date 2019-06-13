@@ -1,33 +1,59 @@
 <template>
   <div class="header_layout">
+    <div class="select_lang">
+     <el-select
+        v-model="$i18n.locale"
+        size="mini"
+        :placeholder="$t('common.lang')"
+        popper-class="text-color"
+        @change="handlechange"
+      >
+        <el-option
+          v-for="item in options"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value"
+        ></el-option>
+      </el-select>
+    </div>
     <div class="dropList" v-show="userAccount">
       <el-dropdown @command="toOrder">
         <span class="el-dropdown-link">
-          个人中心
+          {{$t('top.personal_center')}}
           <i class="el-icon-arrow-down el-icon--right"></i>
         </span>
         <el-dropdown-menu slot="dropdown" style="top:auto; top: 40px; padding-bottom: 0;">
-          <el-dropdown-item command="ordercenter">订单中心</el-dropdown-item>
-          <el-dropdown-item command="commoditymanage">商品管理</el-dropdown-item>
+          <el-dropdown-item command="ordercenter">{{$t('top.order_center')}}</el-dropdown-item>
+          <el-dropdown-item command="commoditymanage">{{$t('top.Commodity_Center')}}</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
     </div>
-
+    
     <!-- <el-button round size="small" v-show="userAccount" @click="toOrder()">订单中心</el-button> -->
-    <el-button round size="small" v-if="userAccount" @click="LoginOut()">退出</el-button>
-    <el-button round size="small" :disabled="logining" v-else @click="getIdenty()">登录</el-button>
-    <el-button round size="small" v-show="!userAccount" @click="toRegister()">注册</el-button>
+    <el-button round size="small" v-if="userAccount" @click="LoginOut()">{{$t('sign.sign_out')}}</el-button>
+    <el-button round size="small" :disabled="logining" v-else @click="getIdenty()">{{$t('sign.sign_in')}}</el-button>
+    <el-button round size="small" v-show="!userAccount" @click="toRegister()">{{$t('sign.sign_up')}}</el-button>
     <span class="userAccount">{{userAccount}}</span>
+
   </div>
 </template>
 
 <script>
 import { client } from 'ontology-dapi';
+import LangStorage from '../helpers/lang'
 export default {
   data() {
     return {
       userAccount: '',
-      logining: false
+      logining: false,
+      options: [{
+        value: 'en',
+        label: 'English'
+      }, {
+        value: 'zh',
+        label: '中文'
+      }],
+      value: ''
     }
   },
   created() {
@@ -35,9 +61,9 @@ export default {
   },
   methods: {
     LoginOut() {
-      this.$confirm('确定退出当前登录吗？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
+      this.$confirm(this.$t('top.sure_out'), this.$t('common.prompt'), {
+        confirmButtonText: this.$t('common.sure'),
+        cancelButtonText: this.$t('common.cancel'),
         type: 'warning'
       }).then(() => {//确定
         sessionStorage.removeItem("user_ontid");
@@ -57,7 +83,7 @@ export default {
         console.log(result)
         if (!result.data || !result.publicKey) {
           this.$message({
-            message: '登陆失败，请重试！',
+            message: this.$t('top.login_fail'),
             type: 'error',
             center: true,
             duration: 2000
@@ -77,7 +103,7 @@ export default {
             this.userAccount = result.data.result
             this.logining = false
             this.$message({
-              message: '登陆成功',
+              message: this.$t('top.login_suc'),
               type: 'success',
               center: true,
               duration: 2000
@@ -86,7 +112,7 @@ export default {
           } else {
             this.logining = false
             this.$message({
-              message: 'ONT ID 未注册，请先注册！',
+              message: this.$t('top.ontid_fail'),
               type: 'warning',
               center: true,
               duration: 2000
@@ -95,7 +121,7 @@ export default {
           }
         } catch (error) {
           this.$message({
-            message: '登陆失败，请重试！',
+            message: this.$t('top.login_fail'),
             type: 'error',
             center: true,
             duration: 2000
@@ -104,7 +130,7 @@ export default {
         }
       } catch (error) {
         this.$message({
-          message: '登陆失败，请重试！',
+          message: this.$t('top.login_fail'),
           type: 'error',
           center: true,
           duration: 2000
@@ -118,7 +144,13 @@ export default {
     },
     toRegister() {
       this.$router.push({ path: 'register' });
-    }
+    },
+    handlechange(val) {
+      // console.log(this.$i18n.locale)
+      this.$i18n.locale = val
+      LangStorage.setLang(this.$i18n.locale)
+      window.location.reload()
+    },
   }
 }
 </script>
@@ -146,6 +178,14 @@ export default {
     float: right;
     height: 60px;
     line-height: 60px;
+  }
+  .select_lang {
+    float: right;
+    width: 100px;
+    height: 60px;
+    line-height: 60px;
+    margin-left: 20px;
+    margin-right: 20px;
   }
 }
 .el-dropdown-menu {

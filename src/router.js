@@ -73,7 +73,7 @@ router.beforeEach(async (to, from, next) => {
 
   let toPath = to.name
   // console.log(to)
-  if (toPath === 'commoditydetail' || toPath === 'register') {
+  if (toPath === 'orderdetail' || toPath === 'register') {
     next()
     return
   }

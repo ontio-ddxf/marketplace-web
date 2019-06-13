@@ -1,46 +1,46 @@
 <template>
   <div class="detail_box">
     <div style="overflow: hidden; margin-bottom: 20px;">
-      <el-button @click="toIndex()" type="primary" plain style="float: right">返回首页</el-button>
+      <el-button @click="toIndex()" type="primary" plain style="float: right">{{$t('common.to_home')}}</el-button>
     </div>
     <div class="item_box">
       <!-- 商品名 -->
       <div class="item">
-        <p>商品名:</p>
+        <p>{{$t('common.commodity_name')}}:</p>
         {{orderData.name}}
       </div>
       <!-- 图片 -->
       <div class="item">
-        <p>缩略图:</p>
+        <p>{{$t('common.thumbnail')}}:</p>
         <img v-if="orderData.img" :src="orderData.img" alt>
         <img v-else src="https://ont.io/upload_img/20190420001238_417.png" alt>
       </div>
       <div class="item">
-        <p>标签:</p>
+        <p>{{$t('common.tag')}}:</p>
         <el-tag v-for="(item, idx) in orderData.keywords" :key="idx">{{item}}</el-tag>
       </div>
       <div class="item">
-        <p>币种:</p>ONG
+        <p>{{$t('common.coin')}}:</p>ONG
       </div>
       <div class="item" v-show="orderData.price">
-        <p>价格:</p>
+        <p>{{$t('common.price')}}:</p>
         {{orderData.price}}
       </div>
       <!-- 描述 -->
       <div class="item">
-        <p>描述:</p>
+        <p>{{$t('common.description')}}:</p>
         {{orderData.desc}}
       </div>
       <div class="item">
-        <p>认证状态:</p>
-        <el-tag type="success">已认证</el-tag>
+        <p>{{$t('common.certification_status')}}:</p>
+        <el-tag type="success">{{$t('common.verified')}}</el-tag>
       </div>
       <div class="item">
-        <p>剩余数量:</p>
+        <p>{{$t('common.number')}}:</p>
         {{orderData.amount}}
       </div>
       <div class="item" v-show="orderData.judger">
-        <p>仲裁方:</p>
+        <p>{{$t('common.judger')}}:</p>
         <el-radio
           v-for="(item, idx) in orderData.judger"
           :key="idx"
@@ -49,11 +49,11 @@
         >{{item}}</el-radio>
       </div>
       <div class="item">
-        <p>创建时间:</p>
+        <p>{{$t('common.create_time')}}:</p>
         {{orderData.createTime}}
       </div>
     </div>
-    <el-button type="success" :disabled="signing" @click="toBuy()" round>立即购买</el-button>
+    <el-button type="success" :disabled="signing" @click="toBuy()" round>{{$t('common.buy')}}</el-button>
   </div>
 </template>
 
@@ -82,9 +82,19 @@ export default {
       this.$router.push({ path: '/' })
     },
     async toBuy() {
+      let ontid = sessionStorage.getItem('user_ontid')
+      if (!ontid) {
+        this.$message({
+          message: this.$t('common.lg_by'),
+          type: 'error',
+          center: true,
+          duration: 2000
+        });
+        return
+      }
       if (!this.OJlist) {
         this.$message({
-          message: '请选择仲裁方',
+          message: this.$t('common.select') + ' ' + this.$t('common.judger') ,
           type: 'error',
           center: true,
           duration: 2000
@@ -121,7 +131,7 @@ export default {
           buyDataParams.sigVo.txHex = res.data.result
         } else {
           this.$message({
-            message: '购买失败！',
+            message: this.$t('common.buy_fail'),
             type: 'error',
             center: true,
             duration: 2000
@@ -130,7 +140,7 @@ export default {
         }
       } catch (error) {
         this.$message({
-          message: '购买失败！',
+          message: this.$t('common.buy_fail'),
           type: 'error',
           center: true,
           duration: 2000
@@ -149,7 +159,7 @@ export default {
         buyDataParams.sigVo.sigData = signData.data
       } catch (error) {
         this.$message({
-          message: '购买失败！',
+          message: this.$t('common.buy_fail'),
           type: 'error',
           center: true,
           duration: 2000
@@ -163,7 +173,7 @@ export default {
         console.log('buyData', res)
         if (res.data.msg == 'SUCCESS' && res.data.result) {
           this.$message({
-            message: '购买成功！',
+            message: this.$t('common.buy_suc'),
             type: 'success',
             center: true,
             duration: 2000
@@ -172,7 +182,7 @@ export default {
         } else {
           console.log('error222')
           this.$message({
-            message: '购买失败！',
+            message: this.$t('common.buy_fail'),
             type: 'error',
             center: true,
             duration: 2000
@@ -182,16 +192,13 @@ export default {
       } catch (error) {
         console.log('error', error)
         this.$message({
-          message: '购买失败！',
+          message: this.$t('common.buy_fail'),
           type: 'error',
           center: true,
           duration: 2000
         })
         return false
       }
-
-
-      // console.log('params', params)
     }
   },
 }

@@ -1,15 +1,15 @@
 <template>
   <div class="commodity_box">
     <div class="search_box">
-      <el-input placeholder="请输入内容" v-model="searchText" class="input-with-select">
+      <el-input :placeholder="$t('commoditylist.content')" v-model="searchText" class="input-with-select">
         <el-button slot="append" icon="el-icon-search" @click="searchClick()"></el-button>
       </el-input>
     </div>
     <div class="list_box">
-      <el-table :data="tableData" border style="width: 100%">
+      <el-table :data="tableData" border style="width: 100%" :empty-text="$t('common.no_data')">
         <el-table-column type="index" align="center" width="50" :index="indexMethod"></el-table-column>
-        <el-table-column prop="name" align="center" label="商品名" width="180"></el-table-column>
-        <el-table-column align="center" label="标签">
+        <el-table-column prop="name" align="center" :label="tableLang.name" width="180"></el-table-column>
+        <el-table-column align="center" :label="tableLang.tags">
           <template slot-scope="scope">
             <el-tag
               style="margin-right: 10px;"
@@ -18,12 +18,12 @@
             >{{item}}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column align="center" label="币种" width="80">ONG</el-table-column>
-        <el-table-column prop="price" align="center" label="价格" width="80"></el-table-column>
-        <el-table-column prop="createTime" align="center" label="日期" width="200"></el-table-column>
-        <el-table-column label="操作" align="center" width="100">
+        <el-table-column align="center" :label="tableLang.coin" width="80">ONG</el-table-column>
+        <el-table-column prop="price" align="center" :label="tableLang.price" width="80"></el-table-column>
+        <el-table-column prop="createTime" align="center" :label="tableLang.date" width="200"></el-table-column>
+        <el-table-column :label="tableLang.operating" align="center" width="100">
           <template slot-scope="scope">
-            <el-button @click="handleClick(scope.row)" type="text" size="small">进入详情</el-button>
+            <el-button @click="handleClick(scope.row)" type="text" size="small">{{$t('common.enter_dateil')}}</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -48,7 +48,15 @@ export default {
       searchText: '',
       tableData: [],
       pageSize: 10,
-      currentPage: 0
+      currentPage: 0,
+      tableLang: {
+        name: this.$t('common.commodity_name'),
+        tags: this.$t('common.tags'),
+        coin: this.$t('common.coin'),
+        price: this.$t('common.price'),
+        date: this.$t('common.date'),
+        operating: this.$t('common.operating'),
+      }
     }
   },
   methods: {

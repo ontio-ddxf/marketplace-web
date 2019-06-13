@@ -1,25 +1,26 @@
 <template>
   <div>
-    <el-table border :data="tableData" style="width: 100%">
+    <el-table border :data="tableData" style="width: 100%" :empty-text="$t('common.no_data')">
       <el-table-column type="index" :index="indexMethod" align="center"></el-table-column>
-      <el-table-column prop="demanderOntid" label="买家" style="width: 20%" align="center"></el-table-column>
-      <el-table-column prop="orderId" label="订单号" width="260" align="center"></el-table-column>
-      <el-table-column prop="boughtTime" label="购买日期" width="180" align="center"></el-table-column>
-       <el-table-column label="状态" width="180" align="center">
+      <el-table-column prop="demanderOntid" :label="tableLang.buyer" style="width: 20%" align="center"></el-table-column>
+      <el-table-column prop="orderId" :label="tableLang.order_num" width="260" align="center"></el-table-column>
+      <el-table-column prop="boughtTime" :label="tableLang.buy_date" width="180" align="center"></el-table-column>
+      <el-table-column :label="tableLang.state" width="180" align="center">
         <template slot-scope="scope">
-          <el-tag size="medium" type="info" v-if="scope.row.state == 1">正在出售</el-tag> 
-          <el-tag size="medium" type="info" v-else-if="scope.row.state == 2">已下单</el-tag> 
-          <el-tag size="medium" type="info" v-else-if="scope.row.state == 3">交易完成</el-tag> 
-          <el-tag size="medium" type="info" v-else-if="scope.row.state == 4">仲裁中</el-tag> 
-          <el-tag size="medium" type="info" v-else>仲裁结束</el-tag> 
-          </template>
+          <el-tag size="medium" type="info" v-if="scope.row.state == 1">{{$t('common.sold')}}</el-tag>
+          <el-tag size="medium" type="info" v-else-if="scope.row.state == 2">{{$t('common.pending_order')}}</el-tag>
+          <el-tag size="medium" type="info" v-else-if="scope.row.state == 3">{{$t('common.order_over')}}</el-tag>
+          <el-tag size="medium" type="info" v-else-if="scope.row.state == 4">{{$t('common.appeal')}}</el-tag>
+          <el-tag size="medium" type="info" v-else>{{$t('common.apple_end')}}</el-tag>
+        </template>
       </el-table-column>
-      <el-table-column label="操作" width="180" align="center">
+      <el-table-column :label="tableLang.operating" width="180" align="center">
         <template slot-scope="scope">
-          <el-button v-show="scope.row.state == 2 && scope.row.isExpired == 1" @click="collectMoney(scope.row)" type="primary">收款</el-button>
-          <!-- <el-button  type="success">订单已完成</el-button> -->
-          <!-- <el-button v-else type="info">正在出售</el-button> -->
-          <!-- <el-button @click="openMsgBox(scope.row)" type="primary" v-else size="mini">立即发货</el-button> -->
+          <el-button
+            v-show="scope.row.state == 2 && scope.row.isExpired == 1"
+            @click="collectMoney(scope.row)"
+            type="primary"
+          >{{$t('common.receipt')}}</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -44,6 +45,14 @@ import { OntidContract, TransactionBuilder, TxSignature, Identity, Crypto, RestC
 export default {
   data() {
     return {
+      tableLang: {
+        buyer: this.$t('center.buy'),
+        order_num: this.$t('common.order_num'),
+        desc: this.$t('common.description'),
+        buy_date: this.$t('common.buy_date'),
+        operating: this.$t('common.operating'),
+        state: this.$t('common.state'),
+      },
       tableData: [],
       accountid: '',
       orderCount: 0,
@@ -159,7 +168,7 @@ export default {
           console.log('paramsData', paramsData)
         } else {
           this.$message({
-            message: '收款失败，请重试！',
+            message: this.$t('common.receipt_fail'),
             type: 'error',
             center: true,
             duration: 2000
@@ -169,7 +178,7 @@ export default {
       } catch (error) {
         console.log(error)
         this.$message({
-          message: '收款失败，请重试！',
+          message: this.$t('common.receipt_fail'),
           type: 'error',
           center: true,
           duration: 2000
@@ -188,7 +197,7 @@ export default {
         paramsData.sigData = signData.data
       } catch (error) {
         this.$message({
-          message: '收款失败，请重试！',
+          message: this.$t('common.receipt_fail'),
           type: 'error',
           center: true,
           duration: 2000
@@ -203,14 +212,14 @@ export default {
         console.log('sendPass', res)
         if (res.data.msg === 'SUCCESS') {
           this.$message({
-            message: '收款成功！',
+            message: this.$t('common.receipt_suc'),
             type: 'success',
             center: true,
             duration: 2000
           })
         } else {
           this.$message({
-            message: '收款失败，请重试！',
+            message: this.$t('common.receipt_fail'),
             type: 'error',
             center: true,
             duration: 2000
@@ -219,7 +228,7 @@ export default {
         }
       } catch (error) {
         this.$message({
-          message: '收款失败，请重试！',
+          message: this.$t('common.receipt_fail'),
           type: 'error',
           center: true,
           duration: 2000

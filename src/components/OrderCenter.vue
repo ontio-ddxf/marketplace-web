@@ -1,19 +1,19 @@
 <template>
   <div class="order_box">
     <div style="overflow: hidden; margin-bottom: 20px;">
-      <el-button @click="toIndex()" type="primary" plain style="float: right">返回首页</el-button>
+      <el-button @click="toIndex()" type="primary" plain style="float: right">{{$t('common.to_home')}}</el-button>
     </div>
     <el-tabs v-model="activeName" type="card" @tab-click="handleClick">
-      <el-tab-pane label="买家中心" name="first">
+      <el-tab-pane :label="$t('center.buyer')" name="first">
         <Buyer></Buyer>
       </el-tab-pane>
-      <el-tab-pane label="卖家中心" name="second">
+      <el-tab-pane :label="$t('center.seller')" name="second">
         <Seller></Seller>
       </el-tab-pane>
-      <el-tab-pane label="认证中心" name="third">
+      <el-tab-pane :label="$t('center.certification')" name="third">
         <Certifier></Certifier>
       </el-tab-pane>
-      <el-tab-pane label="仲裁中心" name="fourth">
+      <el-tab-pane :label="$t('center.arbitration')" name="fourth">
         <Judger></Judger>
       </el-tab-pane>
     </el-tabs>

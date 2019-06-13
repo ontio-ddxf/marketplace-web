@@ -1,44 +1,44 @@
 <template>
   <div class="detail_box">
     <div style="overflow: hidden; margin-bottom: 20px;">
-      <el-button @click="toIndex()" type="primary" plain style="float: right">返回首页</el-button>
+      <el-button @click="toIndex()" type="primary" plain style="float: right">{{$t('common.to_home')}}</el-button>
     </div>
     <div class="item_box">
       <!-- 商品名 -->
       <div class="item">
-        <p>商品名:</p>
+        <p>{{$t('common.commodity_name')}}:</p>
         {{detailList.data.name}}
       </div>
       <!-- 图片 -->
       <div class="item">
-        <p>缩略图:</p>
+        <p>{{$t('common.thumbnail')}}:</p>
         <img v-if="detailList.data.img" :src="detailList.data.img" alt>
         <img v-else src="https://ont.io/upload_img/20190420001238_417.png" alt>
       </div>
       <div class="item">
-        <p>标签:</p>
+        <p>{{$t('common.tag')}}:</p>
         <el-tag v-for="(item, idx) in detailList.data.keywords" :key="idx">{{item}}</el-tag>
       </div>
       <div class="item" v-show="detailList.coin">
-        <p>币种:</p>
+        <p>{{$t('common.coin')}}:</p>
         {{detailList.coin}}
       </div>
       <div class="item" v-show="detailList.price">
-        <p>价格:</p>
+        <p>{{$t('common.price')}}:</p>
         {{detailList.price}}
       </div>
       <!-- 描述 -->
       <div class="item">
-        <p>描述:</p>
+        <p>{{$t('common.description')}}:</p>
         {{detailList.data.desc}}
       </div>
       <div class="item">
-        <p>认证方:</p>
+        <p>{{$t('common.certifier')}}:</p>
         {{detailList.certifier}}
         <!-- 认证状态 -->
         <br>
-        <el-tag type="info" v-if="detailList.isCertificated === 0">认证中</el-tag>
-        <el-tag type="success" v-else>已认证</el-tag>
+        <el-tag type="info" v-if="detailList.isCertificated === 0">{{$t('common.no_cert')}}</el-tag>
+        <el-tag type="success" v-else>{{$t('common.verified')}}</el-tag>
       </div>
       
       <div class="item" v-show="detailList.data.dToken">
@@ -50,13 +50,13 @@
         {{detailList.data.dataId}}
       </div>
       <div class="item">
-        <p>创建时间:</p>
+        <p>{{$t('common.create_time')}}:</p>
         {{detailList.createTime}}
       </div>
     </div>
-    <el-button type="success" :disabled="signing" round v-if="isCert === 0" @click="toCert()">立即认证</el-button>
-    <el-button type="success" :disabled="signing" round v-else-if="isCert === 1">认证成功</el-button>
-    <el-button type="success" :disabled="signing" v-else round>详情</el-button>
+    <el-button type="success" :disabled="signing" round v-if="isCert === 0" @click="toCert()">{{$t('common.toCer')}}</el-button>
+    <el-button type="success" :disabled="signing" round v-else-if="isCert === 1">{{$t('common.verified')}}</el-button>
+    <el-button type="success" :disabled="signing" v-else round>{{$t('common.detail')}}</el-button>
   </div>
 </template>
 
@@ -218,7 +218,7 @@ export default {
         console.log(res);
         if (res.status === 200 && res.data.msg === 'SUCCESS') {
           this.$message({
-            message: '认证成功！',
+            message: this.$t('common.verified'),
             type: 'success',
             center: true,
             duration: 2000
@@ -228,7 +228,7 @@ export default {
           window.location.reload();
         } else {
           this.$message({
-            message: '认证失败！',
+            message: this.$t('common.cer_fail'),
             type: 'success',
             center: true,
             duration: 2000
@@ -236,7 +236,7 @@ export default {
         }
       } catch (error) {
         this.$message({
-          message: '认证失败！',
+          message: this.$t('common.cer_fail'),
           type: 'success',
           center: true,
           duration: 2000

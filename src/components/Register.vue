@@ -16,7 +16,7 @@
         <el-form-item label="ONS" prop="domain">
           <el-input v-model="ruleForm.domain"></el-input>
         </el-form-item>
-        <el-button type="primary" @click="submitForm('ruleForm')">立即注册</el-button>
+        <el-button type="primary" @click="submitForm('ruleForm')">{{$t('sign.sign_up')}}</el-button>
       </el-form>
     </div>
   </div>
@@ -33,10 +33,10 @@ export default {
       },
       rules: {
         ontid: [
-          { required: true, message: '请输入ONT ID', trigger: 'blur' }
+          { required: true, message: this.$t('common.please_enter')+' ONT ID', trigger: 'blur' }
         ],
         ons: [
-          { required: true, message: '请输入ONS', trigger: 'blur' }
+          { required: true, message: this.$t('common.please_enter')+' Enter ONS', trigger: 'blur' }
         ]
       }
     };
@@ -50,14 +50,15 @@ export default {
             let res = await this.$store.dispatch('regiter', this.ruleForm)
             if (res.data.result) {
               this.$message({
-                message: '注册成功!',
+                message: this.$t('sign.sign_success')+'!',
                 type: 'success',
                 center: true,
                 duration: 2000
               })
+              this.ruleForm.domain = ''
             } else {
               this.$message({
-                message: 'ONT ID 已被注册，请重试！',
+                message: this.$t('sign.registered'),
                 type: 'error',
                 center: true,
                 duration: 2000
@@ -65,7 +66,7 @@ export default {
             }
           } catch (error) {
             this.$message({
-              message: '注册失败，请重试！',
+              message: this.$t('sign.fail'),
               type: 'error',
               center: true,
               duration: 2000

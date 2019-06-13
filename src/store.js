@@ -2,6 +2,7 @@ import Vue from "vue";
 import Vuex from "vuex";
 import { client } from "ontology-dapi";
 import axios from "axios";
+import LangStorage from "./helpers/lang";
 
 Vue.use(Vuex);
 
@@ -17,9 +18,14 @@ export default new Vuex.Store({
       gasPrice: 0,
       gasLimit: 30000,
       requireIdentity: true
+    },
+    lang: LangStorage.getLang("en")
+  },
+  mutations: {
+    UPDATE_HOME_LANG(state, payload) {
+      state.lang = payload.lang;
     }
   },
-  mutations: {},
   actions: {
     async dapiInvoke({ dispatch, commit }, params) {
       console.log("params", params);
@@ -361,10 +367,37 @@ export default new Vuex.Store({
     },
     async sendOJData({ dispatch, commit }, params) {
       try {
-        return axios.post(process.env.VUE_APP_DDXF_API + "/api/v1/judger/result", params);
+        return axios.post(
+          process.env.VUE_APP_DDXF_API + "/api/v1/judger/result",
+          params
+        );
       } catch (error) {
         return error;
       }
     }
   }
 });
+
+/**
+ * 
+ * import LangStorage from "../../helpers/lang";
+
+const state = {
+  lang: LangStorage.getLang("en")
+};
+
+const mutations = {
+  UPDATE_HOME_LANG(state, payload) {
+    state.lang = payload.lang;
+  }
+};
+
+const actions = {};
+
+export default {
+  state,
+  mutations,
+  actions
+};
+ * 
+ */

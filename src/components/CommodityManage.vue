@@ -1,29 +1,29 @@
 <template>
   <div class="commoditymanage_box">
     <div class="msg">
-      <el-button @click="toIndex()" type="primary" plain style="float: right">返回首页</el-button>
+      <el-button @click="toIndex()" type="primary" plain style="float: right">{{$t('common.to_home')}}</el-button>
       <div class="msg_item">
-        <p>发布商品需要KYC认证</p>
+        <p>{{$t('common.kyc')}}</p>
         <p>KYC: www.baidu.com</p>
         <p>
-          还未认证，
-          <el-link type="danger" @click="certificatKYC()">立即认证</el-link>
+          {{$t('common.not_certified')}}
+          <el-link type="danger" @click="certificatKYC()">{{$t('common.to_cer')}}</el-link>
         </p>
       </div>
       <div class="msg_item">
         <p>Wallet Address</p>
         <p v-if="address">{{address}}</p>
         <p v-else>
-          <el-link type="danger" @click="walletAddress()">获取地址</el-link>
+          <el-link type="danger" @click="walletAddress()">{{$t('common.get_add')}}</el-link>
         </p>
       </div>
-      <el-button style="margin-bottom: 20px;" @click="toAddData()" type="primary">新增商品</el-button>
+      <el-button style="margin-bottom: 20px;" @click="toAddData()" type="primary">{{$t('common.add_data')}}</el-button>
     </div>
     <div class="table_box">
-      <el-table :data="tableData" border style="width: 100%">
+      <el-table :data="tableData" border style="width: 100%" :empty-text="$t('common.no_data')">
         <el-table-column type="index" align="center" width="50" :index="indexMethod"></el-table-column>
-        <el-table-column prop="data.name" align="center" label="商品名" width="180"></el-table-column>
-        <el-table-column align="center" label="标签">
+        <el-table-column prop="data.name" align="center" :label="tableLang.name" width="180"></el-table-column>
+        <el-table-column align="center" :label="tableLang.tags">
           <template slot-scope="scope">
             <el-tag
               style="margin-right: 10px;"
@@ -32,37 +32,35 @@
             >{{item}}</el-tag>
           </template>
         </el-table-column>
-        <!-- <el-table-column prop="coin" align="center" label="币种" width="80"></el-table-column> -->
-        <!-- <el-table-column prop="price" align="center" label="价格" width="80"></el-table-column> -->
-        <el-table-column align="center" label="认证状态" width="100">
+        <el-table-column align="center" :label="tableLang.state" width="150">
           <template slot-scope="scope">
             <el-tag
               style="margin-right: 10px;"
               type="info"
               v-if="scope.row.isCertificated === 0"
-            >未认证</el-tag>
-            <el-tag style="margin-right: 10px;" v-else type="success">已认证</el-tag>
+            >{{$t('common.no_cert')}}</el-tag>
+            <el-tag style="margin-right: 10px;" v-else type="success">{{$t('common.verified')}}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="createTime" align="center" label="日期" width="200"></el-table-column>
-        <el-table-column label="操作" align="center" width="400">
+        <el-table-column prop="createTime" align="center" :label="tableLang.date" width="200"></el-table-column>
+        <el-table-column :label="tableLang.operating" align="center" width="400">
           <template slot-scope="scope">
             <el-button @click="dialog(scope.row)" type="primary" round size="small">DataId</el-button>
-            <el-button @click="handleClick(scope.row)" type="primary" round size="small">详情</el-button>
+            <el-button @click="handleClick(scope.row)" type="primary" round size="small">{{$t('common.detail')}}</el-button>
             <el-button
               @click="prodOperat(scope.row)"
               v-if="scope.row.state === 1"
               type="warning"
               round
               size="small"
-            >挂单</el-button>
+            >{{$t('common.pending_order')}}</el-button>
           </template>
         </el-table-column>
       </el-table>
     </div>
 
     <!--  -->
-    <el-dialog title="收货地址" :visible.sync="dialogFormVisible" center width="30%">
+    <el-dialog :title="$t('common.shipping_address')" :visible.sync="dialogFormVisible" center width="30%">
       <el-form :model="form" :rules="rules" ref="ruleForm">
         <el-form-item label="symbol" prop="symbol">
           <el-input v-model="form.symbol" autocomplete="off"></el-input>
@@ -75,8 +73,8 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="proDataId('ruleForm')">确 定</el-button>
+        <el-button @click="dialogFormVisible = false">{{$t('common.cancel')}}</el-button>
+        <el-button type="primary" @click="proDataId('ruleForm')">{{$t('common.sure')}}</el-button>
       </div>
     </el-dialog>
   </div>
@@ -105,19 +103,26 @@ export default {
       },
       rules: {
         name: [
-          { required: true, message: '请输入name', trigger: 'blur' },
-          { min: 3, message: '字符长度不能小于3', trigger: 'blur' }
+          { required: true, message: this.$t('common.please_enter')+ 'name', trigger: 'blur' },
+          { min: 3, message: this.$t('common.character3'), trigger: 'blur' }
         ],
         symbol: [
-          { required: true, message: '请输入symbol', trigger: 'blur' },
-          { min: 3, message: '字符长度不能小于3', trigger: 'blur' }
+          { required: true, message: this.$t('common.please_enter')+ 'symbol', trigger: 'blur' },
+          { min: 3, message: this.$t('common.character3'), trigger: 'blur' }
         ],
         totalAmount: [
-          { required: true, message: '请输入totalAmount' },
-          { type: 'number', message: 'totalAmount必须是数字' },
+          { required: true, message: this.$t('common.please_enter')+ 'totalAmount' },
+          { type: 'number', message: 'totalAmount'+this.$t('common.mbnum') },
         ]
       },
-      cortData: null
+      cortData: null,
+      tableLang: {
+        name: this.$t('common.commodity_name'),
+        tags: this.$t('common.tags'),
+        date: this.$t('common.date'),
+        operating: this.$t('common.operating'),
+        state: this.$t('common.certification_status')
+      }
     }
   },
   methods: {
@@ -169,19 +174,18 @@ export default {
     toEditData(row) {
       if (row.state == 1) {
         this.$message({
-          message: '请先下架，才能修改！',
+          message: this.$t('common.remove'),
           type: 'success',
           center: true,
           duration: 2000
         });
         return;
       }
-      // this.$router.push({ path: 'editdata', query: { commodityId: row.id } });
     },
     async prodOperat(row) {
       if (!row.tokenId) {
         this.$message({
-          message: 'tokenId生成中，请稍后！',
+          message: this.$t('common.tokenid_loading'),
           type: 'error',
           center: true,
           duration: 2000
@@ -190,15 +194,6 @@ export default {
         this.$router.push({ path: 'editdata', query: { commodityId: row.id } });
       }
       console.log(row)
-      // try {
-      //   let res = await this.$store.dispatch('prodOperat', row.id)
-      //   console.log(res);
-      //   if (res.status === 200 && res.data.msg === "SUCCESS") {
-      //     this.getSellData()
-      //   }
-      // } catch (error) {
-      //   return error
-      // }
     },
     proDataId(formName) {
       this.$refs[formName].validate(async (valid) => {
@@ -268,7 +263,7 @@ export default {
               params1.sigDataVo.sigData = signData.data
             } catch (error) {
               this.$message({
-                message: 'dataid生成失败！',
+                message: this.$t('common.data_id_fail'),
                 type: 'error',
                 center: true,
                 duration: 2000
@@ -291,7 +286,7 @@ export default {
               params1.sigTokenVo.sigData = signData.data
             } catch (error) {
               this.$message({
-                message: 'dataid生成失败！',
+                message: this.$t('common.data_id_fail'),
                 type: 'error',
                 center: true,
                 duration: 2000
@@ -309,7 +304,7 @@ export default {
               console.log('getTID', res)
               if (res.data.msg == 'SUCCESS') {
                 this.$message({
-                  message: 'dataid生成成功！',
+                  message: this.$t('common.data_id_suc'),
                   type: 'success',
                   center: true,
                   duration: 2000
@@ -318,7 +313,7 @@ export default {
                 this.$refs[formName].resetFields()
               } else {
                 this.$message({
-                  message: 'dataid生成失败！',
+                  message: this.$t('common.data_id_fail'),
                   type: 'error',
                   center: true,
                   duration: 2000
@@ -329,7 +324,7 @@ export default {
             } catch (error) {
               console.log('error', error)
               this.$message({
-                message: 'dataid生成失败！',
+                message: this.$t('common.data_id_fail'),
                 type: 'error',
                 center: true,
                 duration: 2000
@@ -342,7 +337,7 @@ export default {
 
           } else {
             this.$message({
-              message: 'dataid生成失败！',
+              message: this.$t('common.data_id_fail'),
               type: 'error',
               center: true,
               duration: 2000
@@ -370,7 +365,7 @@ export default {
       console.log('data', data)
       if (data.isCertificated == 0) {
         this.$message({
-          message: '请先认证，再生成dataID！',
+          message: this.$t('common.b_dataid'),
           type: 'error',
           center: true,
           duration: 2000
@@ -379,7 +374,7 @@ export default {
       }
       if (!this.address) {
         this.$message({
-          message: '请先获取钱包地址！',
+          message: this.$t('common.wallet_acc'),
           type: 'error',
           center: true,
           duration: 2000
@@ -400,7 +395,6 @@ export default {
 
 <style lang='less' scoped>
 .commoditymanage_box {
-  // width: 80%;
   margin: 20px auto;
   text-align: left;
   overflow: hidden;

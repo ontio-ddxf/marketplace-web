@@ -1,8 +1,8 @@
 <template>
   <div class="addBox">
-    <h2>新增商品</h2>
+    <h2>{{$t('common.add_data')}}</h2>
     <div style="overflow: hidden; margin-bottom: 20px;">
-      <el-button @click="toIndex()" type="primary" plain style="float: right">返回首页</el-button>
+      <el-button @click="toIndex()" type="primary" plain style="float: right">{{$t('common.to_home')}}</el-button>
     </div>
     <div class="formBox">
       <el-form
@@ -14,9 +14,9 @@
         <!-- 商品名 -->
         <el-form-item
           prop="data.name"
-          label="商品名"
+          :label="tableLang.name"
           :rules="[
-            { required: true, message: '请输入商品名' }
+            { required: true, message: tableLang.nameTip }
           ]"
         >
           <el-input v-model="dynamicValidateForm.data.name"></el-input>
@@ -24,58 +24,40 @@
         <!-- 描述 -->
         <el-form-item
           prop="data.desc"
-          label="描述"
+          :label="tableLang.desc"
           :rules="[
-            { required: true, message: '请添加描述' }
+            { required: true, message: tableLang.descTip }
           ]"
         >
           <el-input v-model="dynamicValidateForm.data.desc"></el-input>
         </el-form-item>
         <!-- 图片地址 -->
-        <el-form-item prop="data.img" label="图片地址">
+        <el-form-item prop="data.img" :label="tableLang.imgAddress">
           <el-input v-model="dynamicValidateForm.data.img"></el-input>
         </el-form-item>
         <!-- 数据源 -->
-        <el-form-item prop="data.dataSource" label="数据源">
+        <el-form-item prop="data.dataSource" :label="tableLang.dataSource">
           <el-input v-model="dynamicValidateForm.dataSource"></el-input>
         </el-form-item>
-        <!-- price -->
-        <!-- <el-form-item
-          prop="price"
-          label="价格"
-          :rules="[
-      { required: true, message: '请输入价格' },
-      { type: 'number', message: '请输入正确的数字' }
-    ]"
-        >
-          <el-input v-model.number="dynamicValidateForm.price"></el-input>
-        </el-form-item> -->
         <!-- 标签 -->
         <el-form-item
           v-for="(tag, index) in dynamicValidateForm.tags"
-          :label="'标签' + (index + 1)"
+          :label="tableLang.tag + (index + 1)"
           :key="tag.key"
           :prop="'tags.' + index + '.value'"
           :rules="{
-            required: true, message: '标签不能为空', trigger: 'blur'
+            required: true, message: tableLang.tagTip, trigger: 'blur'
         }"
         >
           <el-input v-model="tag.value"></el-input>
-          <el-button @click.prevent="removetag(tag)">删除</el-button>
+          <el-button @click.prevent="removetag(tag)">{{$t('common.delete')}}</el-button>
         </el-form-item>
-        <!-- 币种 coin -->
-        <!-- <el-form-item label="币种">
-          <el-select style="float: left;" v-model="dynamicValidateForm.coin" placeholder="请选择币种">
-            <el-option label="ONG" value="ONG"></el-option>
-            <el-option label="ONT" value="ONT"></el-option>
-          </el-select>
-        </el-form-item> -->
         <!-- 认证方 -->
-        <el-form-item label="认证方">
+        <el-form-item :label="tableLang.certifier">
           <el-select
             style="float: left;"
             v-model="dynamicValidateForm.certifier"
-            placeholder="请选择认证方"
+            :placeholder="tableLang.cerTips"
           >
             <el-option
               v-for="item in certifierArr"
@@ -85,54 +67,10 @@
             ></el-option>
           </el-select>
         </el-form-item>
-        <!-- 仲裁方 -->
-        <!-- <el-form-item label="仲裁方">
-          <el-select
-            style="float: left;"
-            v-model="dynamicValidateForm.judger"
-            placeholder="请选择仲裁方"
-          >
-            <el-option
-              v-for="item in judgerArr"
-              :key="item.id"
-              :label="item.ontid"
-              :value="item.ontid"
-            ></el-option>
-          </el-select>
-        </el-form-item> -->
-        <!-- dataId -->
-        <!-- <el-form-item prop="data.dataId" label="dataId">
-          {{dynamicValidateForm.data.dataId}}
-          <el-button
-            type="primary"
-            v-show="!dynamicValidateForm.data.dataId"
-            round
-            size="medium"
-            @click="toDataId()"
-          >生成dataId</el-button>
-        </el-form-item> -->
-        <!-- dToken -->
-        <!-- <el-form-item prop="data.token" label="dToken">
-          <span v-show="!dynamicValidateForm.data.token">请生成dToken</span>
-          {{dynamicValidateForm.data.token}}
-          <el-button
-            type="primary"
-            round
-            size="medium"
-            @click="generateOep5('dynamicValidateForm')"
-          >oep5生成</el-button>
-          <el-button
-            type="primary"
-            round
-            size="medium"
-            @click="generateOep8('dynamicValidateForm')"
-          >oep8生成</el-button>
-        </el-form-item> -->
-
         <el-form-item>
-          <el-button type="primary" @click="submitForm('dynamicValidateForm')">添加</el-button>
-          <el-button @click="addtag">新增标签</el-button>
-          <el-button @click="resetForm('dynamicValidateForm')">重置</el-button>
+          <el-button type="primary" @click="submitForm('dynamicValidateForm')">{{$t('common.add')}}</el-button>
+          <el-button @click="addtag">{{$t('common.add_new_tag')}}</el-button>
+          <el-button @click="resetForm('dynamicValidateForm')">{{$t('common.reset')}}</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -167,6 +105,18 @@ import { sha256 } from 'js-sha256'
 export default {
   data() {
     return {
+      tableLang: {
+        name: this.$t('common.commodity_name'),
+        nameTip: this.$t('common.please_enter') + this.$t('common.commodity_name'),
+        desc: this.$t('common.description'),
+        descTip: this.$t('common.please_enter') + this.$t('common.description'),
+        imgAddress: this.$t('common.img_address'),
+        dataSource: this.$t('common.data_source'),
+        tag: this.$t('common.tag'),
+        tagTip: this.$t('common.tag_not_empty'),
+        certifier: this.$t('common.certifier'),
+        cerTips: this.$t('common.cerTip'),
+      },
       dynamicValidateForm: {
         tags: [{
           value: ''
@@ -245,7 +195,7 @@ export default {
         console.log('addnewdata', res)
         if (res && res.data.msg === 'SUCCESS') {
           this.$message({
-            message: '添加成功',
+            message: this.$t('common.add_suc'),
             type: 'success',
             center: true,
             duration: 2000
@@ -254,7 +204,7 @@ export default {
         } else {
           console.log('err1')
           this.$message({
-            message: '添加失败',
+            message: this.$t('common.add_fail'),
             type: 'error',
             center: true,
             duration: 2000
@@ -264,7 +214,7 @@ export default {
       } catch (error) {
         console.log('err2')
         this.$message({
-          message: '添加失败',
+          message: this.$t('common.add_fail'),
           type: 'error',
           center: true,
           duration: 2000

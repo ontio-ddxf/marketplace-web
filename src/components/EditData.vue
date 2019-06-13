@@ -1,8 +1,13 @@
 <template>
   <div class="addBox">
-    <h2>准备上架</h2>
+    <h2>{{$t('common.ready_shelf')}}</h2>
     <div style="overflow: hidden; margin-bottom: 20px;">
-      <el-button @click="toIndex()" type="primary" plain style="float: right">返回首页</el-button>
+      <el-button
+        @click="toIndex()"
+        type="primary"
+        plain
+        style="float: right"
+      >{{$t('common.to_home')}}</el-button>
     </div>
     <div class="formBox">
       <el-form
@@ -14,9 +19,9 @@
         <!-- 商品名 -->
         <el-form-item
           prop="data.name"
-          label="商品名"
+          :label="tableLang.name"
           :rules="[
-            { required: true, message: '请输入商品名' }
+            { required: true, message: tableLang.nameTip }
           ]"
         >
           <el-input disabled v-model="dynamicValidateForm.data.name"></el-input>
@@ -24,24 +29,24 @@
         <!-- 描述 -->
         <el-form-item
           prop="data.desc"
-          label="描述"
+          :label="tableLang.desc"
           :rules="[
-            { required: true, message: '请添加描述' }
+            { required: true, message: tableLang.descTip }
           ]"
         >
           <el-input disabled v-model="dynamicValidateForm.data.desc"></el-input>
         </el-form-item>
         <!-- 图片地址 -->
-        <el-form-item prop="data.img" label="图片地址">
+        <el-form-item prop="data.img" :label="tableLang.imgAddress">
           <el-input disabled v-model="dynamicValidateForm.data.img"></el-input>
         </el-form-item>
         <!-- price -->
         <el-form-item
           prop="price"
-          label="价格"
+          :label="tableLang.price"
           :rules="[
-      { required: true, message: '请输入价格' },
-      { type: 'number', message: '请输入正确的数字' }
+      { required: true, message: tableLang.priceTip1 },
+      { type: 'number', message: tableLang.priceTip2 }
     ]"
         >
           <el-input v-model.number="dynamicValidateForm.price"></el-input>
@@ -49,29 +54,29 @@
         <!-- 标签 -->
         <el-form-item
           v-for="(tag, index) in dynamicValidateForm.tags"
-          :label="'标签' + (index + 1)"
+          :label="tableLang.tag + (index + 1)"
           :key="tag.key"
           :prop="'tags.' + index + '.value'"
           :rules="{
-            required: true, message: '标签不能为空', trigger: 'blur'
+            required: true, message: tableLang.tagTip, trigger: 'blur'
         }"
         >
           <el-input v-model="tag.value" disabled></el-input>
-          <el-button disabled @click.prevent="removetag(tag)">删除</el-button>
+          <el-button disabled @click.prevent="removetag(tag)">{{$t('common.delete')}}</el-button>
         </el-form-item>
         <!-- 币种 coin -->
-        <el-form-item label="币种">
-          <el-select style="float: left;" v-model="dynamicValidateForm.coin" placeholder="请选择币种">
+        <el-form-item :label="tableLang.coin">
+          <el-select style="float: left;" v-model="dynamicValidateForm.coin" :placeholder="tableLang.coinTip">
             <el-option label="ONG" value="ONG"></el-option>
             <el-option label="ONT" value="ONT"></el-option>
           </el-select>
         </el-form-item>
         <!-- 认证方 -->
-        <el-form-item label="认证方">
+        <el-form-item :label="tableLang.certifier">
           <el-select
             style="float: left;"
             v-model="dynamicValidateForm.certifier"
-            placeholder="请选择认证方"
+            :placeholder="tableLang.cerTips"
             disabled
           >
             <el-option
@@ -83,7 +88,7 @@
           </el-select>
         </el-form-item>
         <!-- 仲裁方 -->
-        <el-form-item label="仲裁方">
+        <el-form-item :label="tableLang.judger">
           <el-checkbox-group v-model="dynamicValidateForm.judgerType">
             <el-checkbox
               v-for="item in judgerArr"
@@ -94,19 +99,19 @@
           </el-checkbox-group>
         </el-form-item>
 
-        <el-form-item style="text-align:left;">token剩余数量: {{dynamicValidateForm.tokenTotal}}</el-form-item>
+        <el-form-item style="text-align:left;">token {{$t('common.number')}}: {{dynamicValidateForm.tokenTotal}}</el-form-item>
         <el-form-item
-          label="token数量"
+          :label="'token'+tableLang.tokenNum"
           prop="tokenNum"
           :rules="[
-            { required: true, message: '请输入数量' },
-            { type: 'number', message: '请输入正确的数字' }
+            { required: true, message: tableLang.tokenNumTip },
+            { type: 'number', message: tableLang.priceTip2 }
           ]"
         >
           <el-input v-model.number="dynamicValidateForm.tokenNum"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="submitForm('dynamicValidateForm')">上架</el-button>
+          <el-button type="primary" @click="submitForm('dynamicValidateForm')">{{$t('common.shelf')}}</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -141,7 +146,27 @@ import { OntidContract, TransactionBuilder, TxSignature, Identity, Crypto, RestC
 
 export default {
   data() {
-    return {
+    return {      
+      tableLang: {
+        name: this.$t('common.commodity_name'),
+        nameTip: this.$t('common.please_enter') + this.$t('common.commodity_name'),
+        desc: this.$t('common.description'),
+        descTip: this.$t('common.please_enter') + this.$t('common.description'),
+        imgAddress: this.$t('common.img_address'),
+        dataSource: this.$t('common.data_source'),
+        tag: this.$t('common.tag'),
+        tagTip: this.$t('common.tag_not_empty'),
+        certifier: this.$t('common.certifier'),
+        cerTips: this.$t('common.cerTip'),
+        price: this.$t('common.price'),
+        priceTip1: this.$t('common.please_enter') + this.$t('common.price'),
+        priceTip2: this.$t('common.price_tip2'),
+        coin: this.$t('common.coin'),
+        coinTip: this.$t('common.please_enter') +this.$t('common.coin'),
+        judger: this.$t('common.judger'),
+        tokenNum: this.$t('common.number'),
+        tokenNumTip: this.$t('common.please_enter')+this.$t('common.number'),
+      },
       dynamicValidateForm: {
         tags: [],
         price: '',
@@ -218,7 +243,7 @@ export default {
     async addNewData() {
       if (this.dataParams.judger.length == 0) {
         this.$message({
-          message: '请至少选中一个仲裁方！',
+          message: this.$t('common.judger_one_tip'),
           type: 'error',
           center: true,
           duration: 2000
@@ -227,7 +252,7 @@ export default {
       }
       if (this.dataParams.tokenNum > this.dynamicValidateForm.tokenTotal) {
         this.$message({
-          message: 'token数量不足',
+          message: this.$t('common.Insufficient_token'),
           type: 'error',
           center: true,
           duration: 2000
@@ -306,7 +331,7 @@ export default {
             sigVo.sigData = signData.data
           } catch (error) {
             this.$message({
-              message: '商品上架失败',
+              message: this.$t('common.pro_fail'),
               type: 'error',
               center: true,
               duration: 2000
@@ -335,15 +360,15 @@ export default {
             console.log('orderParams', res)
             if (res.data.msg === 'SUCCESS' && res.data.result) {
               this.$message({
-                message: '商品上架成功',
+                message: this.$t('common.pro_success'),
                 type: 'success',
                 center: true,
                 duration: 2000
               })
-               this.$router.push({ path: '/commoditymanage' })
+              this.$router.push({ path: '/commoditymanage' })
             } else {
               this.$message({
-                message: '商品上架失败',
+                message: this.$t('common.pro_fail'),
                 type: 'error',
                 center: true,
                 duration: 2000
@@ -352,7 +377,7 @@ export default {
             }
           } catch (error) {
             this.$message({
-              message: '商品上架失败',
+              message: this.$t('common.pro_fail'),
               type: 'error',
               center: true,
               duration: 2000
@@ -362,7 +387,7 @@ export default {
 
         } else {
           this.$message({
-            message: '商品上架失败',
+            message: this.$t('common.pro_fail'),
             type: 'error',
             center: true,
             duration: 2000
@@ -372,7 +397,7 @@ export default {
       } catch (error) {
         throw error
         this.$message({
-          message: '商品上架失败',
+          message: this.$t('common.pro_fail'),
           type: 'error',
           center: true,
           duration: 2000

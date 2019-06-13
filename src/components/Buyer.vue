@@ -1,31 +1,26 @@
 <template>
   <div>
-    <el-table border :data="tableData" style="width: 100%">
+    <el-table border :data="tableData" style="width: 100%" :empty-text="$t('common.no_data')">
       <el-table-column type="index" :index="indexMethod" align="center"></el-table-column>
-      <el-table-column prop="providerOntid" label="卖家" style="width: 20%" align="center"></el-table-column>
-      <el-table-column prop="orderId" label="订单号" width="260" align="center"></el-table-column>
-      <el-table-column label="描述" prop="desc" align="center" width="180"></el-table-column>
-      <el-table-column prop="boughtTime" label="购买日期" width="180" align="center"></el-table-column>
-      <el-table-column label="操作" width="220" align="center">
+      <el-table-column prop="providerOntid" :label="tableLang.seller" style="width: 20%" align="center"></el-table-column>
+      <el-table-column prop="orderId" :label="tableLang.order_num" width="260" align="center"></el-table-column>
+      <el-table-column :label="tableLang.desc" prop="desc" align="center" width="180"></el-table-column>
+      <el-table-column prop="boughtTime" :label="tableLang.buy_date" width="180" align="center"></el-table-column>
+      <el-table-column :label="tableLang.state" width="220" align="center">
         <template slot-scope="scope">
-          <el-button size="mini" v-if="scope.row.state == 3" type="danger">订单结束</el-button>
-          <el-button size="mini" v-else-if="scope.row.state == 4" type="danger">申诉中</el-button>
-          <el-button size="mini" v-else-if="scope.row.state == 5" type="success">申诉结束</el-button>
-          <el-button size="mini" v-else-if="scope.row.state == 1" type="danger" >已挂单</el-button>
-          <el-button size="mini" v-else type="danger" @click="toAppeal(scope.row)">立即申诉</el-button>
-          <el-tag type="info" v-show="scope.row.arbitrage == '0'">申诉失败</el-tag>
-          <el-tag type="danger" v-show="scope.row.arbitrage == '1'">申诉成功</el-tag>
+          <el-button size="mini" v-if="scope.row.state == 3" type="danger">{{$t('common.order_over')}}</el-button>
+          <el-button size="mini" v-else-if="scope.row.state == 4" type="danger">{{$t('common.appeal')}}</el-button>
+          <el-button size="mini" v-else-if="scope.row.state == 5" type="success">{{$t('common.apple_end')}}</el-button>
+          <el-button size="mini" v-else-if="scope.row.state == 1" type="danger" >{{$t('common.pending_order')}}</el-button>
+          <el-button size="mini" v-else type="danger" @click="toAppeal(scope.row)">{{$t('common.to_appeal')}}</el-button>
+          <el-tag type="info" v-show="scope.row.arbitrage == '0'">{{$t('common.appeal_suc')}}</el-tag>
+          <el-tag type="danger" v-show="scope.row.arbitrage == '1'">{{$t('common.appeal_fail')}}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="380" align="center">
+      <el-table-column :label="tableLang.operating" width="380" align="center">
         <template slot-scope="scope">
-          <!-- <el-button size="mini" v-if="scope.row.state == 4" type="danger">申诉中</el-button>
-          <el-button size="mini" v-else-if="scope.row.arbitrage == '0'" type="danger">申诉失败</el-button>
-          <el-button size="mini" v-else-if="scope.row.arbitrage == '1'" type="success">申诉成功</el-button>
-          <el-button size="mini" v-else-if="scope.row.state != 5" type="danger" @click="toAppeal(scope.row)">申诉</el-button>
-          <el-button size="mini" v-else>订单完成</el-button> -->
-          <el-button size="mini" @click="viewInfo(scope.row)">查看信息</el-button>
-          <el-button size="mini" v-show="!scope.row.arbitrage && scope.row.state != '3'" type="success" @click="confirmReceipt(scope.row)">确认收货</el-button>
+          <el-button size="mini" @click="viewInfo(scope.row)">{{$t('common.view_info')}}</el-button>
+          <el-button size="mini" v-show="!scope.row.arbitrage && scope.row.state != '3'" type="success" @click="confirmReceipt(scope.row)">{{$t('common.sure_order')}}</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -49,6 +44,14 @@ import { OntidContract, TransactionBuilder, TxSignature, Identity, Crypto, RestC
 export default {
   data() {
     return {
+      tableLang: {
+        seller: this.$t('center.sell'),
+        order_num: this.$t('common.order_num'),
+        desc: this.$t('common.description'),
+        buy_date: this.$t('common.buy_date'),
+        operating: this.$t('common.operating'),
+        state: this.$t('common.state'),
+      },
       tableData: [],
       accountid: '',
       orderCount: 0,
@@ -108,14 +111,14 @@ export default {
         if (result && result.transaction) {
           this.getBuyOrder()
           this.$message({
-            message: '取消成功！',
+            message: this.$t('common.cancel_suc'),
             type: 'success',
             center: true,
             duration: 2000
           });
         } else {
           this.$message({
-            message: '取消失败，请重试！',
+            message: this.$t('common.cancel_fail'),
             type: 'error',
             center: true,
             duration: 2000
@@ -124,7 +127,7 @@ export default {
 
       } catch (error) {
         this.$message({
-          message: '取消失败，请重试！',
+          message: this.$t('common.cancel_fail'),
           type: 'error',
           center: true,
           duration: 2000
@@ -153,7 +156,7 @@ export default {
           console.log('paramsData', paramsData)
         } else {
           this.$message({
-            message: '收货失败，请重试！',
+            message: this.$t('common.delivery_fail'),
             type: 'error',
             center: true,
             duration: 2000
@@ -163,7 +166,7 @@ export default {
       } catch (error) {
         console.log(error)
         this.$message({
-          message: '收货失败，请重试！',
+          message: this.$t('common.delivery_fail'),
           type: 'error',
           center: true,
           duration: 2000
@@ -182,7 +185,7 @@ export default {
         paramsData.sigData = signData.data
       } catch (error) {
         this.$message({
-          message: '收货失败，请重试！',
+          message: this.$t('common.delivery_fail'),
           type: 'error',
           center: true,
           duration: 2000
@@ -197,14 +200,14 @@ export default {
         console.log('sendPass', res)
         if (res.data.msg === 'SUCCESS') {
           this.$message({
-            message: '收货成功！',
+            message: this.$t('common.delivery_suc'),
             type: 'success',
             center: true,
             duration: 2000
           })
         } else {
           this.$message({
-            message: '收货失败，请重试！',
+            message: this.$t('common.delivery_fail'),
             type: 'error',
             center: true,
             duration: 2000
@@ -213,7 +216,7 @@ export default {
         }
       } catch (error) {
         this.$message({
-          message: '收货失败，请重试！',
+          message: this.$t('common.delivery_fail'),
           type: 'error',
           center: true,
           duration: 2000
@@ -238,7 +241,7 @@ export default {
           this.openMsgBox(res.data.result)
         } else {
           this.$message({
-            message: '查看失败，请重试！',
+            message: this.$t('common.view_fail'),
             type: 'error',
             center: true,
             duration: 2000
@@ -246,7 +249,7 @@ export default {
         }
       } catch (error) {
         this.$message({
-          message: '查看失败，请重试！',
+          message: this.$t('common.view_fail'),
           type: 'error',
           center: true,
           duration: 2000
@@ -255,8 +258,8 @@ export default {
 
     },
     openMsgBox(msg) {
-      this.$alert(msg, '商品信息', {
-        confirmButtonText: '确定',
+      this.$alert(msg, 'Message', {
+        confirmButtonText: this.$t('common.sure'),
         callback: action => {
         }
       });
@@ -285,7 +288,7 @@ export default {
           paramsData.txHex = res.data.result
         } else {
           this.$message({
-            message: '提交申诉失败，请重试！',
+            message: this.$t('common.to_appeal_fail'),
             type: 'error',
             center: true,
             duration: 2000
@@ -294,7 +297,7 @@ export default {
         }
       } catch (error) {
         this.$message({
-          message: '提交申诉失败，请重试！',
+          message: this.$t('common.to_appeal_fail'),
           type: 'error',
           center: true,
           duration: 2000
@@ -313,7 +316,7 @@ export default {
         paramsData.sigData = signData.data
       } catch (error) {
         this.$message({
-          message: '提交申诉失败，请重试！',
+          message: this.$t('common.to_appeal_fail'),
           type: 'error',
           center: true,
           duration: 2000
@@ -327,14 +330,14 @@ export default {
         console.log('sendPass', res)
         if (res.data.msg === 'SUCCESS') {
           this.$message({
-          message: '提交申诉成功！',
+          message: this.$t('common.to_appeal_suc'),
           type: 'success',
           center: true,
           duration: 2000
         })
         } else {
           this.$message({
-          message: '提交申诉失败，请重试！',
+          message: this.$t('common.to_appeal_fail'),
           type: 'error',
           center: true,
           duration: 2000
@@ -342,7 +345,7 @@ export default {
         }
       } catch (error) {
         this.$message({
-          message: '提交申诉失败，请重试！',
+          message: this.$t('common.to_appeal_fail'),
           type: 'error',
           center: true,
           duration: 2000

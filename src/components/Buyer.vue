@@ -13,8 +13,8 @@
           <el-button size="mini" v-else-if="scope.row.state == 5" type="success">{{$t('common.apple_end')}}</el-button>
           <el-button size="mini" v-else-if="scope.row.state == 1" type="danger" >{{$t('common.pending_order')}}</el-button>
           <el-button size="mini" v-else type="danger" @click="toAppeal(scope.row)">{{$t('common.to_appeal')}}</el-button>
-          <el-tag type="info" v-show="scope.row.arbitrage == '0'">{{$t('common.appeal_suc')}}</el-tag>
-          <el-tag type="danger" v-show="scope.row.arbitrage == '1'">{{$t('common.appeal_fail')}}</el-tag>
+          <el-tag type="info" v-show="scope.row.arbitrage == '1'">{{$t('common.appeal_suc')}}</el-tag>
+          <el-tag type="danger" v-show="scope.row.arbitrage == '0'">{{$t('common.appeal_fail')}}</el-tag>
         </template>
       </el-table-column>
       <el-table-column :label="tableLang.operating" width="380" align="center">
@@ -139,7 +139,7 @@ export default {
       let sureParams = {
         argsList: [
           { name: "orderId", value: "ByteArray:" + data.orderId }],
-        contractHash: "3da0998e1e759aaed78b41ce1f92151d7b3f1083",
+        contractHash: "a50ec2d48048857646d2bbe4b283b5dcc18968e0",
         method: "confirm"
       }
       let paramsData = {
@@ -271,7 +271,7 @@ export default {
           { name: "orderId", value: "ByteArray:" + data.orderId },
           { name: "arbitrageFee", value: data.price * 0.05 }
         ],
-        contractHash: "3da0998e1e759aaed78b41ce1f92151d7b3f1083",
+        contractHash: "a50ec2d48048857646d2bbe4b283b5dcc18968e0",
         method: "applyArbitrage"
 
       }

@@ -53,7 +53,7 @@ export default {
           { "name": "orderId", "value": "ByteArray:" + data.orderId },
           { "name": "isWin", "value": isWin }
         ],
-        "contractHash": "3da0998e1e759aaed78b41ce1f92151d7b3f1083",
+        "contractHash": "a50ec2d48048857646d2bbe4b283b5dcc18968e0",
         "method": "arbitrage"
       }
       console.log('isWin', isWin)

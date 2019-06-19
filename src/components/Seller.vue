@@ -149,7 +149,7 @@ export default {
       let sureParams = {
         argsList: [
           { name: "orderId", value: "ByteArray:" + data.orderId }],
-        contractHash: "3da0998e1e759aaed78b41ce1f92151d7b3f1083",
+        contractHash: "a50ec2d48048857646d2bbe4b283b5dcc18968e0",
         method: "confirm"
       }
       console.log('sureParams', sureParams)

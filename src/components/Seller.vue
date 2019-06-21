@@ -2,14 +2,27 @@
   <div>
     <el-table border :data="tableData" style="width: 100%" :empty-text="$t('common.no_data')">
       <el-table-column type="index" :index="indexMethod" align="center"></el-table-column>
-      <el-table-column prop="demanderOntid" :label="tableLang.buyer" style="width: 20%" align="center"></el-table-column>
+      <el-table-column
+        prop="demanderOntid"
+        :label="tableLang.buyer"
+        style="width: 20%"
+        align="center"
+      ></el-table-column>
       <el-table-column prop="orderId" :label="tableLang.order_num" width="260" align="center"></el-table-column>
       <el-table-column prop="boughtTime" :label="tableLang.buy_date" width="180" align="center"></el-table-column>
       <el-table-column :label="tableLang.state" width="180" align="center">
         <template slot-scope="scope">
           <el-tag size="medium" type="info" v-if="scope.row.state == 1">{{$t('common.sold')}}</el-tag>
-          <el-tag size="medium" type="info" v-else-if="scope.row.state == 2">{{$t('common.pending_order')}}</el-tag>
-          <el-tag size="medium" type="info" v-else-if="scope.row.state == 3">{{$t('common.order_over')}}</el-tag>
+          <el-tag
+            size="medium"
+            type="info"
+            v-else-if="scope.row.state == 2"
+          >{{$t('common.pending_order')}}</el-tag>
+          <el-tag
+            size="medium"
+            type="info"
+            v-else-if="scope.row.state == 3"
+          >{{$t('common.order_over')}}</el-tag>
           <el-tag size="medium" type="info" v-else-if="scope.row.state == 4">{{$t('common.appeal')}}</el-tag>
           <el-tag size="medium" type="info" v-else>{{$t('common.apple_end')}}</el-tag>
         </template>
@@ -149,11 +162,10 @@ export default {
       let sureParams = {
         argsList: [
           { name: "orderId", value: "ByteArray:" + data.orderId }],
-        contractHash: "a50ec2d48048857646d2bbe4b283b5dcc18968e0",
+        contractHash: "88da35324f1133aca1f3b728b27fa1f017e6fb8c",
         method: "confirm"
       }
       console.log('sureParams', sureParams)
-      // return
       let paramsData = {
         txHex: '',
         pubKeys: '',
@@ -237,7 +249,7 @@ export default {
       }
     },
     handleCurrentChange(val) {
-      this.pageNum = val
+      this.pageNum = val - 1
       this.getSellOrder()
     },
     openMsgBox(data) {

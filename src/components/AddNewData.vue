@@ -2,7 +2,12 @@
   <div class="addBox">
     <h2>{{$t('common.add_data')}}</h2>
     <div style="overflow: hidden; margin-bottom: 20px;">
-      <el-button @click="toIndex()" type="primary" plain style="float: right">{{$t('common.to_home')}}</el-button>
+      <el-button
+        @click="toIndex()"
+        type="primary"
+        plain
+        style="float: right"
+      >{{$t('common.to_home')}}</el-button>
     </div>
     <div class="formBox">
       <el-form
@@ -16,7 +21,8 @@
           prop="data.name"
           :label="tableLang.name"
           :rules="[
-            { required: true, message: tableLang.nameTip }
+            { required: true, message: tableLang.nameTip },
+            { min: 1, max: 15, message: tableLang.lengthTips }
           ]"
         >
           <el-input v-model="dynamicValidateForm.data.name"></el-input>
@@ -26,7 +32,8 @@
           prop="data.desc"
           :label="tableLang.desc"
           :rules="[
-            { required: true, message: tableLang.descTip }
+            { required: true, message: tableLang.descTip },
+            { min: 1, max: 15, message: tableLang.lengthTips }
           ]"
         >
           <el-input v-model="dynamicValidateForm.data.desc"></el-input>
@@ -45,9 +52,10 @@
           :label="tableLang.tag + (index + 1)"
           :key="tag.key"
           :prop="'tags.' + index + '.value'"
-          :rules="{
+          :rules="[{
             required: true, message: tableLang.tagTip, trigger: 'blur'
-        }"
+        },{ min: 1, max: 15, message: tableLang.lengthTips }
+        ]"
         >
           <el-input v-model="tag.value"></el-input>
           <el-button @click.prevent="removetag(tag)">{{$t('common.delete')}}</el-button>
@@ -116,6 +124,7 @@ export default {
         tagTip: this.$t('common.tag_not_empty'),
         certifier: this.$t('common.certifier'),
         cerTips: this.$t('common.cerTip'),
+        lengthTips: this.$t('common.length_tips')
       },
       dynamicValidateForm: {
         tags: [{
@@ -174,7 +183,7 @@ export default {
     },
     removetag(item) {
       var index = this.dynamicValidateForm.tags.indexOf(item)
-      if (index !== -1) {
+      if (index !== 0) {
         this.dynamicValidateForm.tags.splice(index, 1)
       }
     },
@@ -220,54 +229,6 @@ export default {
           duration: 2000
         })
       }
-    },
-    generateOep5(formName) {
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          console.log(this.dynamicValidateForm.data.dataId)
-          if (!this.dynamicValidateForm.data.dataId) {
-            this.$message({
-              message: '请先生成dataId',
-              type: 'error',
-              center: true,
-              duration: 2000
-            })
-            return
-          }
-          let str = JSON.stringify(this.dataParams) + (new Date()).valueOf()
-          this.dynamicValidateForm.data.token = sha256(str)
-          this.dataParams.data.dToken = this.dynamicValidateForm.data.token
-          console.log('this.dataParams', this.dataParams)
-        } else {
-          console.log('error submit!!');
-          return false;
-        }
-      });
-    },
-    generateOep8(formName) {
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          if (!this.dynamicValidateForm.data.dataId) {
-            this.$message({
-              message: '请先生成dataId',
-              type: 'error',
-              center: true,
-              duration: 2000
-            })
-            return
-          }
-          // console.log(this.metadata)
-          // console.log(this.dataParams)
-          this.dataParams.data.dToken = ''
-          this.dynamicValidateForm.data.token = sha256(JSON.stringify(this.dataParams))
-          this.dataParams.data.dToken = this.dynamicValidateForm.data.token
-          console.log('this.dataParams', this.dataParams)
-        } else {
-          console.log('error submit!!');
-          return false;
-        }
-      });
-
     },
     toDataId() {
       this.dynamicValidateForm.data.dataId = uuid()

@@ -1,7 +1,12 @@
 <template>
   <div class="order_box">
     <div style="overflow: hidden; margin-bottom: 20px;">
-      <el-button @click="toIndex()" type="primary" plain style="float: right">{{$t('common.to_home')}}</el-button>
+      <el-button
+        @click="toIndex()"
+        type="primary"
+        plain
+        style="float: right"
+      >{{$t('common.to_home')}}</el-button>
     </div>
     <el-tabs v-model="activeName" type="card" @tab-click="handleClick">
       <el-tab-pane :label="$t('center.buyer')" name="first">

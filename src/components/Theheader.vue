@@ -1,7 +1,8 @@
 <template>
   <div class="header_layout">
+    <div class="logo" @click="toIndex()"></div>
     <div class="select_lang">
-     <el-select
+      <el-select
         v-model="$i18n.locale"
         size="mini"
         :placeholder="$t('common.lang')"
@@ -28,13 +29,18 @@
         </el-dropdown-menu>
       </el-dropdown>
     </div>
-    
+
     <!-- <el-button round size="small" v-show="userAccount" @click="toOrder()">订单中心</el-button> -->
     <el-button round size="small" v-if="userAccount" @click="LoginOut()">{{$t('sign.sign_out')}}</el-button>
-    <el-button round size="small" :disabled="logining" v-else @click="getIdenty()">{{$t('sign.sign_in')}}</el-button>
+    <el-button
+      round
+      size="small"
+      :disabled="logining"
+      v-else
+      @click="getIdenty()"
+    >{{$t('sign.sign_in')}}</el-button>
     <el-button round size="small" v-show="!userAccount" @click="toRegister()">{{$t('sign.sign_up')}}</el-button>
     <span class="userAccount">{{userAccount}}</span>
-
   </div>
 </template>
 
@@ -60,6 +66,9 @@ export default {
     this.userAccount = sessionStorage.getItem('ons')
   },
   methods: {
+    toIndex() {
+      this.$router.push({ path: '/' })
+    },
     LoginOut() {
       this.$confirm(this.$t('top.sure_out'), this.$t('common.prompt'), {
         confirmButtonText: this.$t('common.sure'),
@@ -146,7 +155,6 @@ export default {
       this.$router.push({ path: 'register' });
     },
     handlechange(val) {
-      // console.log(this.$i18n.locale)
       this.$i18n.locale = val
       LangStorage.setLang(this.$i18n.locale)
       window.location.reload()
@@ -158,6 +166,17 @@ export default {
 <style lang="less" scoped>
 .header_layout {
   overflow: hidden;
+  .logo {
+    float: left;
+    width: 140px;
+    height: 60px;
+    background: url(../assets/images/logo_dark.svg) no-repeat center;
+    background-size: contain;
+    cursor: pointer;
+    &:hover {
+      opacity: 0.7;
+    }
+  }
   button.el-button {
     background: #000;
     color: #fff;

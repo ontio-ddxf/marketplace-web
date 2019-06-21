@@ -1,7 +1,12 @@
 <template>
   <div class="commoditymanage_box">
     <div class="msg">
-      <el-button @click="toIndex()" type="primary" plain style="float: right">{{$t('common.to_home')}}</el-button>
+      <el-button
+        @click="toIndex()"
+        type="primary"
+        plain
+        style="float: right"
+      >{{$t('common.to_home')}}</el-button>
       <div class="msg_item">
         <p>{{$t('common.kyc')}}</p>
         <p>KYC: www.baidu.com</p>
@@ -17,7 +22,11 @@
           <el-link type="danger" @click="walletAddress()">{{$t('common.get_add')}}</el-link>
         </p>
       </div>
-      <el-button style="margin-bottom: 20px;" @click="toAddData()" type="primary">{{$t('common.add_data')}}</el-button>
+      <el-button
+        style="margin-bottom: 20px;"
+        @click="toAddData()"
+        type="primary"
+      >{{$t('common.add_data')}}</el-button>
     </div>
     <div class="table_box">
       <el-table :data="tableData" border style="width: 100%" :empty-text="$t('common.no_data')">
@@ -46,7 +55,12 @@
         <el-table-column :label="tableLang.operating" align="center" width="400">
           <template slot-scope="scope">
             <el-button @click="dialog(scope.row)" type="primary" round size="small">DataId</el-button>
-            <el-button @click="handleClick(scope.row)" type="primary" round size="small">{{$t('common.detail')}}</el-button>
+            <el-button
+              @click="handleClick(scope.row)"
+              type="primary"
+              round
+              size="small"
+            >{{$t('common.detail')}}</el-button>
             <el-button
               @click="prodOperat(scope.row)"
               v-if="scope.row.state === 1"
@@ -60,7 +74,12 @@
     </div>
 
     <!--  -->
-    <el-dialog :title="$t('common.shipping_address')" :visible.sync="dialogFormVisible" center width="30%">
+    <el-dialog
+      :title="$t('common.shipping_address')"
+      :visible.sync="dialogFormVisible"
+      center
+      width="30%"
+    >
       <el-form :model="form" :rules="rules" ref="ruleForm">
         <el-form-item label="symbol" prop="symbol">
           <el-input v-model="form.symbol" autocomplete="off"></el-input>
@@ -70,6 +89,16 @@
         </el-form-item>
         <el-form-item label="totalAmount" prop="totalAmount">
           <el-input type="age" v-model.number="form.totalAmount" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="transferCount" prop="transferCount">
+          <el-input type="age" v-model.number="form.transferCount" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="accessCount" prop="accessCount">
+          <el-input type="age" v-model.number="form.accessCount" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="expireTime" prop="expireTime">
+          <!-- <el-input type="age" v-model.number="form.expireTime" autocomplete="off"></el-input> -->
+          <el-date-picker v-model="form.expireTime" type="datetime" placeholder="选择日期时间"></el-date-picker>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -88,6 +117,7 @@ import { OntidContract, TransactionBuilder, TxSignature, Identity, Crypto, RestC
 import { TEST_NET } from '../assets/control'
 import { sha256 } from 'js-sha256'
 import { throws } from 'assert';
+import moment from 'moment'
 export default {
   data() {
     return {
@@ -99,20 +129,35 @@ export default {
       form: {
         symbol: '',
         name: '',
-        totalAmount: null
+        totalAmount: null,
+        transferCount: null,
+        accessCount: null,
+        expireTime: null
       },
       rules: {
         name: [
-          { required: true, message: this.$t('common.please_enter')+ 'name', trigger: 'blur' },
+          { required: true, message: this.$t('common.please_enter') + 'name', trigger: 'blur' },
           { min: 3, message: this.$t('common.character3'), trigger: 'blur' }
         ],
         symbol: [
-          { required: true, message: this.$t('common.please_enter')+ 'symbol', trigger: 'blur' },
+          { required: true, message: this.$t('common.please_enter') + 'symbol', trigger: 'blur' },
           { min: 3, message: this.$t('common.character3'), trigger: 'blur' }
         ],
         totalAmount: [
-          { required: true, message: this.$t('common.please_enter')+ 'totalAmount' },
-          { type: 'number', message: 'totalAmount'+this.$t('common.mbnum') },
+          { required: true, message: this.$t('common.please_enter') + 'totalAmount' },
+          { type: 'number', message: 'totalAmount' + this.$t('common.mbnum') },
+        ],
+        transferCount: [
+          { required: true, message: this.$t('common.please_enter') + 'transferCount' },
+          { type: 'number', message: 'transferCount' + this.$t('common.mbnum') },
+        ],
+        accessCount: [
+          { required: true, message: this.$t('common.please_enter') + 'accessCount' },
+          { type: 'number', message: 'accessCount' + this.$t('common.mbnum') },
+        ],
+        expireTime: [
+          { required: true, message: this.$t('common.please_enter') + 'expireTime' }
+          // { type: 'number', message: 'expireTime' + this.$t('common.mbnum') },
         ]
       },
       cortData: null,
@@ -183,7 +228,7 @@ export default {
       }
     },
     async prodOperat(row) {
-      if (!row.tokenId) {
+      if (!row.tokenRange) {
         this.$message({
           message: this.$t('common.tokenid_loading'),
           type: 'error',
@@ -206,6 +251,28 @@ export default {
             ontid: this.ontid,
             pubKey: 1,
             contractVo: {
+              // argsList: [{
+              //   name: "account",
+              //   value: "Address:" + this.ontid.substring(8)
+              // }, {
+              //   name: "dataId",
+              //   value: "String:" + identity.ontid
+              // }, {
+              //   name: "ontid",
+              //   value: "String:" + this.ontid
+              // }, {
+              //   name: "index",
+              //   value: 1
+              // }, {
+              //   name: "symbol",
+              //   value: "String:" + this.form.symbol
+              // }, {
+              //   name: "name",
+              //   value: "String:" + this.form.name
+              // }, {
+              //   name: "totalAmount",
+              //   value: this.form.totalAmount
+              // }],
               argsList: [{
                 name: "account",
                 value: "Address:" + this.ontid.substring(8)
@@ -225,14 +292,25 @@ export default {
                 name: "name",
                 value: "String:" + this.form.name
               }, {
-                name: "totalAmount",
+                name: "amount",
                 value: this.form.totalAmount
+              }, {
+                name: 'transferCount',
+                value: this.form.transferCount
+              }, {
+                name: 'accessCount',
+                value: this.form.accessCount
+              },
+              {
+                name: 'expireTime',
+                value: moment(this.form.expireTime).unix()
               }],
-              contractHash: "0f0929b514ddf62522a8a335b588321b2e7725bc",
+              contractHash: "06633f64506fbf7fd4b65b422224905d362d1f55",
               method: "createTokenWithController",
             }
           }
-          console.log('params0', params0.dataId)
+          console.log('params0', params0)
+          // return
           let res = await this.$store.dispatch('getDID', params0)
           console.log('result', res)
           if (res.data.msg === 'SUCCESS') {

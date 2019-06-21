@@ -90,6 +90,8 @@ export default {
     oj_fail: '仲裁失败，请重试！',
     oj_suc: '仲裁成功！',
     lg_by: '请先登录，再购买！',
+    length_tips: '长度在 1 到 15 个字符',
+    view_other: '查看其它'
   },
   sign: {
     sign_up: '注册',
@@ -109,7 +111,7 @@ export default {
     ontid_fail: 'ONT ID 未注册，请先注册！',
   },
   commoditylist: {
-    content: '请输入内容',
+    content: '请输入商品标签',
   },
   center: {
     buyer: '买家中心',

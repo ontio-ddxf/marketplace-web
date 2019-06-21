@@ -16,7 +16,11 @@
         <el-table-column prop="createTime" align="center" :label="tableLang.date" width="200"></el-table-column>
         <el-table-column :label="tableLang.operating" align="center" width="100">
           <template slot-scope="scope">
-            <el-button @click="handleClick(scope.row)" type="text" size="small">{{$t('common.enter_dateil')}}</el-button>
+            <el-button
+              @click="handleClick(scope.row)"
+              type="text"
+              size="small"
+            >{{$t('common.enter_dateil')}}</el-button>
           </template>
         </el-table-column>
       </el-table>

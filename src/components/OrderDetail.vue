@@ -109,7 +109,7 @@ export default {
           { name: "txFeeAmount", "value": this.orderData.price * Math.pow(10, 9) * 0.1 },
           { name: "OJ", "value": "Address:" + this.OJlist.substring(8) }
         ],
-        contractHash: "a50ec2d48048857646d2bbe4b283b5dcc18968e0",
+        contractHash: "88da35324f1133aca1f3b728b27fa1f017e6fb8c",
         method: "takeOrder"
       }
       console.log('params', params)

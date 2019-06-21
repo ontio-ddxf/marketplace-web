@@ -2,17 +2,43 @@
   <div>
     <el-table border :data="tableData" style="width: 100%" :empty-text="$t('common.no_data')">
       <el-table-column type="index" :index="indexMethod" align="center"></el-table-column>
-      <el-table-column prop="providerOntid" :label="tableLang.seller" style="width: 20%" align="center"></el-table-column>
+      <el-table-column
+        prop="providerOntid"
+        :label="tableLang.seller"
+        style="width: 20%"
+        align="center"
+      ></el-table-column>
       <el-table-column prop="orderId" :label="tableLang.order_num" width="260" align="center"></el-table-column>
       <el-table-column :label="tableLang.desc" prop="desc" align="center" width="180"></el-table-column>
       <el-table-column prop="boughtTime" :label="tableLang.buy_date" width="180" align="center"></el-table-column>
       <el-table-column :label="tableLang.state" width="220" align="center">
         <template slot-scope="scope">
-          <el-button size="mini" v-if="scope.row.state == 3" type="danger">{{$t('common.order_over')}}</el-button>
-          <el-button size="mini" v-else-if="scope.row.state == 4" type="danger">{{$t('common.appeal')}}</el-button>
-          <el-button size="mini" v-else-if="scope.row.state == 5" type="success">{{$t('common.apple_end')}}</el-button>
-          <el-button size="mini" v-else-if="scope.row.state == 1" type="danger" >{{$t('common.pending_order')}}</el-button>
-          <el-button size="mini" v-else type="danger" @click="toAppeal(scope.row)">{{$t('common.to_appeal')}}</el-button>
+          <el-button
+            size="mini"
+            v-if="scope.row.state == 3"
+            type="danger"
+          >{{$t('common.order_over')}}</el-button>
+          <el-button
+            size="mini"
+            v-else-if="scope.row.state == 4"
+            type="danger"
+          >{{$t('common.appeal')}}</el-button>
+          <el-button
+            size="mini"
+            v-else-if="scope.row.state == 5"
+            type="success"
+          >{{$t('common.apple_end')}}</el-button>
+          <el-button
+            size="mini"
+            v-else-if="scope.row.state == 1"
+            type="danger"
+          >{{$t('common.pending_order')}}</el-button>
+          <el-button
+            size="mini"
+            v-else
+            type="danger"
+            @click="toAppeal(scope.row)"
+          >{{$t('common.to_appeal')}}</el-button>
           <el-tag type="info" v-show="scope.row.arbitrage == '1'">{{$t('common.appeal_suc')}}</el-tag>
           <el-tag type="danger" v-show="scope.row.arbitrage == '0'">{{$t('common.appeal_fail')}}</el-tag>
         </template>
@@ -20,7 +46,13 @@
       <el-table-column :label="tableLang.operating" width="380" align="center">
         <template slot-scope="scope">
           <el-button size="mini" @click="viewInfo(scope.row)">{{$t('common.view_info')}}</el-button>
-          <el-button size="mini" v-show="!scope.row.arbitrage && scope.row.state != '3'" type="success" @click="confirmReceipt(scope.row)">{{$t('common.sure_order')}}</el-button>
+          <el-button size="mini" @click="viewOther(scope.row)">{{$t('common.view_other')}}</el-button>
+          <el-button
+            size="mini"
+            v-show="!scope.row.arbitrage && scope.row.state != '3'"
+            type="success"
+            @click="confirmReceipt(scope.row)"
+          >{{$t('common.sure_order')}}</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -40,6 +72,7 @@
 <script>
 import { client } from 'ontology-dapi'
 import { OntidContract, TransactionBuilder, TxSignature, Identity, Crypto, RestClient, utils } from 'ontology-ts-sdk';
+import moment from 'moment'
 
 export default {
   data() {
@@ -139,7 +172,7 @@ export default {
       let sureParams = {
         argsList: [
           { name: "orderId", value: "ByteArray:" + data.orderId }],
-        contractHash: "a50ec2d48048857646d2bbe4b283b5dcc18968e0",
+        contractHash: "88da35324f1133aca1f3b728b27fa1f017e6fb8c",
         method: "confirm"
       }
       let paramsData = {
@@ -226,7 +259,7 @@ export default {
 
     },
     handleCurrentChange(val) {
-      this.pageNum = val
+      this.pageNum = val - 1
       this.getBuyOrder()
     },
     async viewInfo(data) {
@@ -264,14 +297,14 @@ export default {
         }
       });
     },
-    async  toAppeal(data) {
+    async toAppeal(data) {
 
       let appealParams = {
         argsList: [
           { name: "orderId", value: "ByteArray:" + data.orderId },
           { name: "arbitrageFee", value: data.price * 0.05 }
         ],
-        contractHash: "a50ec2d48048857646d2bbe4b283b5dcc18968e0",
+        contractHash: "88da35324f1133aca1f3b728b27fa1f017e6fb8c",
         method: "applyArbitrage"
 
       }
@@ -330,18 +363,18 @@ export default {
         console.log('sendPass', res)
         if (res.data.msg === 'SUCCESS') {
           this.$message({
-          message: this.$t('common.to_appeal_suc'),
-          type: 'success',
-          center: true,
-          duration: 2000
-        })
+            message: this.$t('common.to_appeal_suc'),
+            type: 'success',
+            center: true,
+            duration: 2000
+          })
         } else {
           this.$message({
-          message: this.$t('common.to_appeal_fail'),
-          type: 'error',
-          center: true,
-          duration: 2000
-        })
+            message: this.$t('common.to_appeal_fail'),
+            type: 'error',
+            center: true,
+            duration: 2000
+          })
         }
       } catch (error) {
         this.$message({
@@ -351,6 +384,39 @@ export default {
           duration: 2000
         })
         return
+      }
+    },
+    async  viewOther(data) {
+// moment(infoCode.expireTimeCount).format('YYYY-MM-DD HH:mm:ss')
+      try {
+        let res = await this.$store.dispatch('viewOtherInfo', data.tokenId)
+        console.log('viewInfo', res.data.result)
+        if (res.status === 200 && res.data.msg === 'SUCCESS') {
+          let infoCode = res.data.result
+          let message = `
+            accessCount: ${infoCode.accessCount}
+            transferCount: ${infoCode.transferCount},
+            expireTimeCount: ${moment(infoCode.expireTimeCount*1000).format('YYYY-MM-DD HH:mm:ss')}
+          `
+          console.log('message', message)
+          this.openMsgBox(message)
+        } else {
+          console.log('1231')
+          this.$message({
+            message: this.$t('common.view_fail'),
+            type: 'error',
+            center: true,
+            duration: 2000
+          })
+        }
+      } catch (error) {
+        console.log('error', error)
+        this.$message({
+          message: this.$t('common.view_fail'),
+          type: 'error',
+          center: true,
+          duration: 2000
+        })
       }
     }
   },

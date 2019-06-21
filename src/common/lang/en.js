@@ -90,7 +90,8 @@ export default {
     oj_fail: 'The arbitration failed, please try again!',
     oj_suc: 'Successful arbitration!',
     lg_by: 'Please login first, then buy!',
-
+    length_tips: '1 to 15 characters',
+    view_other: 'View Other'
   },
   sign: {
     sign_up: 'Sign Up',
@@ -110,7 +111,7 @@ export default {
     ontid_fail: 'ONT ID is not registered, please register first!',
   },
   commoditylist: {
-    content: 'Please enter the content',
+    content: 'Please Input product Tag',
   },
   center: {
     buyer: 'Buyer',

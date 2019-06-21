@@ -1,7 +1,12 @@
 <template>
   <div class="detail_box">
     <div style="overflow: hidden; margin-bottom: 20px;">
-      <el-button @click="toIndex()" type="primary" plain style="float: right">{{$t('common.to_home')}}</el-button>
+      <el-button
+        @click="toIndex()"
+        type="primary"
+        plain
+        style="float: right"
+      >{{$t('common.to_home')}}</el-button>
     </div>
     <div class="item_box">
       <!-- 商品名 -->
@@ -40,7 +45,7 @@
         <el-tag type="info" v-if="detailList.isCertificated === 0">{{$t('common.no_cert')}}</el-tag>
         <el-tag type="success" v-else>{{$t('common.verified')}}</el-tag>
       </div>
-      
+
       <div class="item" v-show="detailList.data.dToken">
         <p>dToken:</p>
         {{detailList.data.dToken}}
@@ -54,8 +59,19 @@
         {{detailList.createTime}}
       </div>
     </div>
-    <el-button type="success" :disabled="signing" round v-if="isCert === 0" @click="toCert()">{{$t('common.toCer')}}</el-button>
-    <el-button type="success" :disabled="signing" round v-else-if="isCert === 1">{{$t('common.verified')}}</el-button>
+    <el-button
+      type="success"
+      :disabled="signing"
+      round
+      v-if="isCert === 0"
+      @click="toCert()"
+    >{{$t('common.toCer')}}</el-button>
+    <el-button
+      type="success"
+      :disabled="signing"
+      round
+      v-else-if="isCert === 1"
+    >{{$t('common.verified')}}</el-button>
     <el-button type="success" :disabled="signing" v-else round>{{$t('common.detail')}}</el-button>
   </div>
 </template>
@@ -82,117 +98,6 @@ export default {
     toIndex() {
       this.$router.push({ path: '/' })
     },
-    async toBuy() {
-      let ontid = sessionStorage.getItem('user_ontid')
-      if (!ontid) {
-        this.$message({
-          message: '请先登录，再购买！',
-          type: 'error',
-          center: true,
-          duration: 2000
-        });
-        return
-      }
-
-      let operation = 'sendToken'
-
-      // 构造args
-      let account = await client.api.asset.getAccount()
-      console.log('account', account);
-      let demander = account
-      demander = client.api.utils.addressToHex(demander)
-      console.log(demander)
-      let provider = this.detailList.ontid
-      let idxstr = provider.lastIndexOf(':')
-      console.log(idxstr)
-      console.log('provider', provider)
-      provider = provider.substr(idxstr + 1)
-      console.log('provider', provider)
-      provider = client.api.utils.addressToHex(provider)
-      console.log(provider)
-      let token_address = this.$store.state.token_address
-      console.log(this.$store.state.token_address)
-      let id = this.$route.query.commodityId
-      id = client.api.utils.strToHex(id)
-      console.log('id', id)
-      let data_list = [
-        {
-          type: 'ByteArray',
-          value: id
-        }
-      ]
-
-      let price = this.detailList.price
-      price = Number(price)
-      let price_list = [
-        {
-          type: 'Integer',
-          value: price
-        }
-      ]
-
-      let wait_send_msg_time = 6000
-
-      let args = [
-        {
-          type: 'ByteArray',
-          value: demander
-        },
-        {
-          type: 'ByteArray',
-          value: provider
-        },
-        {
-          type: 'ByteArray',
-          value: token_address
-        }, {
-          type: 'Array',
-          value: data_list
-        }, {
-          type: 'Array',
-          value: price_list
-        }, {
-          type: 'Integer',
-          value: wait_send_msg_time
-        },
-      ]
-      let params = {
-        operation,
-        args
-      }
-
-      try {
-        this.signing = true
-        const result = await this.$store.dispatch('dapiInvoke', params)
-        console.log('result', result)
-        if (result && result.transaction) {
-          this.$message({
-            message: '购买成功！',
-            type: 'success',
-            center: true,
-            duration: 2000
-          });
-          this.signing = false
-        } else {
-          this.$message({
-            message: '购买失败，请重试！',
-            type: 'error',
-            center: true,
-            duration: 2000
-          });
-          this.signing = false
-        }
-
-      } catch (error) {
-        this.$message({
-          message: '购买失败，请重试！',
-          type: 'error',
-          center: true,
-          duration: 2000
-        });
-        this.signing = false
-      }
-    },
     async getDetail(id) {
       let params = {
         id
@@ -213,7 +118,6 @@ export default {
       params.certifier = this.detailList.certifier
       try {
         console.log('params', params)
-        // return
         let res = await this.$store.dispatch('toCert', params)
         console.log(res);
         if (res.status === 200 && res.data.msg === 'SUCCESS') {

@@ -33,10 +33,10 @@ export default {
       },
       rules: {
         ontid: [
-          { required: true, message: this.$t('common.please_enter')+' ONT ID', trigger: 'blur' }
+          { required: true, message: this.$t('common.please_enter') + ' ONT ID', trigger: 'blur' }
         ],
         ons: [
-          { required: true, message: this.$t('common.please_enter')+' Enter ONS', trigger: 'blur' }
+          { required: true, message: this.$t('common.please_enter') + ' Enter ONS', trigger: 'blur' }
         ]
       }
     };
@@ -46,11 +46,11 @@ export default {
       this.$refs[formName].validate(async (valid) => {
         if (valid) {
           try {
-            this.ruleForm.domain = this.ruleForm.domain+'.on.ont'
+            this.ruleForm.domain = this.ruleForm.domain + '.on.ont'
             let res = await this.$store.dispatch('regiter', this.ruleForm)
             if (res.data.result) {
               this.$message({
-                message: this.$t('sign.sign_success')+'!',
+                message: this.$t('sign.sign_success') + '!',
                 type: 'success',
                 center: true,
                 duration: 2000

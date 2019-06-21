@@ -1,14 +1,18 @@
 <template>
   <div class="commodity_box">
     <div class="search_box">
-      <el-input :placeholder="$t('commoditylist.content')" v-model="searchText" class="input-with-select">
+      <el-input
+        :placeholder="$t('commoditylist.content')"
+        v-model="searchText"
+        class="input-with-select"
+      >
         <el-button slot="append" icon="el-icon-search" @click="searchClick()"></el-button>
       </el-input>
     </div>
     <div class="list_box">
       <el-table :data="tableData" border style="width: 100%" :empty-text="$t('common.no_data')">
         <el-table-column type="index" align="center" width="50" :index="indexMethod"></el-table-column>
-        <el-table-column prop="name" align="center" :label="tableLang.name" width="180"></el-table-column>
+        <el-table-column prop="name" align="center" :label="tableLang.name" width="240"></el-table-column>
         <el-table-column align="center" :label="tableLang.tags">
           <template slot-scope="scope">
             <el-tag
@@ -18,12 +22,16 @@
             >{{item}}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column align="center" :label="tableLang.coin" width="80">ONG</el-table-column>
-        <el-table-column prop="price" align="center" :label="tableLang.price" width="80"></el-table-column>
-        <el-table-column prop="createTime" align="center" :label="tableLang.date" width="200"></el-table-column>
-        <el-table-column :label="tableLang.operating" align="center" width="100">
+        <el-table-column align="center" :label="tableLang.coin" width="100">ONG</el-table-column>
+        <el-table-column prop="price" align="center" :label="tableLang.price" width="100"></el-table-column>
+        <el-table-column prop="createTime" align="center" :label="tableLang.date" width="240"></el-table-column>
+        <el-table-column :label="tableLang.operating" align="center" width="140">
           <template slot-scope="scope">
-            <el-button @click="handleClick(scope.row)" type="text" size="small">{{$t('common.enter_dateil')}}</el-button>
+            <el-button
+              @click="handleClick(scope.row)"
+              type="text"
+              size="small"
+            >{{$t('common.enter_dateil')}}</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -88,7 +96,7 @@ export default {
         if (res.status === 200 && res.data.msg === 'SUCCESS') {
           this.tableData = res.data.result.recordList
           this.tableData.map((item, idx) => {
-            item.price = item.price*Math.pow(10, -9)
+            item.price = item.price * Math.pow(10, -9)
           })
           this.recordCount = res.data.result.recordCount
           console.log('this.tableData', this.tableData)
@@ -122,7 +130,6 @@ export default {
   }
   .list_box {
     margin: 0 auto;
-    // width: 80%;
   }
   .list_box,
   .paginatio {

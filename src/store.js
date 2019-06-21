@@ -374,6 +374,22 @@ export default new Vuex.Store({
       } catch (error) {
         return error;
       }
+    },
+    async getTokenId({ dispatch, commit }, params) {
+      try {
+        return axios.get(
+          process.env.VUE_APP_DDXF_API + "/api/v1/order/token/" + params
+        );
+      } catch (error) {
+        return error;
+      }
+    },
+    async viewOtherInfo({ dispatch, commit }, params) {
+      try {
+        return axios.get(process.env.VUE_APP_DDXF_API+ '/api/v1/order/token/balance/'+params)
+      } catch (error) {
+        return error
+      }
     }
   }
 });

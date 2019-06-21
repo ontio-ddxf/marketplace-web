@@ -66,7 +66,11 @@
         </el-form-item>
         <!-- 币种 coin -->
         <el-form-item :label="tableLang.coin">
-          <el-select style="float: left;" v-model="dynamicValidateForm.coin" :placeholder="tableLang.coinTip">
+          <el-select
+            style="float: left;"
+            v-model="dynamicValidateForm.coin"
+            :placeholder="tableLang.coinTip"
+          >
             <el-option label="ONG" value="ONG"></el-option>
             <el-option label="ONT" value="ONT"></el-option>
           </el-select>
@@ -99,8 +103,10 @@
           </el-checkbox-group>
         </el-form-item>
 
-        <el-form-item style="text-align:left;">token {{$t('common.number')}}: {{dynamicValidateForm.tokenTotal}}</el-form-item>
-        <el-form-item
+        <!-- <el-form-item
+          style="text-align:left;"
+        >token {{$t('common.number')}}: {{dynamicValidateForm.tokenTotal}}</el-form-item>-->
+        <!-- <el-form-item
           :label="'token'+tableLang.tokenNum"
           prop="tokenNum"
           :rules="[
@@ -109,9 +115,12 @@
           ]"
         >
           <el-input v-model.number="dynamicValidateForm.tokenNum"></el-input>
-        </el-form-item>
+        </el-form-item>-->
         <el-form-item>
-          <el-button type="primary" @click="submitForm('dynamicValidateForm')">{{$t('common.shelf')}}</el-button>
+          <el-button
+            type="primary"
+            @click="submitForm('dynamicValidateForm')"
+          >{{$t('common.shelf')}}</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -146,7 +155,7 @@ import { OntidContract, TransactionBuilder, TxSignature, Identity, Crypto, RestC
 
 export default {
   data() {
-    return {      
+    return {
       tableLang: {
         name: this.$t('common.commodity_name'),
         nameTip: this.$t('common.please_enter') + this.$t('common.commodity_name'),
@@ -162,10 +171,10 @@ export default {
         priceTip1: this.$t('common.please_enter') + this.$t('common.price'),
         priceTip2: this.$t('common.price_tip2'),
         coin: this.$t('common.coin'),
-        coinTip: this.$t('common.please_enter') +this.$t('common.coin'),
+        coinTip: this.$t('common.please_enter') + this.$t('common.coin'),
         judger: this.$t('common.judger'),
         tokenNum: this.$t('common.number'),
-        tokenNumTip: this.$t('common.please_enter')+this.$t('common.number'),
+        tokenNumTip: this.$t('common.please_enter') + this.$t('common.number'),
       },
       dynamicValidateForm: {
         tags: [],
@@ -207,7 +216,6 @@ export default {
       certifierArr: [],
       judgerArr: [],
       detailList: { data: {}, nnn: 2 },
-
     };
   },
   methods: {
@@ -227,7 +235,7 @@ export default {
     },
     removetag(item) {
       var index = this.dynamicValidateForm.tags.indexOf(item)
-      if (index !== -1) {
+      if (index !== 0) {
         this.dynamicValidateForm.tags.splice(index, 1)
       }
     },
@@ -250,15 +258,15 @@ export default {
         })
         return
       }
-      if (this.dataParams.tokenNum > this.dynamicValidateForm.tokenTotal) {
-        this.$message({
-          message: this.$t('common.Insufficient_token'),
-          type: 'error',
-          center: true,
-          duration: 2000
-        })
-        return
-      }
+      // if (this.dataParams.tokenNum > this.dynamicValidateForm.tokenTotal) {
+      //   this.$message({
+      //     message: this.$t('common.Insufficient_token'),
+      //     type: 'error',
+      //     center: true,
+      //     duration: 2000
+      //   })
+      //   return
+      // }
 
       this.dataParams.id = this.detailList.id
 
@@ -269,18 +277,75 @@ export default {
         OJList.push('Address:' + item.substring(8))
       })
 
+
+      let tid = ''
+      try {
+        let res = await this.$store.dispatch('getTokenId', this.detailList.id)
+        console.log('tokenid', res)
+        if (res.data.msg == 'SUCCESS' && res.data.result) {
+          tid = res.data.result
+        } else {
+          this.$message({
+            message: this.$t('common.pro_fail'),
+            type: 'error',
+            center: true,
+            duration: 2000
+          })
+          return false
+        }
+      } catch (error) {
+        this.$message({
+          message: this.$t('common.pro_fail'),
+          type: 'error',
+          center: true,
+          duration: 2000
+        })
+        return false
+      }
       // console.log('OJList', OJList)
       // 构造参数
+      // let contracParams = {
+      //   argsList: [{
+      //     name: "makerTokenHash",
+      //     value: "ByteArray:06633f64506fbf7fd4b65b422224905d362d1f55"
+      //   }, {
+      //     name: "makerTokenId",
+      //     value: this.detailList.tokenId
+      //   }, {
+      //     name: "makerTokenAmount",
+      //     value: this.dataParams.tokenNum
+      //   }, {
+      //     name: "makerReceiveAddress",
+      //     value: "Address:" + this.ont_id.substring(8)
+      //   }, {
+      //     name: "makerMortgageTokenHash",
+      //     value: "ByteArray:0000000000000000000000000000000000000002"
+      //   }, {
+      //     name: "takerPaymentTokenHash",
+      //     value: "ByteArray:0000000000000000000000000000000000000002"
+      //   }, {
+      //     name: "takerPaymentTokenAmount",
+      //     value: this.dataParams.price * Math.pow(10, 9)
+      //   }, {
+      //     name: "mpReceiveAddress",
+      //     value: "Address:AePd2vTPeb1DggiFj82mR8F4qQXM2H9YpB"
+      //   }, {
+      //     name: "txFeeTokenHash",
+      //     value: "ByteArray:0000000000000000000000000000000000000002"
+      //   }, {
+      //     name: "OJList",
+      //     value: OJList
+      //   }],
+      //   contractHash: '88da35324f1133aca1f3b728b27fa1f017e6fb8c',
+      //   method: 'makeOrder'
+      // }
       let contracParams = {
         argsList: [{
           name: "makerTokenHash",
-          value: "ByteArray:0f0929b514ddf62522a8a335b588321b2e7725bc"
+          value: "ByteArray:06633f64506fbf7fd4b65b422224905d362d1f55"
         }, {
           name: "makerTokenId",
-          value: this.detailList.tokenId
-        }, {
-          name: "makerTokenAmount",
-          value: this.dataParams.tokenNum
+          value: +tid
         }, {
           name: "makerReceiveAddress",
           value: "Address:" + this.ont_id.substring(8)
@@ -303,7 +368,7 @@ export default {
           name: "OJList",
           value: OJList
         }],
-        contractHash: 'a50ec2d48048857646d2bbe4b283b5dcc18968e0',
+        contractHash: '88da35324f1133aca1f3b728b27fa1f017e6fb8c',
         method: 'makeOrder'
       }
       console.log('contracParams', contracParams)
@@ -342,7 +407,8 @@ export default {
 
           let orderParams = {
             dataId: this.detailList.dataId,
-            tokenId: this.detailList.tokenId,
+            tokenId: +tid,
+            id: this.detailList.id,
             tokenHash: "0000000000000000000000000000000000000002",
             price: this.dataParams.price * Math.pow(10, 9),
             providerOntid: this.ont_id,
@@ -526,17 +592,17 @@ export default {
       tokenId: this.detailList.tokenId
     }
 
-    try {
-      let results = await this.$store.dispatch('queryTokenNum', pars)
+    // try {
+    //   let results = await this.$store.dispatch('queryTokenNum', pars)
 
-      if (results.data.msg === "SUCCESS") {
+    //   if (results.data.msg === "SUCCESS") {
 
-        this.dynamicValidateForm.tokenTotal = results.data.result
+    //     this.dynamicValidateForm.tokenTotal = results.data.result
 
-      }
-    } catch (error) {
+    //   }
+    // } catch (error) {
 
-    }
+    // }
 
   },
   computed: {

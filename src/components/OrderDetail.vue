@@ -1,7 +1,18 @@
 <template>
   <div class="detail_box">
     <div style="overflow: hidden; margin-bottom: 20px;">
-      <el-button @click="toIndex()" type="primary" plain style="float: right">{{$t('common.to_home')}}</el-button>
+      <el-button
+        @click="$router.go(-1)"
+        type="primary"
+        plain
+        style="float: left"
+      >{{$t('common.back_to_prev')}}</el-button>
+      <el-button
+        @click="toIndex()"
+        type="primary"
+        plain
+        style="float: right"
+      >{{$t('common.to_home')}}</el-button>
     </div>
     <div class="item_box">
       <!-- 商品名 -->
@@ -94,7 +105,7 @@ export default {
       }
       if (!this.OJlist) {
         this.$message({
-          message: this.$t('common.select') + ' ' + this.$t('common.judger') ,
+          message: this.$t('common.select') + ' ' + this.$t('common.judger'),
           type: 'error',
           center: true,
           duration: 2000
@@ -178,7 +189,7 @@ export default {
             center: true,
             duration: 2000
           })
-          this.$router.push({path: '/'})
+          this.$router.push({ path: '/' })
         } else {
           console.log('error222')
           this.$message({

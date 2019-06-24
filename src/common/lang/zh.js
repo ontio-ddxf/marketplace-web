@@ -91,7 +91,9 @@ export default {
     oj_suc: '仲裁成功！',
     lg_by: '请先登录，再购买！',
     length_tips: '长度在 1 到 15 个字符',
-    view_other: '查看其它'
+    view_other: '查看其它',
+    back_to_prev: '返回上一页',
+    sure_cert: '确定认证？'
   },
   sign: {
     sign_up: '注册',

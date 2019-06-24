@@ -2,6 +2,12 @@
   <div class="detail_box">
     <div style="overflow: hidden; margin-bottom: 20px;">
       <el-button
+        @click="$router.go(-1)"
+        type="primary"
+        plain
+        style="float: left"
+      >{{$t('common.back_to_prev')}}</el-button>
+      <el-button
         @click="toIndex()"
         type="primary"
         plain
@@ -113,24 +119,38 @@ export default {
       }
     },
     async toCert() {
-      let params = {}
-      params.id = this.detailList.id
-      params.certifier = this.detailList.certifier
-      try {
-        console.log('params', params)
-        let res = await this.$store.dispatch('toCert', params)
-        console.log(res);
-        if (res.status === 200 && res.data.msg === 'SUCCESS') {
-          this.$message({
-            message: this.$t('common.verified'),
-            type: 'success',
-            center: true,
-            duration: 2000
-          });
-          sessionStorage.setItem('isCert', 1)
-          this.isCert = 1
-          window.location.reload();
-        } else {
+      this.$confirm(this.$t('common.sure_cert'), this.$t('common.prompt'), {
+        confirmButtonText: this.$t('common.sure'),
+        cancelButtonText: this.$t('common.cancel'),
+        type: 'success'
+      }).then(async () => {//确定
+
+        let params = {}
+        params.id = this.detailList.id
+        params.certifier = this.detailList.certifier
+        try {
+          console.log('params', params)
+          let res = await this.$store.dispatch('toCert', params)
+          console.log(res);
+          if (res.status === 200 && res.data.msg === 'SUCCESS') {
+            this.$message({
+              message: this.$t('common.verified'),
+              type: 'success',
+              center: true,
+              duration: 2000
+            });
+            sessionStorage.setItem('isCert', 1)
+            this.isCert = 1
+            window.location.reload();
+          } else {
+            this.$message({
+              message: this.$t('common.cer_fail'),
+              type: 'success',
+              center: true,
+              duration: 2000
+            });
+          }
+        } catch (error) {
           this.$message({
             message: this.$t('common.cer_fail'),
             type: 'success',
@@ -138,14 +158,8 @@ export default {
             duration: 2000
           });
         }
-      } catch (error) {
-        this.$message({
-          message: this.$t('common.cer_fail'),
-          type: 'success',
-          center: true,
-          duration: 2000
-        });
-      }
+      }).catch(() => {
+      });
     }
   },
 }

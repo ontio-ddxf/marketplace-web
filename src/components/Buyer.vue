@@ -263,9 +263,69 @@ export default {
       this.getBuyOrder()
     },
     async viewInfo(data) {
+
+      console.log('data', data)
+      let transactionParams = {
+        argsList: [
+          { name: 'tokenId', value: data.tokenId }
+        ],
+        contractHash: "06633f64506fbf7fd4b65b422224905d362d1f55",
+        method: "consumeToken"
+      }
+      let paramsData = {
+        txHex: '',
+        pubKeys: '',
+        sigData: ''
+      }
+      try {
+        let res = await this.$store.dispatch('makeTransaction', transactionParams)
+        console.log('makeTransaction', res)
+        // return
+        if (res.data.msg === 'SUCCESS') {
+          paramsData.txHex = res.data.result
+          console.log('paramsData', paramsData)
+        } else {
+          this.$message({
+            message: this.$t('common.view_fail'),
+            type: 'error',
+            center: true,
+            duration: 2000
+          })
+          return
+        }
+      } catch (error) {
+        console.log(error)
+        this.$message({
+          message: this.$t('common.view_fail'),
+          type: 'error',
+          center: true,
+          duration: 2000
+        })
+        return
+      }
+
+      try {
+        let message = paramsData.txHex
+        message = message.slice(0, message.length - 2)
+        message = utils.sha256(message)
+        message = utils.sha256(message)
+        message = utils.hexstr2str(message)
+        let signData = await client.api.message.signMessage({ message });
+        paramsData.pubKeys = signData.publicKey
+        paramsData.sigData = signData.data
+      } catch (error) {
+        this.$message({
+          message: this.$t('common.view_fail'),
+          type: 'error',
+          center: true,
+          duration: 2000
+        })
+        return
+      }
       let params = {
         id: data.id,
-        ontid: this.accountid
+        ontid: this.accountid,
+        sigVo: paramsData
       }
       try {
         let res = await this.$store.dispatch('checkData', params)
@@ -387,7 +447,7 @@ export default {
       }
     },
     async  viewOther(data) {
-// moment(infoCode.expireTimeCount).format('YYYY-MM-DD HH:mm:ss')
+      // moment(infoCode.expireTimeCount).format('YYYY-MM-DD HH:mm:ss')
       try {
         let res = await this.$store.dispatch('viewOtherInfo', data.tokenId)
         console.log('viewInfo', res.data.result)
@@ -396,7 +456,7 @@ export default {
           let message = `
             accessCount: ${infoCode.accessCount}
             transferCount: ${infoCode.transferCount},
-            expireTimeCount: ${moment(infoCode.expireTimeCount*1000).format('YYYY-MM-DD HH:mm:ss')}
+            expireTimeCount: ${moment(infoCode.expireTimeCount * 1000).format('YYYY-MM-DD HH:mm:ss')}
           `
           console.log('message', message)
           this.openMsgBox(message)

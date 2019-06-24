@@ -1,12 +1,21 @@
 <template>
   <div class="commoditymanage_box">
     <div class="msg">
-      <el-button
-        @click="toIndex()"
-        type="primary"
-        plain
-        style="float: right"
-      >{{$t('common.to_home')}}</el-button>
+      <div style="overflow: hidden;">
+        <el-button
+          @click="$router.go(-1)"
+          type="primary"
+          plain
+          style="float: left"
+        >{{$t('common.back_to_prev')}}</el-button>
+        <el-button
+          @click="toIndex()"
+          type="primary"
+          plain
+          style="float: right"
+        >{{$t('common.to_home')}}</el-button>
+      </div>
+
       <div class="msg_item">
         <p>{{$t('common.kyc')}}</p>
         <p>KYC: www.baidu.com</p>
@@ -243,7 +252,15 @@ export default {
     proDataId(formName) {
       this.$refs[formName].validate(async (valid) => {
         if (valid) {
-
+          if (+this.form.totalAmount > 10) {
+            this.$message({
+              message: 'TotalAmount Must Less than 10',
+              type: 'error',
+              center: true,
+              duration: 2000
+            });
+            return
+          }
           const privateKey = Crypto.PrivateKey.random();
           var identity = Identity.create(privateKey, '', '')
           let params0 = {
@@ -251,28 +268,6 @@ export default {
             ontid: this.ontid,
             pubKey: 1,
             contractVo: {
-              // argsList: [{
-              //   name: "account",
-              //   value: "Address:" + this.ontid.substring(8)
-              // }, {
-              //   name: "dataId",
-              //   value: "String:" + identity.ontid
-              // }, {
-              //   name: "ontid",
-              //   value: "String:" + this.ontid
-              // }, {
-              //   name: "index",
-              //   value: 1
-              // }, {
-              //   name: "symbol",
-              //   value: "String:" + this.form.symbol
-              // }, {
-              //   name: "name",
-              //   value: "String:" + this.form.name
-              // }, {
-              //   name: "totalAmount",
-              //   value: this.form.totalAmount
-              // }],
               argsList: [{
                 name: "account",
                 value: "Address:" + this.ontid.substring(8)

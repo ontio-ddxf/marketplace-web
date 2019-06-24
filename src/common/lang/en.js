@@ -91,7 +91,9 @@ export default {
     oj_suc: 'Successful arbitration!',
     lg_by: 'Please login first, then buy!',
     length_tips: '1 to 15 characters',
-    view_other: 'View Other'
+    view_other: 'View Other',
+    back_to_prev: 'Back to Previous',
+    sure_cert: 'Is Certification?'
   },
   sign: {
     sign_up: 'Sign Up',

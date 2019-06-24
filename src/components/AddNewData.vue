@@ -3,6 +3,12 @@
     <h2>{{$t('common.add_data')}}</h2>
     <div style="overflow: hidden; margin-bottom: 20px;">
       <el-button
+        @click="$router.go(-1)"
+        type="primary"
+        plain
+        style="float: left"
+      >{{$t('common.back_to_prev')}}</el-button>
+      <el-button
         @click="toIndex()"
         type="primary"
         plain

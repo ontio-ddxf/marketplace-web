@@ -29,8 +29,6 @@
         </el-dropdown-menu>
       </el-dropdown>
     </div>
-
-    <!-- <el-button round size="small" v-show="userAccount" @click="toOrder()">订单中心</el-button> -->
     <el-button round size="small" v-if="userAccount" @click="LoginOut()">{{$t('sign.sign_out')}}</el-button>
     <el-button
       round

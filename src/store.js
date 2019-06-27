@@ -390,30 +390,20 @@ export default new Vuex.Store({
       } catch (error) {
         return error
       }
+    },
+    async getDataByDataID({ dispatch, commit }, params) {
+      try {
+        return axios.get(process.env.VUE_APP_DDXF_API+ '/api/v1/dataset/data/'+params.id)
+      } catch (error) {
+        return error
+      }
+    },
+    async updateOrder({ dispatch, commit }, params) {
+      try {
+        return axios.post(process.env.VUE_APP_DDXF_API+ '/api/v1/order/second', params)
+      } catch (error) {
+        return error
+      }
     }
   }
 });
-
-/**
- * 
- * import LangStorage from "../../helpers/lang";
-
-const state = {
-  lang: LangStorage.getLang("en")
-};
-
-const mutations = {
-  UPDATE_HOME_LANG(state, payload) {
-    state.lang = payload.lang;
-  }
-};
-
-const actions = {};
-
-export default {
-  state,
-  mutations,
-  actions
-};
- * 
- */

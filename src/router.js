@@ -6,6 +6,7 @@ import OrderCenter from './components/OrderCenter'
 import AddNewData from './components/AddNewData'
 import CommodityManage from './components/CommodityManage'
 import EditData from './components/EditData'
+import ResaleDetail from './components/ResaleDetail'
 import Register from './components/Register'
 import OrderDetail from './components/OrderDetail'
 
@@ -42,6 +43,10 @@ const router = new Router({
           path: 'editdata',
           name: 'editdata',
           component: EditData
+        },{
+          path: 'resaleDetail',
+          name: 'resaleDetail',
+          component: ResaleDetail
         },
         {
           path: 'register',

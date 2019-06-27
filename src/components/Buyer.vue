@@ -53,6 +53,11 @@
             type="success"
             @click="confirmReceipt(scope.row)"
           >{{$t('common.sure_order')}}</el-button>
+          <el-button
+            size="mini"
+            v-show="scope.row.state == 3 || scope.row.arbitrage == '0'"
+            @click="Resale(scope.row)"
+          >{{$t('common.resale')}}</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -446,17 +451,24 @@ export default {
         return
       }
     },
-    async  viewOther(data) {
+    async viewOther(data) {
       // moment(infoCode.expireTimeCount).format('YYYY-MM-DD HH:mm:ss')
       try {
         let res = await this.$store.dispatch('viewOtherInfo', data.tokenId)
         console.log('viewInfo', res.data.result)
         if (res.status === 200 && res.data.msg === 'SUCCESS') {
+
           let infoCode = res.data.result
+          let timer = ''
+          if (+infoCode.expireTimeCount == 1) {
+            timer = 'everlasting'
+          } else {
+            timer = moment(infoCode.expireTimeCount * 1000).format('YYYY-MM-DD HH:mm:ss')
+          }
           let message = `
             accessCount: ${infoCode.accessCount}
             transferCount: ${infoCode.transferCount},
-            expireTimeCount: ${moment(infoCode.expireTimeCount * 1000).format('YYYY-MM-DD HH:mm:ss')}
+            expireTimeCount: ${timer}
           `
           console.log('message', message)
           this.openMsgBox(message)
@@ -478,6 +490,42 @@ export default {
           duration: 2000
         })
       }
+    },
+    async Resale(data) {
+      try {
+        let res = await this.$store.dispatch('viewOtherInfo', data.tokenId)
+        console.log('viewInfo', res.data.result)
+        if (res.status === 200 && res.data.msg === 'SUCCESS') {
+          let infoCode = res.data.result
+          if (+infoCode.accessCount <= 0 || +infoCode.transferCount <= 0) {
+            this.$message({
+              message: this.$t('common.resale_noenough'),
+              type: 'error',
+              center: true,
+              duration: 2000
+            })
+            return
+          }
+        } else {
+          this.$message({
+            message: this.$t('common.resale_fail'),
+            type: 'error',
+            center: true,
+            duration: 2000
+          })
+        }
+      } catch (error) {
+        console.log('error', error)
+        this.$message({
+          message: this.$t('common.resale_fail'),
+          type: 'error',
+          center: true,
+          duration: 2000
+        })
+      }
+      sessionStorage.setItem('resale_tokenId', data.tokenId)
+      sessionStorage.setItem('resale_id', data.id)
+      this.$router.push({ path: 'resaleDetail', query: { commodityId: data.dataId } })
     }
   },
   async mounted() {

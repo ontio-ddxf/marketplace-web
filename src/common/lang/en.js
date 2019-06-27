@@ -93,7 +93,11 @@ export default {
     length_tips: '1 to 15 characters',
     view_other: 'View Other',
     back_to_prev: 'Back to Previous',
-    sure_cert: 'Is Certification?'
+    sure_cert: 'Is Certification?',
+    resale: 'Resale',
+    resale_noenough: 'Insufficient conditions, can not be resold!',
+    resale_fail: 'Resale failure',
+    resale_suc: 'Resale success'
   },
   sign: {
     sign_up: 'Sign Up',

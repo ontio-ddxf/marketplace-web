@@ -51,13 +51,17 @@
           prop="price"
           :label="tableLang.price"
           :rules="[
-      { required: true, message: tableLang.priceTip1 },
-      { type: 'number', message: tableLang.priceTip2 }
-    ]"
-       style="text-align:left;"
+            { required: true, message: tableLang.priceTip1 },
+            { type: 'number', message: tableLang.priceTip2 }
+          ]"
         >
-        <el-input-number v-model="dynamicValidateForm.price" controls-position="right" :min="0" :max="100"></el-input-number>
-          <!-- <el-input type='number' min="1" max="100"  v-model.number="dynamicValidateForm.price"></el-input> -->
+          <el-input-number
+            v-model="dynamicValidateForm.price"
+            controls-position="right"
+            :min="0"
+            :max="100"
+          ></el-input-number>
+          <!-- <el-input type='number' min="1" max="100" v-model.number="dynamicValidateForm.price"></el-input> -->
         </el-form-item>
         <!-- 标签 -->
         <el-form-item
@@ -266,18 +270,7 @@ export default {
         })
         return
       }
-      // if (this.dataParams.tokenNum > this.dynamicValidateForm.tokenTotal) {
-      //   this.$message({
-      //     message: this.$t('common.Insufficient_token'),
-      //     type: 'error',
-      //     center: true,
-      //     duration: 2000
-      //   })
-      //   return
-      // }
-
       this.dataParams.id = this.detailList.id
-
       console.log('this.dataParams', this.dataParams)
       // return
       let OJList = []
@@ -286,67 +279,31 @@ export default {
       })
 
 
-      let tid = ''
-      try {
-        let res = await this.$store.dispatch('getTokenId', this.detailList.id)
-        console.log('tokenid', res)
-        if (res.data.msg == 'SUCCESS' && res.data.result) {
-          tid = res.data.result
-        } else {
-          this.$message({
-            message: this.$t('common.pro_fail'),
-            type: 'error',
-            center: true,
-            duration: 2000
-          })
-          return false
-        }
-      } catch (error) {
-        this.$message({
-          message: this.$t('common.pro_fail'),
-          type: 'error',
-          center: true,
-          duration: 2000
-        })
-        return false
-      }
-      // console.log('OJList', OJList)
-      // 构造参数
-      // let contracParams = {
-      //   argsList: [{
-      //     name: "makerTokenHash",
-      //     value: "ByteArray:06633f64506fbf7fd4b65b422224905d362d1f55"
-      //   }, {
-      //     name: "makerTokenId",
-      //     value: this.detailList.tokenId
-      //   }, {
-      //     name: "makerTokenAmount",
-      //     value: this.dataParams.tokenNum
-      //   }, {
-      //     name: "makerReceiveAddress",
-      //     value: "Address:" + this.ont_id.substring(8)
-      //   }, {
-      //     name: "makerMortgageTokenHash",
-      //     value: "ByteArray:0000000000000000000000000000000000000002"
-      //   }, {
-      //     name: "takerPaymentTokenHash",
-      //     value: "ByteArray:0000000000000000000000000000000000000002"
-      //   }, {
-      //     name: "takerPaymentTokenAmount",
-      //     value: this.dataParams.price * Math.pow(10, 9)
-      //   }, {
-      //     name: "mpReceiveAddress",
-      //     value: "Address:AePd2vTPeb1DggiFj82mR8F4qQXM2H9YpB"
-      //   }, {
-      //     name: "txFeeTokenHash",
-      //     value: "ByteArray:0000000000000000000000000000000000000002"
-      //   }, {
-      //     name: "OJList",
-      //     value: OJList
-      //   }],
-      //   contractHash: '88da35324f1133aca1f3b728b27fa1f017e6fb8c',
-      //   method: 'makeOrder'
-      // }
+      let tid = sessionStorage.getItem('resale_tokenId')
+      //   try {
+      //     let res = await this.$store.dispatch('getTokenId', this.detailList.id)
+      //     console.log('tokenid', res)
+      //     if (res.data.msg == 'SUCCESS' && res.data.result) {
+      //       tid = res.data.result
+      //     } else {
+      //       this.$message({
+      //         message: this.$t('common.pro_fail'),
+      //         type: 'error',
+      //         center: true,
+      //         duration: 2000
+      //       })
+      //       return false
+      //     }
+      //   } catch (error) {
+      //     this.$message({
+      //       message: this.$t('common.pro_fail'),
+      //       type: 'error',
+      //       center: true,
+      //       duration: 2000
+      //     })
+      //     return false
+      //   }
+      //   return
       let contracParams = {
         argsList: [{
           name: "makerTokenHash",
@@ -356,7 +313,6 @@ export default {
           value: +tid
         }, {
           name: "makerReceiveAddress",
-          // value: "Address:" + this.ont_id.substring(8)
           value: "Address:" + this.accountid
         }, {
           name: "makerMortgageTokenHash",
@@ -413,11 +369,11 @@ export default {
             return
           }
 
-
+          let upid = sessionStorage.getItem('resale_id')
           let orderParams = {
             dataId: this.detailList.dataId,
             tokenId: +tid,
-            id: this.detailList.id,
+            id: upid,
             tokenHash: "0000000000000000000000000000000000000002",
             price: this.dataParams.price * Math.pow(10, 9),
             providerOntid: this.ont_id,
@@ -431,7 +387,7 @@ export default {
           }
 
           try {
-            let res = await this.$store.dispatch('createOrderID', orderParams)
+            let res = await this.$store.dispatch('updateOrder', orderParams)
             console.log('orderParams', res)
             if (res.data.msg === 'SUCCESS' && res.data.result) {
               this.$message({
@@ -440,7 +396,7 @@ export default {
                 center: true,
                 duration: 2000
               })
-              this.$router.push({ path: '/commoditymanage' })
+              this.$router.push({ path: '/' })
             } else {
               this.$message({
                 message: this.$t('common.pro_fail'),
@@ -481,54 +437,6 @@ export default {
       }
 
     },
-    generateOep5(formName) {
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          console.log(this.dynamicValidateForm.data.dataId)
-          if (!this.dynamicValidateForm.data.dataId) {
-            this.$message({
-              message: '请先生成dataId',
-              type: 'error',
-              center: true,
-              duration: 2000
-            })
-            return
-          }
-          let str = JSON.stringify(this.dataParams) + (new Date()).valueOf()
-          this.dynamicValidateForm.data.token = sha256(str)
-          this.dataParams.data.dToken = this.dynamicValidateForm.data.token
-          console.log('this.dataParams', this.dataParams)
-        } else {
-          console.log('error submit!!');
-          return false;
-        }
-      });
-    },
-    generateOep8(formName) {
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          if (!this.dynamicValidateForm.data.dataId) {
-            this.$message({
-              message: '请先生成dataId',
-              type: 'error',
-              center: true,
-              duration: 2000
-            })
-            return
-          }
-          console.log(this.metadata)
-          console.log(this.dataParams)
-          this.dataParams.data.dToken = ''
-          this.dynamicValidateForm.data.token = sha256(JSON.stringify(this.dataParams))
-          this.dataParams.data.dToken = this.dynamicValidateForm.data.token
-          console.log('this.dataParams', this.dataParams)
-        } else {
-          console.log('error submit!!');
-          return false;
-        }
-      });
-
-    },
     toDataId() {
       this.dynamicValidateForm.data.dataId = uuid()
     },
@@ -537,13 +445,13 @@ export default {
         id
       }
       try {
-        let res = await this.$store.dispatch('getCommodityDetail', params)
+        let res = await this.$store.dispatch('getDataByDataID', params)
         if (res.status === 200 && res.data.msg === 'SUCCESS') {
           this.detailList = res.data.result
           console.log('this.detailList', this.detailList)
           this.dynamicValidateForm.certifier = this.detailList.certifier
           this.dynamicValidateForm.judger = this.detailList.judger
-          this.dynamicValidateForm.tokenId = this.detailList.tokenId
+          this.dynamicValidateForm.tokenId = sessionStorage.getItem('resale_tokenId')
           this.dynamicValidateForm.price = +this.detailList.price || ''
           this.dynamicValidateForm.coin = this.detailList.coin || 'ONG'
           this.dynamicValidateForm.data.name = this.detailList.data.name
@@ -600,19 +508,6 @@ export default {
       ontid: this.ont_id.substring(8),
       tokenId: this.detailList.tokenId
     }
-
-    // try {
-    //   let results = await this.$store.dispatch('queryTokenNum', pars)
-
-    //   if (results.data.msg === "SUCCESS") {
-
-    //     this.dynamicValidateForm.tokenTotal = results.data.result
-
-    //   }
-    // } catch (error) {
-
-    // }
-
   },
   computed: {
     dataParams() {

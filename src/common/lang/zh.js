@@ -93,7 +93,11 @@ export default {
     length_tips: '长度在 1 到 15 个字符',
     view_other: '查看其它',
     back_to_prev: '返回上一页',
-    sure_cert: '确定认证？'
+    sure_cert: '确定认证？',
+    resale: '转卖',
+    resale_noenough: '条件不足，无法转卖！',
+    resale_fail: '转卖失败！',
+    resale_suc: '转卖成功！'
   },
   sign: {
     sign_up: '注册',

@@ -63,7 +63,7 @@
         <el-table-column prop="createTime" align="center" :label="tableLang.date" width="200"></el-table-column>
         <el-table-column :label="tableLang.operating" align="center" width="400">
           <template slot-scope="scope">
-            <el-button @click="dialog(scope.row)" type="primary" round size="small">DataId</el-button>
+            <el-button @click="proDataId(scope.row)" type="primary" round size="small">DataId</el-button>
             <el-button
               @click="handleClick(scope.row)"
               type="primary"
@@ -249,165 +249,141 @@ export default {
       }
       console.log(row)
     },
-    proDataId(formName) {
-      this.$refs[formName].validate(async (valid) => {
-        if (valid) {
-          if (+this.form.totalAmount > 10) {
+    async proDataId(formName) {
+      // this.$refs[formName].validate(async (valid) => {
+      // if (valid) {
+      // if (+this.form.totalAmount > 10) {
+      //   this.$message({
+      //     message: 'TotalAmount Must Less than 10',
+      //     type: 'error',
+      //     center: true,
+      //     duration: 2000
+      //   });
+      //   return
+      // }
+      const privateKey = Crypto.PrivateKey.random();
+      var identity = Identity.create(privateKey, '', '')
+      let params0 = {
+        dataId: identity.ontid,
+        ontid: this.ontid,
+        pubKey: 1,
+        // contractVo: {
+        //   argsList: [{
+        //     name: "account",
+        //     value: "Address:" + this.ontid.substring(8)
+        //   }, {
+        //     name: "dataId",
+        //     value: "String:" + identity.ontid
+        //   }, {
+        //     name: "ontid",
+        //     value: "String:" + this.ontid
+        //   }, {
+        //     name: "index",
+        //     value: 1
+        //   }, {
+        //     name: "symbol",
+        //     value: "String:" + this.form.symbol
+        //   }, {
+        //     name: "name",
+        //     value: "String:" + this.form.name
+        //   }, {
+        //     name: "amount",
+        //     value: this.form.totalAmount
+        //   }, {
+        //     name: 'transferCount',
+        //     value: this.form.transferCount
+        //   }, {
+        //     name: 'accessCount',
+        //     value: this.form.accessCount
+        //   },
+        //   {
+        //     name: 'expireTime',
+        //     value: moment(this.form.expireTime).unix()
+        //   }],
+        //   contractHash: "06633f64506fbf7fd4b65b422224905d362d1f55",
+        //   method: "createTokenWithController",
+        // }
+      }
+      console.log('params0', params0)
+      // return
+      let res = await this.$store.dispatch('getDID', params0)
+      console.log('result', res)
+      if (res.data.msg === 'SUCCESS') {
+        let params1 = {
+          id: this.cortData.id,
+          dataId: identity.ontid,
+          sigDataVo: {
+            txHex: res.data.result[0],
+            pubKeys: '',
+            sigData: ''
+          },
+          sigTokenVo: {
+            txHex: res.data.result[1],
+            pubKeys: '',
+            sigData: ''
+          }
+        }
+
+        let message0 = res.data.result[0]
+        console.log('message1', message0)
+        message0 = message0.slice(0, message0.length - 2)
+        message0 = utils.sha256(message0)
+        message0 = utils.sha256(message0)
+        message0 = utils.hexstr2str(message0)
+        try {
+          let signData = await client.api.message.signMessage({ message: message0 });
+          params1.sigDataVo.pubKeys = signData.publicKey
+          params1.sigDataVo.sigData = signData.data
+        } catch (error) {
+          this.$message({
+            message: this.$t('common.data_id_fail'),
+            type: 'error',
+            center: true,
+            duration: 2000
+          });
+          this.dialogFormVisible = false
+          this.$refs[formName].resetFields()
+          return
+        }
+
+        let message1 = res.data.result[1]
+        console.log('message2', message1)
+
+        message1 = message1.slice(0, message1.length - 2)
+        message1 = utils.sha256(message1)
+        message1 = utils.sha256(message1)
+        message1 = utils.hexstr2str(message1)
+        try {
+          let signData = await client.api.message.signMessage({ message: message1 });
+          params1.sigTokenVo.pubKeys = signData.publicKey
+          params1.sigTokenVo.sigData = signData.data
+        } catch (error) {
+          this.$message({
+            message: this.$t('common.data_id_fail'),
+            type: 'error',
+            center: true,
+            duration: 2000
+          });
+          this.dialogFormVisible = false
+          this.$refs[formName].resetFields()
+          return
+        }
+
+        console.log('params1', params1.dataId)
+        console.log(JSON.stringify(params1))
+        // retutn
+        try {
+          let res = await this.$store.dispatch('getTID', params1)
+          console.log('getTID', res)
+          if (res.data.msg == 'SUCCESS') {
             this.$message({
-              message: 'TotalAmount Must Less than 10',
-              type: 'error',
+              message: this.$t('common.data_id_suc'),
+              type: 'success',
               center: true,
               duration: 2000
             });
-            return
-          }
-          const privateKey = Crypto.PrivateKey.random();
-          var identity = Identity.create(privateKey, '', '')
-          let params0 = {
-            dataId: identity.ontid,
-            ontid: this.ontid,
-            pubKey: 1,
-            contractVo: {
-              argsList: [{
-                name: "account",
-                value: "Address:" + this.ontid.substring(8)
-              }, {
-                name: "dataId",
-                value: "String:" + identity.ontid
-              }, {
-                name: "ontid",
-                value: "String:" + this.ontid
-              }, {
-                name: "index",
-                value: 1
-              }, {
-                name: "symbol",
-                value: "String:" + this.form.symbol
-              }, {
-                name: "name",
-                value: "String:" + this.form.name
-              }, {
-                name: "amount",
-                value: this.form.totalAmount
-              }, {
-                name: 'transferCount',
-                value: this.form.transferCount
-              }, {
-                name: 'accessCount',
-                value: this.form.accessCount
-              },
-              {
-                name: 'expireTime',
-                value: moment(this.form.expireTime).unix()
-              }],
-              contractHash: "06633f64506fbf7fd4b65b422224905d362d1f55",
-              method: "createTokenWithController",
-            }
-          }
-          console.log('params0', params0)
-          // return
-          let res = await this.$store.dispatch('getDID', params0)
-          console.log('result', res)
-          if (res.data.msg === 'SUCCESS') {
-            let params1 = {
-              id: this.cortData.id,
-              dataId: identity.ontid,
-              sigDataVo: {
-                txHex: res.data.result[0],
-                pubKeys: '',
-                sigData: ''
-              },
-              sigTokenVo: {
-                txHex: res.data.result[1],
-                pubKeys: '',
-                sigData: ''
-              }
-            }
-
-            let message0 = res.data.result[0]
-            console.log('message1', message0)
-            message0 = message0.slice(0, message0.length - 2)
-            message0 = utils.sha256(message0)
-            message0 = utils.sha256(message0)
-            message0 = utils.hexstr2str(message0)
-            try {
-              let signData = await client.api.message.signMessage({ message: message0 });
-              params1.sigDataVo.pubKeys = signData.publicKey
-              params1.sigDataVo.sigData = signData.data
-            } catch (error) {
-              this.$message({
-                message: this.$t('common.data_id_fail'),
-                type: 'error',
-                center: true,
-                duration: 2000
-              });
-              this.dialogFormVisible = false
-              this.$refs[formName].resetFields()
-              return
-            }
-
-            let message1 = res.data.result[1]
-            console.log('message2', message1)
-
-            message1 = message1.slice(0, message1.length - 2)
-            message1 = utils.sha256(message1)
-            message1 = utils.sha256(message1)
-            message1 = utils.hexstr2str(message1)
-            try {
-              let signData = await client.api.message.signMessage({ message: message1 });
-              params1.sigTokenVo.pubKeys = signData.publicKey
-              params1.sigTokenVo.sigData = signData.data
-            } catch (error) {
-              this.$message({
-                message: this.$t('common.data_id_fail'),
-                type: 'error',
-                center: true,
-                duration: 2000
-              });
-              this.dialogFormVisible = false
-              this.$refs[formName].resetFields()
-              return
-            }
-
-            console.log('params1', params1.dataId)
-            console.log(JSON.stringify(params1))
-            // retutn
-            try {
-              let res = await this.$store.dispatch('getTID', params1)
-              console.log('getTID', res)
-              if (res.data.msg == 'SUCCESS') {
-                this.$message({
-                  message: this.$t('common.data_id_suc'),
-                  type: 'success',
-                  center: true,
-                  duration: 2000
-                });
-                this.dialogFormVisible = false
-                this.$refs[formName].resetFields()
-              } else {
-                this.$message({
-                  message: this.$t('common.data_id_fail'),
-                  type: 'error',
-                  center: true,
-                  duration: 2000
-                });
-                this.dialogFormVisible = false
-                this.$refs[formName].resetFields()
-              }
-            } catch (error) {
-              console.log('error', error)
-              this.$message({
-                message: this.$t('common.data_id_fail'),
-                type: 'error',
-                center: true,
-                duration: 2000
-              });
-              this.dialogFormVisible = false
-              this.$refs[formName].resetFields()
-              return
-            }
-
-
+            this.dialogFormVisible = false
+            this.$refs[formName].resetFields()
           } else {
             this.$message({
               message: this.$t('common.data_id_fail'),
@@ -418,11 +394,35 @@ export default {
             this.dialogFormVisible = false
             this.$refs[formName].resetFields()
           }
-        } else {
-          console.log('error submit!!');
-          return false;
+        } catch (error) {
+          console.log('error', error)
+          this.$message({
+            message: this.$t('common.data_id_fail'),
+            type: 'error',
+            center: true,
+            duration: 2000
+          });
+          this.dialogFormVisible = false
+          this.$refs[formName].resetFields()
+          return
         }
-      });
+
+
+      } else {
+        this.$message({
+          message: this.$t('common.data_id_fail'),
+          type: 'error',
+          center: true,
+          duration: 2000
+        });
+        this.dialogFormVisible = false
+        this.$refs[formName].resetFields()
+      }
+      // } else {
+      // console.log('error submit!!');
+      // return false;
+      // }
+      // });
     },
     setUrl() {
       const net = localStorage.getItem('net');

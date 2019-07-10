@@ -26,6 +26,7 @@
         <el-dropdown-menu slot="dropdown" style="top:auto; top: 40px; padding-bottom: 0;">
           <el-dropdown-item command="ordercenter">{{$t('top.order_center')}}</el-dropdown-item>
           <el-dropdown-item command="commoditymanage">{{$t('top.Commodity_Center')}}</el-dropdown-item>
+          <el-dropdown-item command="secondHandCommoditylist">{{$t('top.second_hand_commodity')}}</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
     </div>

@@ -307,7 +307,7 @@ export default {
       let contracParams = {
         argsList: [{
           name: "makerTokenHash",
-          value: "ByteArray:06633f64506fbf7fd4b65b422224905d362d1f55"
+          value: "ByteArray:3e7d3d82df5e1f951610ffa605af76846802fbae"
         }, {
           name: "makerTokenId",
           value: +tid
@@ -315,25 +315,16 @@ export default {
           name: "makerReceiveAddress",
           value: "Address:" + this.accountid
         }, {
-          name: "makerMortgageTokenHash",
-          value: "ByteArray:0000000000000000000000000000000000000002"
-        }, {
-          name: "takerPaymentTokenHash",
-          value: "ByteArray:0000000000000000000000000000000000000002"
-        }, {
           name: "takerPaymentTokenAmount",
           value: this.dataParams.price * Math.pow(10, 9)
         }, {
           name: "mpReceiveAddress",
           value: "Address:AePd2vTPeb1DggiFj82mR8F4qQXM2H9YpB"
         }, {
-          name: "txFeeTokenHash",
-          value: "ByteArray:0000000000000000000000000000000000000002"
-        }, {
           name: "OJList",
           value: OJList
         }],
-        contractHash: '88da35324f1133aca1f3b728b27fa1f017e6fb8c',
+        contractHash: '7c2b06ae3e70a470d01ac5ce63017d18b88e08b7',
         method: 'makeOrder'
       }
       console.log('contracParams', contracParams)
@@ -374,13 +365,13 @@ export default {
             dataId: this.detailList.dataId,
             tokenId: +tid,
             id: upid,
-            tokenHash: "0000000000000000000000000000000000000002",
+            token: "ong",
             price: this.dataParams.price * Math.pow(10, 9),
             providerOntid: this.ont_id,
             ojList: this.dataParams.judger,
             keywords: this.detailList.data.keywords,
             sigVo,
-            amount: this.dataParams.tokenNum,
+            // amount: this.dataParams.tokenNum,
             name: this.detailList.data.name,
             desc: this.detailList.data.desc,
             img: this.detailList.data.img
@@ -452,7 +443,7 @@ export default {
           this.dynamicValidateForm.certifier = this.detailList.certifier
           this.dynamicValidateForm.judger = this.detailList.judger
           this.dynamicValidateForm.tokenId = sessionStorage.getItem('resale_tokenId')
-          this.dynamicValidateForm.price = +this.detailList.price || ''
+          this.dynamicValidateForm.price = +this.detailList.price * Math.pow(10, -9) || ''
           this.dynamicValidateForm.coin = this.detailList.coin || 'ONG'
           this.dynamicValidateForm.data.name = this.detailList.data.name
           this.dynamicValidateForm.data.desc = this.detailList.data.desc

@@ -174,11 +174,21 @@ export default {
 
     },
     async confirmReceipt(data) {   //  确认收货
-      let sureParams = {
-        argsList: [
-          { name: "orderId", value: "ByteArray:" + data.orderId }],
-        contractHash: "88da35324f1133aca1f3b728b27fa1f017e6fb8c",
-        method: "confirm"
+      let sureParams = {}
+      if (data.authId) {
+        sureParams = {
+          argsList: [
+            { name: "orderId", value: "ByteArray:" + data.orderId }],
+          contractHash: "f261464e2cd21c2ab9c06fa3e627ce03c7715ec9",
+          method: "confirm"
+        }
+      } else {
+        sureParams = {
+          argsList: [
+            { name: "orderId", value: "ByteArray:" + data.orderId }],
+          contractHash: "7c2b06ae3e70a470d01ac5ce63017d18b88e08b7",
+          method: "confirm"
+        }
       }
       let paramsData = {
         txHex: '',
@@ -274,7 +284,7 @@ export default {
         argsList: [
           { name: 'tokenId', value: data.tokenId }
         ],
-        contractHash: "06633f64506fbf7fd4b65b422224905d362d1f55",
+        contractHash: "3e7d3d82df5e1f951610ffa605af76846802fbae",
         method: "consumeToken"
       }
       let paramsData = {
@@ -363,16 +373,27 @@ export default {
       });
     },
     async toAppeal(data) {
+      let appealParams = {}
+      if (data.authId) {
+        appealParams = {
+          argsList: [
+            { name: "orderId", value: "ByteArray:" + data.orderId }
+          ],
+          contractHash: "f261464e2cd21c2ab9c06fa3e627ce03c7715ec9",
+          method: "applyArbitrage"
 
-      let appealParams = {
-        argsList: [
-          { name: "orderId", value: "ByteArray:" + data.orderId },
-          { name: "arbitrageFee", value: data.price * 0.05 }
-        ],
-        contractHash: "88da35324f1133aca1f3b728b27fa1f017e6fb8c",
-        method: "applyArbitrage"
+        }
+      } else {
+        appealParams = {
+          argsList: [
+            { name: "orderId", value: "ByteArray:" + data.orderId }
+          ],
+          contractHash: "7c2b06ae3e70a470d01ac5ce63017d18b88e08b7",
+          method: "applyArbitrage"
 
+        }
       }
+
       let paramsData = {
         txHex: '',
         pubKeys: '',

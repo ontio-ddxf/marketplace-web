@@ -17,7 +17,7 @@
             size="medium"
             type="info"
             v-else-if="scope.row.state == 2"
-          >{{$t('common.pending_order')}}</el-tag>
+          >{{$t('common.sold_out')}}</el-tag>
           <el-tag
             size="medium"
             type="info"
@@ -159,11 +159,21 @@ export default {
       }
     },
     async collectMoney(data) {
-      let sureParams = {
-        argsList: [
-          { name: "orderId", value: "ByteArray:" + data.orderId }],
-        contractHash: "88da35324f1133aca1f3b728b27fa1f017e6fb8c",
-        method: "confirm"
+      let sureParams = {}
+      if (data.authId) {
+        sureParams = {
+          argsList: [
+            { name: "orderId", value: "ByteArray:" + data.orderId }],
+          contractHash: "f261464e2cd21c2ab9c06fa3e627ce03c7715ec9",
+          method: "confirm"
+        }
+      } else {
+        sureParams = {
+          argsList: [
+            { name: "orderId", value: "ByteArray:" + data.orderId }],
+          contractHash: "7c2b06ae3e70a470d01ac5ce63017d18b88e08b7",
+          method: "confirm"
+        }
       }
       console.log('sureParams', sureParams)
       let paramsData = {

@@ -112,35 +112,50 @@ export default {
         })
         return
       }
-      let params = {
-        argsList: [
-          { name: "orderId", "value": "ByteArray:" + this.orderData.orderId },
-          { name: "takerReceiveAddress", "value": "Address:" + this.address },
-          { name: "txFeeTokenHash", "value": "ByteArray:0000000000000000000000000000000000000002" },
-          { name: "txFeeAmount", "value": this.orderData.price * Math.pow(10, 9) * 0.1 },
-          { name: "OJ", "value": "Address:" + this.OJlist.substring(8) }
-        ],
-        contractHash: "88da35324f1133aca1f3b728b27fa1f017e6fb8c",
-        method: "takeOrder"
-      }
-      console.log('params', params)
-      // return
-      let buyDataParams = {
-        id: this.orderData.id,
-        demanderOntid: this.ontid,
-        judger: this.OJlist,
-        sigVo: {
-          txHex: '',
-          pubKeys: '',
-          sigData: ''
+      let params = {}
+      if (this.orderData.authId) {
+        params = {
+          argsList: [
+            { name: "authId", "value": "ByteArray:" + this.orderData.authId },
+            { name: "takerReceiveAddress", "value": "Address:" + this.address },
+            { name: "tokenAmount", "value": 1 },
+            { name: "OJ", "value": "Address:" + this.OJlist.substring(8) }
+          ],
+          contractHash: "f261464e2cd21c2ab9c06fa3e627ce03c7715ec9",
+          method: "takeOrder"
         }
-      }
-      try {
-        let res = await this.$store.dispatch('makeTransaction', params)
-        console.log('makeTransaction', res)
-        if (res.data.msg === 'SUCCESS') {
-          buyDataParams.sigVo.txHex = res.data.result
-        } else {
+        console.log('params', params)
+        // return
+        let buyDataParams = {
+          id: this.orderData.id,
+          demanderOntid: this.ontid,
+          demanderAddress: this.address,
+          judger: this.OJlist,
+          name: this.orderData.name,
+          desc: this.orderData.desc,
+          img: this.orderData.img,
+          keywords: this.orderData.keywords,
+          sigVo: {
+            txHex: '',
+            pubKeys: '',
+            sigData: ''
+          }
+        }
+        try {
+          let res = await this.$store.dispatch('makeTransaction', params)
+          console.log('makeTransaction', res)
+          if (res.data.msg === 'SUCCESS') {
+            buyDataParams.sigVo.txHex = res.data.result
+          } else {
+            this.$message({
+              message: this.$t('common.buy_fail'),
+              type: 'error',
+              center: true,
+              duration: 2000
+            })
+            return false
+          }
+        } catch (error) {
           this.$message({
             message: this.$t('common.buy_fail'),
             type: 'error',
@@ -149,49 +164,17 @@ export default {
           })
           return false
         }
-      } catch (error) {
-        this.$message({
-          message: this.$t('common.buy_fail'),
-          type: 'error',
-          center: true,
-          duration: 2000
-        })
-        return false
-      }
 
-      try {
-        let message = buyDataParams.sigVo.txHex
-        message = message.slice(0, message.length - 2)
-        message = utils.sha256(message)
-        message = utils.sha256(message)
-        message = utils.hexstr2str(message)
-        let signData = await client.api.message.signMessage({ message });
-        buyDataParams.sigVo.pubKeys = signData.publicKey
-        buyDataParams.sigVo.sigData = signData.data
-      } catch (error) {
-        this.$message({
-          message: this.$t('common.buy_fail'),
-          type: 'error',
-          center: true,
-          duration: 2000
-        })
-        return false
-      }
-      console.log('buyDataParams', buyDataParams)
-
-      try {
-        let res = await this.$store.dispatch('buyData', buyDataParams)
-        console.log('buyData', res)
-        if (res.data.msg == 'SUCCESS' && res.data.result) {
-          this.$message({
-            message: this.$t('common.buy_suc'),
-            type: 'success',
-            center: true,
-            duration: 2000
-          })
-          this.$router.push({ path: '/' })
-        } else {
-          console.log('error222')
+        try {
+          let message = buyDataParams.sigVo.txHex
+          message = message.slice(0, message.length - 2)
+          message = utils.sha256(message)
+          message = utils.sha256(message)
+          message = utils.hexstr2str(message)
+          let signData = await client.api.message.signMessage({ message });
+          buyDataParams.sigVo.pubKeys = signData.publicKey
+          buyDataParams.sigVo.sigData = signData.data
+        } catch (error) {
           this.$message({
             message: this.$t('common.buy_fail'),
             type: 'error',
@@ -200,15 +183,138 @@ export default {
           })
           return false
         }
-      } catch (error) {
-        console.log('error', error)
-        this.$message({
-          message: this.$t('common.buy_fail'),
-          type: 'error',
-          center: true,
-          duration: 2000
-        })
-        return false
+        console.log('buyDataParams', buyDataParams)
+
+        try {
+          let res = await this.$store.dispatch('buyData', buyDataParams)
+          console.log('buyData', res)
+          if (res.data.msg == 'SUCCESS' && res.data.result) {
+            this.$message({
+              message: this.$t('common.buy_suc'),
+              type: 'success',
+              center: true,
+              duration: 2000
+            })
+            this.$router.push({ path: '/' })
+          } else {
+            console.log('error222')
+            this.$message({
+              message: this.$t('common.buy_fail'),
+              type: 'error',
+              center: true,
+              duration: 2000
+            })
+            return false
+          }
+        } catch (error) {
+          console.log('error', error)
+          this.$message({
+            message: this.$t('common.buy_fail'),
+            type: 'error',
+            center: true,
+            duration: 2000
+          })
+          return false
+        }
+      } else {
+        params = {
+          argsList: [
+            { name: "orderId", "value": "ByteArray:" + this.orderData.orderId },
+            { name: "takerReceiveAddress", "value": "Address:" + this.address },
+            { name: "txFeeAmount", "value": this.orderData.price * Math.pow(10, 9) * 0.1 },
+            { name: "OJ", "value": "Address:" + this.OJlist.substring(8) }
+          ],
+          contractHash: "7c2b06ae3e70a470d01ac5ce63017d18b88e08b7",
+          method: "takeOrder"
+        }
+        console.log('params', params)
+        // return
+        let buyDataParams = {
+          id: this.orderData.id,
+          demanderOntid: this.ontid,
+          demanderAddress: this.address,
+          judger: this.OJlist,
+          sigVo: {
+            txHex: '',
+            pubKeys: '',
+            sigData: ''
+          }
+        }
+        try {
+          let res = await this.$store.dispatch('makeTransaction', params)
+          console.log('makeTransaction', res)
+          if (res.data.msg === 'SUCCESS') {
+            buyDataParams.sigVo.txHex = res.data.result
+          } else {
+            this.$message({
+              message: this.$t('common.buy_fail'),
+              type: 'error',
+              center: true,
+              duration: 2000
+            })
+            return false
+          }
+        } catch (error) {
+          this.$message({
+            message: this.$t('common.buy_fail'),
+            type: 'error',
+            center: true,
+            duration: 2000
+          })
+          return false
+        }
+
+        try {
+          let message = buyDataParams.sigVo.txHex
+          message = message.slice(0, message.length - 2)
+          message = utils.sha256(message)
+          message = utils.sha256(message)
+          message = utils.hexstr2str(message)
+          let signData = await client.api.message.signMessage({ message });
+          buyDataParams.sigVo.pubKeys = signData.publicKey
+          buyDataParams.sigVo.sigData = signData.data
+        } catch (error) {
+          this.$message({
+            message: this.$t('common.buy_fail'),
+            type: 'error',
+            center: true,
+            duration: 2000
+          })
+          return false
+        }
+        console.log('buyDataParams', buyDataParams)
+
+        try {
+          let res = await this.$store.dispatch('buySecondHandData', buyDataParams)
+          console.log('buySecondHandData', res)
+          if (res.data.msg == 'SUCCESS' && res.data.result) {
+            this.$message({
+              message: this.$t('common.buy_suc'),
+              type: 'success',
+              center: true,
+              duration: 2000
+            })
+            this.$router.push({ path: '/' })
+          } else {
+            console.log('error222')
+            this.$message({
+              message: this.$t('common.buy_fail'),
+              type: 'error',
+              center: true,
+              duration: 2000
+            })
+            return false
+          }
+        } catch (error) {
+          console.log('error', error)
+          this.$message({
+            message: this.$t('common.buy_fail'),
+            type: 'error',
+            center: true,
+            duration: 2000
+          })
+          return false
+        }
       }
     }
   },

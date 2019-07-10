@@ -59,6 +59,17 @@ export default new Vuex.Store({
         return error;
       }
     },
+    async getSecondHandCommodityList({ dispatch, commit }, params) {
+      console.log(params);
+      try {
+        return await axios.post(
+            `${process.env.VUE_APP_DDXF_API}/api/v1/order/all/second`,
+            params
+        );
+      } catch (error) {
+        return error;
+      }
+    },
     async addCommodity({ dispatch, commit }, params) {
       try {
         console.log(params);
@@ -286,7 +297,7 @@ export default new Vuex.Store({
     async getTID({ dispatch, commit }, params) {
       try {
         return await axios.post(
-          process.env.VUE_APP_DDXF_API + "/api/v1/dataset/tokenId",
+          process.env.VUE_APP_DDXF_API + "/api/v1/dataset/dataId",
           params
         );
       } catch (error) {
@@ -340,6 +351,16 @@ export default new Vuex.Store({
         return axios.post(
           process.env.VUE_APP_DDXF_API + "/api/v1/order/purchase",
           params
+        );
+      } catch (error) {
+        return error;
+      }
+    },
+    async buySecondHandData({ dispatch, commit }, params) {
+      try {
+        return axios.post(
+            process.env.VUE_APP_DDXF_API + "/api/v1/order/purchase/second",
+            params
         );
       } catch (error) {
         return error;

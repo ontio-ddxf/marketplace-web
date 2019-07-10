@@ -18,12 +18,32 @@
         <el-table-column prop="boughtTime" align="center" :label="tableLang.date" width="200"></el-table-column>
         <el-table-column :label="tableLang.operating" align="center" width="200">
           <template slot-scope="scope">
-            <el-button @click="handleClick(scope.row, true)" type="text" size="small">{{$t('common.win')}}</el-button>
-            <el-button @click="handleClick(scope.row, false)" type="text" size="small">{{$t('common.lose')}}</el-button>
+            <el-button @click="showDivide(scope.row, true)" type="text" size="small">{{$t('common.win')}}</el-button>
+            <el-button @click="showDivide(scope.row, false)" type="text" size="small">{{$t('common.lose')}}</el-button>
           </template>
         </el-table-column>
       </el-table>
     </div>
+
+    <el-dialog
+            :title="$t('common.arbitrage_result')"
+            :visible.sync="dialogFormVisible"
+            center
+            width="30%"
+    >
+      <el-form :model="form" :rules="rules" ref="ruleForm">
+        <el-form-item :label="$t('common.maker_receive_amount')" prop="makerReceiveAmount">
+          <el-input v-model="form.makerReceiveAmount" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item :label="$t('common.taker_receive_amount')" prop="takerReceiveAmount">
+          <el-input v-model="form.takerReceiveAmount" autocomplete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">{{$t('common.cancel')}}</el-button>
+        <el-button type="primary" @click="arbitrage()">{{$t('common.sure')}}</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -43,19 +63,53 @@ export default {
         price: this.$t('common.price'),
         date: this.$t('common.date'),
         operating: this.$t('common.operating'),
-      }
+      },
+      dialogFormVisible: false,
+      judgeData:{},
+      winOrLose:'',
+      form: {
+        makerReceiveAmount: '',
+        takerReceiveAmount: '',
+      },
+      rules: {
+        makerReceiveAmount: [
+          { required: true, message: this.$t('common.please_enter') + this.$t('common.maker_receive_amount') },
+          // { type: 'number', message: this.$t('common.maker_receive_amount') + this.$t('common.mbnum') }
+        ],
+        takerReceiveAmount: [
+          { required: true, message: this.$t('common.please_enter') + this.$t('common.taker_receive_amount') },
+          // { type: 'number', message: this.$t('common.maker_receive_amount') + this.$t('common.mbnum') }
+        ]
+      },
     }
   },
   methods: {
     async handleClick(data, isWin) {
-      let ojparams = {
-        "argsList": [
-          { "name": "orderId", "value": "ByteArray:" + data.orderId },
-          { "name": "isWin", "value": isWin }
-        ],
-        "contractHash": "88da35324f1133aca1f3b728b27fa1f017e6fb8c",
-        "method": "arbitrage"
+      let ojparams = {}
+      if (data.authId) {
+        ojparams = {
+          "argsList": [
+            { "name": "orderId", "value": "ByteArray:" + data.orderId },
+            { "name": "isWin", "value": isWin },
+            { "name": "makerReceiveAmount", "value": this.form.makerReceiveAmount * Math.pow(10, 9) },
+            { "name": "takerReceiveAmount", "value": this.form.takerReceiveAmount * Math.pow(10, 9) }
+          ],
+          "contractHash": "f261464e2cd21c2ab9c06fa3e627ce03c7715ec9",
+          "method": "arbitrage"
+        }
+      } else {
+        ojparams = {
+          "argsList": [
+            { "name": "orderId", "value": "ByteArray:" + data.orderId },
+            { "name": "isWin", "value": isWin },
+            { "name": "makerReceiveAmount", "value": this.form.makerReceiveAmount * Math.pow(10, 9)},
+            { "name": "takerReceiveAmount", "value": this.form.takerReceiveAmount * Math.pow(10, 9)}
+          ],
+          "contractHash": "7c2b06ae3e70a470d01ac5ce63017d18b88e08b7",
+          "method": "arbitrage"
+        }
       }
+
       console.log('isWin', isWin)
       let paramsData = {
         txHex: '',
@@ -144,6 +198,17 @@ export default {
     },
     indexMethod(idx) {
       return idx + 1
+    },
+    showDivide(data, isWin){
+      this.dialogFormVisible = true
+      this.judgeData = data
+      this.winOrLose = isWin
+    },
+    async arbitrage() {
+      console.log(this.form.makerReceiveAmount)
+      console.log(this.form.takerReceiveAmount)
+      this.dialogFormVisible = false
+      this.handleClick(this.judgeData,this.winOrLose)
     }
   },
   async mounted() {

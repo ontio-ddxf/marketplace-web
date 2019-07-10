@@ -59,6 +59,71 @@
         <el-input-number v-model="dynamicValidateForm.price" controls-position="right" :min="0" :max="100"></el-input-number>
           <!-- <el-input type='number' min="1" max="100"  v-model.number="dynamicValidateForm.price"></el-input> -->
         </el-form-item>
+        <!-- amount -->
+        <el-form-item
+                prop="amount"
+                :label="tableLang.amount"
+                :rules="[
+      { required: true, message: tableLang.amountTip1 },
+      { type: 'number', message: tableLang.priceTip2 }
+    ]"
+                style="text-align:left;"
+        >
+          <el-input-number v-model="dynamicValidateForm.amount" controls-position="right" :min="0" :max="100"></el-input-number>
+        </el-form-item>
+        <!-- tokenSymbol -->
+        <el-form-item
+                prop="symbol"
+                :label="tableLang.symbol"
+                :rules="[
+      { required: true, message: this.$t('common.please_enter') + 'symbol', trigger: 'blur' },
+      { min: 3, message: this.$t('common.character3'), trigger: 'blur' }
+    ]"
+                style="text-align:left;"
+        >
+          <el-input v-model="dynamicValidateForm.symbol" autocomplete="off"></el-input>
+        </el-form-item>
+        <!-- tokenName -->
+        <el-form-item
+                prop="tokenName"
+                :label="tableLang.tokenName"
+                :rules="[
+      { required: true, message: this.$t('common.please_enter') + 'name', trigger: 'blur' },
+      { min: 3, message: this.$t('common.character3'), trigger: 'blur' }
+    ]"
+                style="text-align:left;"
+        >
+          <el-input v-model="dynamicValidateForm.tokenName" autocomplete="off"></el-input>
+        </el-form-item>
+        <!-- transferCount -->
+        <el-form-item
+                prop="transferCount"
+                :label="tableLang.transferCount"
+                :rules="[
+      { required: true, message: this.$t('common.please_enter') + 'transferCount' },
+      { type: 'number', message: 'transferCount' + this.$t('common.mbnum') },
+    ]"
+                style="text-align:left;"
+        >
+          <el-input-number v-model="dynamicValidateForm.transferCount" controls-position="right" :min="0" :max="100"></el-input-number>
+        </el-form-item>
+        <!-- accessCount -->
+        <el-form-item
+                prop="accessCount"
+                :label="tableLang.accessCount"
+                :rules="[
+      { required: true, message: this.$t('common.please_enter') + 'accessCount' },
+      { type: 'number', message: 'accessCount' + this.$t('common.mbnum') },
+    ]"
+                style="text-align:left;"
+        >
+          <el-input-number v-model="dynamicValidateForm.accessCount" controls-position="right" :min="0" :max="100"></el-input-number>
+        </el-form-item>
+        <!-- expireTime -->
+        <el-form-item :label="tableLang.expireTime" prop="expireTime">
+          <!-- <el-input type="age" v-model.number="form.expireTime" autocomplete="off"></el-input> -->
+          <el-date-picker v-model="dynamicValidateForm.expireTime" type="datetime" placeholder="选择日期时间"></el-date-picker>
+        </el-form-item>
         <!-- 标签 -->
         <el-form-item
           v-for="(tag, index) in dynamicValidateForm.tags"
@@ -160,6 +225,8 @@ function uuid(len, radix) {
 import { client } from 'ontology-dapi'
 import { sha256 } from 'js-sha256'
 import { OntidContract, TransactionBuilder, TxSignature, Identity, Crypto, RestClient, utils } from 'ontology-ts-sdk';
+import moment from 'moment'
+
 
 export default {
   data() {
@@ -176,7 +243,14 @@ export default {
         certifier: this.$t('common.certifier'),
         cerTips: this.$t('common.cerTip'),
         price: this.$t('common.price'),
+        amount: this.$t('common.amount'),
+        symbol: this.$t('common.symbol'),
+        tokenName: this.$t('common.tokenName'),
+        transferCount: this.$t('common.transferCount'),
+        accessCount: this.$t('common.accessCount'),
+        expireTime:this.$t('common.expireTime'),
         priceTip1: this.$t('common.please_enter') + this.$t('common.price'),
+        amountTip1: this.$t('common.please_enter') + this.$t('common.amount'),
         priceTip2: this.$t('common.price_tip2'),
         coin: this.$t('common.coin'),
         coinTip: this.$t('common.please_enter') + this.$t('common.coin'),
@@ -187,6 +261,12 @@ export default {
       dynamicValidateForm: {
         tags: [],
         price: '',
+        amount: '',
+        symbol: '',
+        tokenName: '',
+        transferCount: '',
+        accessCount: '',
+        expireTime:'',
         coin: 'ONG',
         data: {
           dataId: null,
@@ -286,30 +366,30 @@ export default {
       })
 
 
-      let tid = ''
-      try {
-        let res = await this.$store.dispatch('getTokenId', this.detailList.id)
-        console.log('tokenid', res)
-        if (res.data.msg == 'SUCCESS' && res.data.result) {
-          tid = res.data.result
-        } else {
-          this.$message({
-            message: this.$t('common.pro_fail'),
-            type: 'error',
-            center: true,
-            duration: 2000
-          })
-          return false
-        }
-      } catch (error) {
-        this.$message({
-          message: this.$t('common.pro_fail'),
-          type: 'error',
-          center: true,
-          duration: 2000
-        })
-        return false
-      }
+      // let tid = ''
+      // try {
+      //   let res = await this.$store.dispatch('getTokenId', this.detailList.id)
+      //   console.log('tokenid', res)
+      //   if (res.data.msg == 'SUCCESS' && res.data.result) {
+      //     tid = res.data.result
+      //   } else {
+      //     this.$message({
+      //       message: this.$t('common.pro_fail'),
+      //       type: 'error',
+      //       center: true,
+      //       duration: 2000
+      //     })
+      //     return false
+      //   }
+      // } catch (error) {
+      //   this.$message({
+      //     message: this.$t('common.pro_fail'),
+      //     type: 'error',
+      //     center: true,
+      //     duration: 2000
+      //   })
+      //   return false
+      // }
       // console.log('OJList', OJList)
       // 构造参数
       // let contracParams = {
@@ -349,36 +429,48 @@ export default {
       // }
       let contracParams = {
         argsList: [{
-          name: "makerTokenHash",
-          value: "ByteArray:06633f64506fbf7fd4b65b422224905d362d1f55"
+          name:"dataId",
+          value:"String:" + this.detailList.dataId
         }, {
-          name: "makerTokenId",
-          value: +tid
+          name:"index",
+          value:1
         }, {
+          name:"symbol",
+          value:"String:"+this.dataParams.symbol
+        }, {
+          name:"name",
+          value:"String:"+this.dataParams.tokenName
+        },{
+          name:"authAmount",
+          value:this.dataParams.amount
+        },{
+          name:"price",
+          value:this.dataParams.price * Math.pow(10, 9)
+        },{
+          name:"transferCount",
+          value:this.dataParams.transferCount
+        },{
+          name:"accessCount",
+          value:this.dataParams.accessCount
+        },{
+          name:"expireTime",
+          value:moment(this.dataParams.expireTime).unix()
+        },{
+          name:"makerTokenHash",
+          value:"ByteArray:3e7d3d82df5e1f951610ffa605af76846802fbae"
+        },{
           name: "makerReceiveAddress",
           // value: "Address:" + this.ont_id.substring(8)
           value: "Address:" + this.accountid
-        }, {
-          name: "makerMortgageTokenHash",
-          value: "ByteArray:0000000000000000000000000000000000000002"
-        }, {
-          name: "takerPaymentTokenHash",
-          value: "ByteArray:0000000000000000000000000000000000000002"
-        }, {
-          name: "takerPaymentTokenAmount",
-          value: this.dataParams.price * Math.pow(10, 9)
-        }, {
+        },{
           name: "mpReceiveAddress",
           value: "Address:AePd2vTPeb1DggiFj82mR8F4qQXM2H9YpB"
-        }, {
-          name: "txFeeTokenHash",
-          value: "ByteArray:0000000000000000000000000000000000000002"
-        }, {
+        },{
           name: "OJList",
           value: OJList
         }],
-        contractHash: '88da35324f1133aca1f3b728b27fa1f017e6fb8c',
-        method: 'makeOrder'
+        contractHash: 'f261464e2cd21c2ab9c06fa3e627ce03c7715ec9',
+        method: 'authOrder'
       }
       console.log('contracParams', contracParams)
       console.log('this.dataParams', this.dataParams);
@@ -415,19 +507,20 @@ export default {
 
 
           let orderParams = {
-            dataId: this.detailList.dataId,
-            tokenId: +tid,
+            // dataId: this.detailList.dataId,
+            // tokenId: +tid,
             id: this.detailList.id,
-            tokenHash: "0000000000000000000000000000000000000002",
+            token: "ong",
             price: this.dataParams.price * Math.pow(10, 9),
-            providerOntid: this.ont_id,
+            amount:this.dataParams.amount,
+            // providerOntid: this.ont_id,
             ojList: this.dataParams.judger,
-            keywords: this.detailList.data.keywords,
+            // keywords: this.detailList.data.keywords,
             sigVo,
-            amount: this.dataParams.tokenNum,
-            name: this.detailList.data.name,
-            desc: this.detailList.data.desc,
-            img: this.detailList.data.img
+            // amount: this.dataParams.tokenNum,
+            // name: this.detailList.data.name,
+            // desc: this.detailList.data.desc,
+            // img: this.detailList.data.img
           }
 
           try {
@@ -549,6 +642,7 @@ export default {
           this.dynamicValidateForm.data.name = this.detailList.data.name
           this.dynamicValidateForm.data.desc = this.detailList.data.desc
           this.dynamicValidateForm.data.img = this.detailList.data.img
+          this.dynamicValidateForm.data.dataId = this.detailList.data.dataId
 
           this.detailList.data.keywords.map(x => {
             let a = {}
@@ -625,10 +719,16 @@ export default {
       }
       cpas.coin = this.dynamicValidateForm.coin || 'ONG'
       cpas.price = this.dynamicValidateForm.price
+      cpas.amount = this.dynamicValidateForm.amount
       cpas.ontid = this.ont_id
       cpas.certifier = this.dynamicValidateForm.certifier
       cpas.judger = this.dynamicValidateForm.judgerType
       cpas.tokenNum = this.dynamicValidateForm.tokenNum
+      cpas.tokenName = this.dynamicValidateForm.tokenName
+      cpas.symbol = this.dynamicValidateForm.symbol
+      cpas.expireTime = this.dynamicValidateForm.expireTime
+      cpas.transferCount = this.dynamicValidateForm.transferCount
+      cpas.accessCount = this.dynamicValidateForm.accessCount
       return cpas
     }
   },

@@ -63,7 +63,7 @@
         <el-table-column prop="createTime" align="center" :label="tableLang.date" width="200"></el-table-column>
         <el-table-column :label="tableLang.operating" align="center" width="400">
           <template slot-scope="scope">
-            <el-button @click="proDataId(scope.row)" type="primary" round size="small">DataId</el-button>
+            <el-button @click="dialog(scope.row)" type="primary" round size="small">DataId</el-button>
             <el-button
               @click="handleClick(scope.row)"
               type="primary"
@@ -72,7 +72,7 @@
             >{{$t('common.detail')}}</el-button>
             <el-button
               @click="prodOperat(scope.row)"
-              v-if="scope.row.state === 1"
+              v-if="scope.row.state === '1' || scope.row.state === '3' || scope.row.state === '4'"
               type="warning"
               round
               size="small"
@@ -237,17 +237,8 @@ export default {
       }
     },
     async prodOperat(row) {
-      if (!row.tokenRange) {
-        this.$message({
-          message: this.$t('common.tokenid_loading'),
-          type: 'error',
-          center: true,
-          duration: 2000
-        });
-      } else {
         this.$router.push({ path: 'editdata', query: { commodityId: row.id } });
-      }
-      console.log(row)
+        console.log(row)
     },
     async proDataId(formName) {
       // this.$refs[formName].validate(async (valid) => {
@@ -313,18 +304,13 @@ export default {
           id: this.cortData.id,
           dataId: identity.ontid,
           sigDataVo: {
-            txHex: res.data.result[0],
-            pubKeys: '',
-            sigData: ''
-          },
-          sigTokenVo: {
-            txHex: res.data.result[1],
+            txHex: res.data.result,
             pubKeys: '',
             sigData: ''
           }
         }
 
-        let message0 = res.data.result[0]
+        let message0 = res.data.result
         console.log('message1', message0)
         message0 = message0.slice(0, message0.length - 2)
         message0 = utils.sha256(message0)
@@ -342,32 +328,32 @@ export default {
             duration: 2000
           });
           this.dialogFormVisible = false
-          this.$refs[formName].resetFields()
+          // this.$refs[formName].resetFields()
           return
         }
 
-        let message1 = res.data.result[1]
-        console.log('message2', message1)
-
-        message1 = message1.slice(0, message1.length - 2)
-        message1 = utils.sha256(message1)
-        message1 = utils.sha256(message1)
-        message1 = utils.hexstr2str(message1)
-        try {
-          let signData = await client.api.message.signMessage({ message: message1 });
-          params1.sigTokenVo.pubKeys = signData.publicKey
-          params1.sigTokenVo.sigData = signData.data
-        } catch (error) {
-          this.$message({
-            message: this.$t('common.data_id_fail'),
-            type: 'error',
-            center: true,
-            duration: 2000
-          });
-          this.dialogFormVisible = false
-          this.$refs[formName].resetFields()
-          return
-        }
+        // let message1 = res.data.result[1]
+        // console.log('message2', message1)
+        //
+        // message1 = message1.slice(0, message1.length - 2)
+        // message1 = utils.sha256(message1)
+        // message1 = utils.sha256(message1)
+        // message1 = utils.hexstr2str(message1)
+        // try {
+        //   let signData = await client.api.message.signMessage({ message: message1 });
+        //   params1.sigTokenVo.pubKeys = signData.publicKey
+        //   params1.sigTokenVo.sigData = signData.data
+        // } catch (error) {
+        //   this.$message({
+        //     message: this.$t('common.data_id_fail'),
+        //     type: 'error',
+        //     center: true,
+        //     duration: 2000
+        //   });
+        //   this.dialogFormVisible = false
+        //   // this.$refs[formName].resetFields()
+        //   return
+        // }
 
         console.log('params1', params1.dataId)
         console.log(JSON.stringify(params1))
@@ -383,7 +369,7 @@ export default {
               duration: 2000
             });
             this.dialogFormVisible = false
-            this.$refs[formName].resetFields()
+            // this.$refs[formName].resetFields()
           } else {
             this.$message({
               message: this.$t('common.data_id_fail'),
@@ -392,7 +378,7 @@ export default {
               duration: 2000
             });
             this.dialogFormVisible = false
-            this.$refs[formName].resetFields()
+            // this.$refs[formName].resetFields()
           }
         } catch (error) {
           console.log('error', error)
@@ -403,7 +389,7 @@ export default {
             duration: 2000
           });
           this.dialogFormVisible = false
-          this.$refs[formName].resetFields()
+          // this.$refs[formName].resetFields()
           return
         }
 
@@ -445,17 +431,18 @@ export default {
         });
         return
       }
-      if (!this.address) {
-        this.$message({
-          message: this.$t('common.wallet_acc'),
-          type: 'error',
-          center: true,
-          duration: 2000
-        });
-        return
-      }
+      // if (!this.address) {
+      //   this.$message({
+      //     message: this.$t('common.wallet_acc'),
+      //     type: 'error',
+      //     center: true,
+      //     duration: 2000
+      //   });
+      //   return
+      // }
       this.cortData = data
-      this.dialogFormVisible = true
+      this.proDataId()
+      // this.dialogFormVisible = true
     }
   },
   async mounted() {

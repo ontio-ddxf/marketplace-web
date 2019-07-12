@@ -23,8 +23,8 @@
       <!-- 图片 -->
       <div class="item">
         <p>{{$t('common.thumbnail')}}:</p>
-        <img v-if="orderData.img" :src="orderData.img" alt>
-        <img v-else src="https://ont.io/upload_img/20190420001238_417.png" alt>
+        <img v-if="orderData.img" :src="orderData.img" alt />
+        <img v-else src="https://ont.io/upload_img/20190420001238_417.png" alt />
       </div>
       <div class="item">
         <p>{{$t('common.tag')}}:</p>

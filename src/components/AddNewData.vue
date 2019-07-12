@@ -293,8 +293,6 @@ export default {
       // cpas.judger = this.dynamicValidateForm.judger
       cpas.dataSource = this.dynamicValidateForm.dataSource
       console.log('this.dynamicValidateForm.data.desc', this.dynamicValidateForm.data.desc);
-
-
       this.dynamicValidateForm.tags.map(item => {
         cpas.data.keywords.push(item.value)
       })

@@ -107,7 +107,9 @@ export default {
     resale_suc: '转卖成功！',
     maker_receive_amount:'卖家收取钱款(ONG)',
     taker_receive_amount:'买家收取钱款(ONG)',
-    arbitrage_result:'仲裁结果'
+    arbitrage_result:'仲裁结果',
+    refresh: '请稍后刷新页面',
+    withdrawal: '撤单'
   },
   sign: {
     sign_up: '注册',

@@ -23,8 +23,8 @@
       <!-- 图片 -->
       <div class="item">
         <p>{{$t('common.thumbnail')}}:</p>
-        <img v-if="detailList.data.img" :src="detailList.data.img" alt>
-        <img v-else src="https://ont.io/upload_img/20190420001238_417.png" alt>
+        <img v-if="detailList.data.img" :src="detailList.data.img" alt />
+        <img v-else src="https://ont.io/upload_img/20190420001238_417.png" alt />
       </div>
       <div class="item">
         <p>{{$t('common.tag')}}:</p>
@@ -47,7 +47,7 @@
         <p>{{$t('common.certifier')}}:</p>
         {{detailList.certifier}}
         <!-- 认证状态 -->
-        <br>
+        <br />
         <el-tag type="info" v-if="detailList.isCertificated === 0">{{$t('common.no_cert')}}</el-tag>
         <el-tag type="success" v-else>{{$t('common.verified')}}</el-tag>
       </div>

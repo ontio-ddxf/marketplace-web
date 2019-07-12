@@ -88,7 +88,6 @@ export default {
           }
         ]
       }
-      // this.$store.dispatch('getCommodityList', params)
       try {
         let res = await this.$store.dispatch('getCommodityList', params)
         console.log(res)

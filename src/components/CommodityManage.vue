@@ -77,6 +77,7 @@
               round
               size="small"
             >{{$t('common.pending_order')}}</el-button>
+            <el-button v-if="scope.row.state === '2'" round size="small" @click="withdrawal(scope.row)" type="danger">{{$t('common.withdrawal')}}</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -237,8 +238,8 @@ export default {
       }
     },
     async prodOperat(row) {
-        this.$router.push({ path: 'editdata', query: { commodityId: row.id } });
-        console.log(row)
+      this.$router.push({ path: 'editdata', query: { commodityId: row.id } });
+      console.log(row)
     },
     async proDataId(formName) {
       // this.$refs[formName].validate(async (valid) => {
@@ -443,6 +444,96 @@ export default {
       this.cortData = data
       this.proDataId()
       // this.dialogFormVisible = true
+    },
+    async withdrawal(data) {
+      console.log('withdrawaldata', data)
+      let withdrawalParams = {
+        argsList: [{
+          name: "authId",
+          value: "ByteArray:" + data.authId
+        }],
+        contractHash: "f261464e2cd21c2ab9c06fa3e627ce03c7715ec9",
+        method: "cancelAuth"
+      }
+      let paramsData = {
+        txHex: '',
+        pubKeys: '',
+        sigData: ''
+      }
+      try {
+        let res = await this.$store.dispatch('makeTransaction', withdrawalParams)
+        console.log('makeTransaction', res)
+        // return
+        if (res.data.msg === 'SUCCESS') {
+          paramsData.txHex = res.data.result
+          console.log('paramsData', paramsData)
+        } else {
+          this.$message({
+            message: 'error',
+            type: 'error',
+            center: true,
+            duration: 2000
+          })
+          return
+        }
+      } catch (error) {
+        console.log(error)
+        this.$message({
+          message: error,
+          type: 'error',
+          center: true,
+          duration: 2000
+        })
+        return
+      }
+
+      try {
+        let message = paramsData.txHex
+        message = message.slice(0, message.length - 2)
+        message = utils.sha256(message)
+        message = utils.sha256(message)
+        message = utils.hexstr2str(message)
+        let signData = await client.api.message.signMessage({ message });
+        paramsData.pubKeys = signData.publicKey
+        paramsData.sigData = signData.data
+      } catch (error) {
+        this.$message({
+          message: this.$t('common.delivery_fail'),
+          type: 'error',
+          center: true,
+          duration: 2000
+        })
+        return
+      }
+      console.log('paramsData', paramsData)
+      try {
+        let res = await this.$store.dispatch('sendPass', paramsData)
+        console.log('sendPass', res)
+        if (res.data.msg === 'SUCCESS') {
+          this.$message({
+            message: 'SUCCESS ' + this.$t('common.refresh'),
+            type: 'success',
+            center: true,
+            duration: 2000
+          })
+        } else {
+          this.$message({
+            message: 'error',
+            type: 'error',
+            center: true,
+            duration: 2000
+          })
+          return
+        }
+      } catch (error) {
+        this.$message({
+          message: error,
+          type: 'error',
+          center: true,
+          duration: 2000
+        })
+        return
+      }
     }
   },
   async mounted() {

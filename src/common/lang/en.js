@@ -107,7 +107,9 @@ export default {
     resale_suc: 'Resale success',
     maker_receive_amount:'Buyer Receive Amount(ONG)',
     taker_receive_amount:'Seller Receive Amount(ONG)',
-    arbitrage_result:'Arbitrage Result'
+    arbitrage_result:'Arbitrage Result',
+    refresh: 'Please refresh the page later',
+    withdrawal: 'Withdrawal'
   },
   sign: {
     sign_up: 'Sign Up',

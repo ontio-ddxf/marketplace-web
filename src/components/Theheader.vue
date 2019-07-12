@@ -99,8 +99,6 @@ export default {
           this.logining = false
           return
         }
-        // console.log(result);
-        // return
         let res = await client.api.identity.getIdentity()
 
         try {

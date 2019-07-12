@@ -18,18 +18,26 @@
         <el-table-column prop="boughtTime" align="center" :label="tableLang.date" width="200"></el-table-column>
         <el-table-column :label="tableLang.operating" align="center" width="200">
           <template slot-scope="scope">
-            <el-button @click="showDivide(scope.row, true)" type="text" size="small">{{$t('common.win')}}</el-button>
-            <el-button @click="showDivide(scope.row, false)" type="text" size="small">{{$t('common.lose')}}</el-button>
+            <el-button
+              @click="showDivide(scope.row, true)"
+              type="text"
+              size="small"
+            >{{$t('common.win')}}</el-button>
+            <el-button
+              @click="showDivide(scope.row, false)"
+              type="text"
+              size="small"
+            >{{$t('common.lose')}}</el-button>
           </template>
         </el-table-column>
       </el-table>
     </div>
 
     <el-dialog
-            :title="$t('common.arbitrage_result')"
-            :visible.sync="dialogFormVisible"
-            center
-            width="30%"
+      :title="$t('common.arbitrage_result')"
+      :visible.sync="dialogFormVisible"
+      center
+      width="30%"
     >
       <el-form :model="form" :rules="rules" ref="ruleForm">
         <el-form-item :label="$t('common.maker_receive_amount')" prop="makerReceiveAmount">
@@ -65,8 +73,8 @@ export default {
         operating: this.$t('common.operating'),
       },
       dialogFormVisible: false,
-      judgeData:{},
-      winOrLose:'',
+      judgeData: {},
+      winOrLose: '',
       form: {
         makerReceiveAmount: '',
         takerReceiveAmount: '',
@@ -102,8 +110,8 @@ export default {
           "argsList": [
             { "name": "orderId", "value": "ByteArray:" + data.orderId },
             { "name": "isWin", "value": isWin },
-            { "name": "makerReceiveAmount", "value": this.form.makerReceiveAmount * Math.pow(10, 9)},
-            { "name": "takerReceiveAmount", "value": this.form.takerReceiveAmount * Math.pow(10, 9)}
+            { "name": "makerReceiveAmount", "value": this.form.makerReceiveAmount * Math.pow(10, 9) },
+            { "name": "takerReceiveAmount", "value": this.form.takerReceiveAmount * Math.pow(10, 9) }
           ],
           "contractHash": "7c2b06ae3e70a470d01ac5ce63017d18b88e08b7",
           "method": "arbitrage"
@@ -199,7 +207,7 @@ export default {
     indexMethod(idx) {
       return idx + 1
     },
-    showDivide(data, isWin){
+    showDivide(data, isWin) {
       this.dialogFormVisible = true
       this.judgeData = data
       this.winOrLose = isWin
@@ -208,14 +216,14 @@ export default {
       console.log(this.form.makerReceiveAmount)
       console.log(this.form.takerReceiveAmount)
       this.dialogFormVisible = false
-      this.handleClick(this.judgeData,this.winOrLose)
+      this.handleClick(this.judgeData, this.winOrLose)
     }
   },
   async mounted() {
     // this.ontid = await client.api.identity.getIdentity()
     this.ontid = await client.api.asset.getAccount()
     let params = {
-      ontid: 'did:ont:'+this.ontid,
+      ontid: 'did:ont:' + this.ontid,
       pageSize: 10,
       pageNum: 0
     }

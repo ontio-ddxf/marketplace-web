@@ -114,20 +114,6 @@
             ></el-checkbox>
           </el-checkbox-group>
         </el-form-item>
-
-        <!-- <el-form-item
-          style="text-align:left;"
-        >token {{$t('common.number')}}: {{dynamicValidateForm.tokenTotal}}</el-form-item>-->
-        <!-- <el-form-item
-          :label="'token'+tableLang.tokenNum"
-          prop="tokenNum"
-          :rules="[
-            { required: true, message: tableLang.tokenNumTip },
-            { type: 'number', message: tableLang.priceTip2 }
-          ]"
-        >
-          <el-input v-model.number="dynamicValidateForm.tokenNum"></el-input>
-        </el-form-item>-->
         <el-form-item>
           <el-button
             type="primary"
@@ -280,30 +266,6 @@ export default {
 
 
       let tid = sessionStorage.getItem('resale_tokenId')
-      //   try {
-      //     let res = await this.$store.dispatch('getTokenId', this.detailList.id)
-      //     console.log('tokenid', res)
-      //     if (res.data.msg == 'SUCCESS' && res.data.result) {
-      //       tid = res.data.result
-      //     } else {
-      //       this.$message({
-      //         message: this.$t('common.pro_fail'),
-      //         type: 'error',
-      //         center: true,
-      //         duration: 2000
-      //       })
-      //       return false
-      //     }
-      //   } catch (error) {
-      //     this.$message({
-      //       message: this.$t('common.pro_fail'),
-      //       type: 'error',
-      //       center: true,
-      //       duration: 2000
-      //     })
-      //     return false
-      //   }
-      //   return
       let contracParams = {
         argsList: [{
           name: "makerTokenHash",
@@ -329,7 +291,6 @@ export default {
       }
       console.log('contracParams', contracParams)
       console.log('this.dataParams', this.dataParams);
-      // return
       // 构造交易
 
       try {

@@ -2,13 +2,26 @@
   <div>
     <el-table border :data="tableData" style="width: 100%" :empty-text="$t('common.no_data')">
       <el-table-column type="index" :index="indexMethod" align="center"></el-table-column>
-      <el-table-column
-        prop="demander"
-        :label="tableLang.buyer"
-        style="width: 20%"
-        align="center"
-      ></el-table-column>
+      <el-table-column prop="demander" :label="tableLang.buyer" width="260" align="center"></el-table-column>
       <el-table-column prop="orderId" :label="tableLang.order_num" width="260" align="center"></el-table-column>
+      <el-table-column label="dataId" width="360" align="center">
+        <template slot-scope="scope">
+          <el-button
+            @click="toDataIDList(scope.row.dataId)"
+            size="mini"
+            type="primary"
+          >{{scope.row.dataId}}</el-button>
+        </template>
+      </el-table-column>
+      <el-table-column label="tokenId" width="100" align="center">
+        <template slot-scope="scope">
+          <el-button
+            @click="toTokenId(scope.row.tokenId)"
+            size="mini"
+            type="primary"
+          >{{scope.row.tokenId}}</el-button>
+        </template>
+      </el-table-column>
       <el-table-column prop="boughtTime" :label="tableLang.buy_date" width="180" align="center"></el-table-column>
       <el-table-column :label="tableLang.state" width="180" align="center">
         <template slot-scope="scope">
@@ -274,6 +287,12 @@ export default {
         this.toShip(data, value)
       }).catch(() => {
       });
+    },
+    toDataIDList(dataId) {
+      this.$router.push({ name: 'DataIDList', query: { dataId: dataId } })
+    },
+    toTokenId(tokenId) {
+      this.$router.push({ name: 'TokenDetail', query: { tokenId: tokenId } })
     }
   },
   async  mounted() {

@@ -63,8 +63,8 @@ export default new Vuex.Store({
       console.log(params);
       try {
         return await axios.post(
-            `${process.env.VUE_APP_DDXF_API}/api/v1/order/all/second`,
-            params
+          `${process.env.VUE_APP_DDXF_API}/api/v1/order/all/second`,
+          params
         );
       } catch (error) {
         return error;
@@ -359,8 +359,8 @@ export default new Vuex.Store({
     async buySecondHandData({ dispatch, commit }, params) {
       try {
         return axios.post(
-            process.env.VUE_APP_DDXF_API + "/api/v1/order/purchase/second",
-            params
+          process.env.VUE_APP_DDXF_API + "/api/v1/order/purchase/second",
+          params
         );
       } catch (error) {
         return error;
@@ -407,23 +407,48 @@ export default new Vuex.Store({
     },
     async viewOtherInfo({ dispatch, commit }, params) {
       try {
-        return axios.get(process.env.VUE_APP_DDXF_API+ '/api/v1/order/token/balance/'+params)
+        return axios.get(
+          process.env.VUE_APP_DDXF_API + "/api/v1/order/token/balance/" + params
+        );
       } catch (error) {
-        return error
+        return error;
       }
     },
     async getDataByDataID({ dispatch, commit }, params) {
       try {
-        return axios.get(process.env.VUE_APP_DDXF_API+ '/api/v1/dataset/data/'+params.id)
+        return axios.get(
+          process.env.VUE_APP_DDXF_API + "/api/v1/dataset/data/" + params.id
+        );
       } catch (error) {
-        return error
+        return error;
       }
     },
     async updateOrder({ dispatch, commit }, params) {
       try {
-        return axios.post(process.env.VUE_APP_DDXF_API+ '/api/v1/order/second', params)
+        return axios.post(
+          process.env.VUE_APP_DDXF_API + "/api/v1/order/second",
+          params
+        );
       } catch (error) {
-        return error
+        return error;
+      }
+    },
+    async getDataIdDetail({ dispatch, commit }, params) {
+      try {
+        return axios.get(
+          process.env.VUE_APP_DDXF_ID + "/api/v1/dataId/" + params
+        );
+      } catch (error) {
+        return error;
+      }
+    },
+    async getTokenIdDetail({ dispatch, commit }, params) {
+      try {
+        return axios.get(
+          process.env.VUE_APP_DDXF_ID + "/api/v1/tokenId/" + params
+        );
+      } catch (error) {
+        return error;
       }
     }
   }

@@ -2,12 +2,25 @@
   <div>
     <el-table border :data="tableData" style="width: 100%" :empty-text="$t('common.no_data')">
       <el-table-column type="index" :index="indexMethod" align="center"></el-table-column>
-      <el-table-column
-        prop="providerOntid"
-        :label="tableLang.seller"
-        style="width: 20%"
-        align="center"
-      ></el-table-column>
+      <el-table-column prop="provider" :label="tableLang.seller" width="260" align="center"></el-table-column>
+      <el-table-column label="dataId" width="360" align="center">
+        <template slot-scope="scope">
+          <el-button
+            @click="toDataIDList(scope.row.dataId)"
+            size="mini"
+            type="primary"
+          >{{scope.row.dataId}}</el-button>
+        </template>
+      </el-table-column>
+      <el-table-column label="tokenId" width="100" align="center">
+        <template slot-scope="scope">
+          <el-button
+            @click="toTokenId(scope.row.tokenId)"
+            size="mini"
+            type="primary"
+          >{{scope.row.tokenId}}</el-button>
+        </template>
+      </el-table-column>
       <el-table-column prop="orderId" :label="tableLang.order_num" width="260" align="center"></el-table-column>
       <el-table-column :label="tableLang.desc" prop="desc" align="center" width="180"></el-table-column>
       <el-table-column prop="boughtTime" :label="tableLang.buy_date" width="180" align="center"></el-table-column>
@@ -473,7 +486,6 @@ export default {
       }
     },
     async viewOther(data) {
-      // moment(infoCode.expireTimeCount).format('YYYY-MM-DD HH:mm:ss')
       try {
         let res = await this.$store.dispatch('viewOtherInfo', data.tokenId)
         console.log('viewInfo', res.data.result)
@@ -547,6 +559,12 @@ export default {
       sessionStorage.setItem('resale_tokenId', data.tokenId)
       sessionStorage.setItem('resale_id', data.id)
       this.$router.push({ path: 'resaleDetail', query: { commodityId: data.dataId } })
+    },
+    toDataIDList(dataId) {
+      this.$router.push({ name: 'DataIDList', query: { dataId: dataId } })
+    },
+    toTokenId(tokenId) {
+      this.$router.push({ name: 'TokenDetail', query: { tokenId: tokenId } })
     }
   },
   async mounted() {

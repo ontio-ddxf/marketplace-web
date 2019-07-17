@@ -109,7 +109,11 @@ export default {
     taker_receive_amount:'Seller Receive Amount(ONG)',
     arbitrage_result:'Arbitrage Result',
     refresh: 'Please refresh the page later',
-    withdrawal: 'Withdrawal'
+    withdrawal: 'Withdrawal',
+    height: 'Height',
+    hash: 'Hash',
+    transferTimes: 'TransferTimes',
+    transferDetail: 'TransferDetail'
   },
   sign: {
     sign_up: 'Sign Up',

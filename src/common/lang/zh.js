@@ -109,7 +109,11 @@ export default {
     taker_receive_amount:'买家收取钱款(ONG)',
     arbitrage_result:'仲裁结果',
     refresh: '请稍后刷新页面',
-    withdrawal: '撤单'
+    withdrawal: '撤单',
+    height: '高度',
+    hash: '哈希',
+    transferTimes: '流转次数',
+    transferDetail: '流转详情'
   },
   sign: {
     sign_up: '注册',

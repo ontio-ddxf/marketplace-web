@@ -15,7 +15,6 @@
           style="float: right"
         >{{$t('common.to_home')}}</el-button>
       </div>
-
       <div class="msg_item">
         <p>{{$t('common.kyc')}}</p>
         <p>KYC: www.baidu.com</p>
@@ -60,6 +59,15 @@
             <el-tag style="margin-right: 10px;" v-else type="success">{{$t('common.verified')}}</el-tag>
           </template>
         </el-table-column>
+        <el-table-column align="center" label="dataId" width="380">
+          <template slot-scope="scope">
+            <el-button v-if="scope.row.dataId"
+              @click="toDataIDList(scope.row.dataId)"
+              size="mini"
+              type="primary"
+            >{{scope.row.dataId}}</el-button>
+          </template>
+        </el-table-column>
         <el-table-column prop="createTime" align="center" :label="tableLang.date" width="200"></el-table-column>
         <el-table-column :label="tableLang.operating" align="center" width="400">
           <template slot-scope="scope">
@@ -77,7 +85,13 @@
               round
               size="small"
             >{{$t('common.pending_order')}}</el-button>
-            <el-button v-if="scope.row.state === '2'" round size="small" @click="withdrawal(scope.row)" type="danger">{{$t('common.withdrawal')}}</el-button>
+            <el-button
+              v-if="scope.row.state === '2'"
+              round
+              size="small"
+              @click="withdrawal(scope.row)"
+              type="danger"
+            >{{$t('common.withdrawal')}}</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -534,6 +548,9 @@ export default {
         })
         return
       }
+    },
+    toDataIDList(dataId) {
+      this.$router.push({ name: 'DataIDList', query: { dataId: dataId } })
     }
   },
   async mounted() {

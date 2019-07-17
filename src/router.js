@@ -9,6 +9,8 @@ import EditData from './components/EditData'
 import ResaleDetail from './components/ResaleDetail'
 import Register from './components/Register'
 import OrderDetail from './components/OrderDetail'
+import DataIDList from './components/DataIDList'
+import TokenDetail from './components/TokenDetail'
 import SecondHandCommoditylist from './components/SecondHandCommoditylist'
 
 Vue.use(Router)
@@ -63,6 +65,16 @@ const router = new Router({
           path: 'secondHandCommoditylist',
           name: 'secondHandCommoditylist',
           component: SecondHandCommoditylist
+        },
+        {
+          path: 'dataidlist',
+          name: 'DataIDList',
+          component: DataIDList
+        },
+        {
+          path: 'tokendetail',
+          name: 'TokenDetail',
+          component: TokenDetail
         }
       ]
     },

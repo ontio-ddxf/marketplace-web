@@ -3,7 +3,7 @@
     <el-table border :data="tableData" style="width: 100%" :empty-text="$t('common.no_data')">
       <el-table-column type="index" :index="indexMethod" align="center"></el-table-column>
       <el-table-column
-        prop="demanderOntid"
+        prop="demander"
         :label="tableLang.buyer"
         style="width: 20%"
         align="center"

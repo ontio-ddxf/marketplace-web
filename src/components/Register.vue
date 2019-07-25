@@ -10,9 +10,9 @@
         label-width="100px"
         class="demo-ruleForm"
       >
-        <el-form-item label="ONT ID" prop="ontid">
+        <!-- <el-form-item label="ONT ID" prop="ontid">
           <el-input v-model="ruleForm.ontid"></el-input>
-        </el-form-item>
+        </el-form-item>-->
         <el-form-item label="ONS" prop="domain">
           <el-input v-model="ruleForm.domain"></el-input>
         </el-form-item>
@@ -24,12 +24,15 @@
 
 <script>
 import { client } from 'ontology-dapi'
+import { mapState } from 'vuex'
 export default {
   data() {
     return {
       ruleForm: {
-        ontid: '',
-        domain: ''
+        // ontid: '',
+        domain: '',
+        checkTimer: null,
+        dataId: ''
       },
       rules: {
         ontid: [
@@ -45,32 +48,43 @@ export default {
     submitForm(formName) {
       this.$refs[formName].validate(async (valid) => {
         if (valid) {
+          this.ruleForm.domain = this.ruleForm.domain + '.on.ont'
+          let qrcodeParams = { params: { login: true } }
           try {
-            this.ruleForm.domain = this.ruleForm.domain + '.on.ont'
-            let res = await this.$store.dispatch('regiter', this.ruleForm)
-            if (res.data.result) {
-              this.$message({
-                message: this.$t('sign.sign_success') + '!',
-                type: 'success',
-                center: true,
-                duration: 2000
-              })
-              this.ruleForm.domain = ''
+            let res = await this.$store.dispatch('sendONS', this.ruleForm.domain)
+            console.log('res', res)
+            if (res.data.msg === 'SUCCESS') {
+              qrcodeParams.action = 'signTransaction'
+              qrcodeParams.version = res.data.version
+              qrcodeParams.id = res.data.result.id
+              qrcodeParams.params.callback = res.data.result.callback
+              qrcodeParams.params.qrcodeUrl = res.data.result.qrcodeUrl
+              this.dataId = res.data.result.id
+              console.log('qrcodeParams', qrcodeParams)
+              console.log('dataId', this.dataId)
+              let dataParams = {
+                params: qrcodeParams,
+                isShow: true
+              }
+              this.$store.dispatch('changeQrcode', dataParams)
+              this.checkTimer = setInterval(() => {
+                this.checkResult()
+              }, 3000)
             } else {
               this.$message({
-                message: this.$t('sign.registered'),
-                type: 'error',
+                message: 'Sign Up Fail!',
                 center: true,
-                duration: 2000
-              })
+                type: 'error'
+              });
+              return
             }
           } catch (error) {
             this.$message({
-              message: this.$t('sign.fail'),
-              type: 'error',
+              message: 'Sign Up Fail!',
               center: true,
-              duration: 2000
-            })
+              type: 'error'
+            });
+            return
           }
         } else {
           console.log('error submit!!');
@@ -80,11 +94,65 @@ export default {
     },
     toHome() {
       this.$router.push({ path: '/' });
+    },
+    async checkResult() {
+      if (this.isShow) {
+        try {
+          let res = await this.$store.dispatch('checkSignUp', this.dataId)
+          console.log('checkout', res)
+          if (res.data.msg === 'SUCCESS') {
+            if (res.data.result === '1') {
+              this.$message({
+                message: 'Sign Up Successfuly!',
+                center: true,
+                type: 'success'
+              });
+              clearInterval(this.checkTimer)
+              this.$store.commit('CHANGE_MODEL_STATE', false)
+              // this.$router.push({ path: '/login' })
+              return true
+            } else if (res.data.result === '0') {
+              clearInterval(this.checkTimer)
+              this.$message({
+                message: 'Sign Up Fail!',
+                center: true,
+                type: 'error'
+              });
+              return false
+            } else { }
+
+          } else {
+            clearInterval(this.checkTimer)
+            this.$message({
+              message: 'Sign Up Fail!',
+              center: true,
+              type: 'error'
+            });
+            return false
+          }
+        } catch (error) {
+          clearInterval(this.checkTimer)
+          this.$message({
+            message: error,
+            center: true,
+            type: 'error'
+          });
+          return false
+        }
+      } else {
+        clearInterval(this.checkTimer)
+      }
+
     }
   },
   async mounted() {
     this.ruleForm.ontid = await client.api.identity.getIdentity()
   },
+  computed: {
+    ...mapState({
+      isShow: state => state.qrcodeParams.isShow,
+    })
+  }
 }
 </script>
 

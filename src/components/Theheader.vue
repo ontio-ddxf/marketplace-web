@@ -46,6 +46,8 @@
 <script>
 import { client } from 'ontology-dapi';
 import LangStorage from '../helpers/lang'
+import { mapState } from 'vuex'
+
 export default {
   data() {
     return {
@@ -58,7 +60,9 @@ export default {
         value: 'zh',
         label: '中文'
       }],
-      value: ''
+      value: '',
+      getResTimer: null,
+      dataId: ''
     }
   },
   created() {
@@ -85,64 +89,108 @@ export default {
     },
     async getIdenty() {
       try {
-        this.logining = true
-        let message = 'Welcome to MarketPlace'
-        let result = await client.api.message.signMessage({ message });
-        console.log(result)
-        if (!result.data || !result.publicKey) {
-          this.$message({
-            message: this.$t('top.login_fail'),
-            type: 'error',
-            center: true,
-            duration: 2000
-          });
-          this.logining = false
-          return
-        }
-        let res = await client.api.identity.getIdentity()
-
-        try {
-          let result = await this.$store.dispatch('login', res)
-          if (result.data.result) {
-            sessionStorage.setItem("ons", result.data.result)
-            sessionStorage.setItem("user_ontid", res)
-            this.userAccount = result.data.result
-            this.logining = false
-            this.$message({
-              message: this.$t('top.login_suc'),
-              type: 'success',
-              center: true,
-              duration: 2000
-            });
-            this.$router.push({ path: '/' });
-          } else {
-            this.logining = false
-            this.$message({
-              message: this.$t('top.ontid_fail'),
-              type: 'warning',
-              center: true,
-              duration: 2000
-            });
-            this.$router.push({ path: 'register' });
+        let result = await this.$store.dispatch('getLoginMsg')
+        console.log('loginmsg', result)
+        if (result.data.msg === 'SUCCESS') {
+          this.dataId = result.data.result.id
+          let codeParams = {
+            action: 'onsLogin',
+            version: 'v1.0.0',
+            id: result.data.result.id,
+            params: {
+              // type: 'ontid',
+              // type: 'address',
+              domain: 'on.ont',
+              dappName: 'dapp Name',
+              dappIcon: 'dapp Icon',
+              message: result.data.result.message,
+              callback: result.data.result.callback,
+            }
           }
-        } catch (error) {
+          console.log('codeParams', codeParams)
+          let qrparams = {
+            params: codeParams,
+            isShow: true
+          }
+          this.$store.dispatch('changeQrcode', qrparams)
+          this.getResTimer = setInterval(() => {
+            this.getLoginResult()
+          }, 3000)
+        } else {
           this.$message({
-            message: this.$t('top.login_fail'),
-            type: 'error',
+            message: 'Get Message Fail!',
             center: true,
-            duration: 2000
+            type: 'error'
           });
-          this.logining = false
+          return
         }
       } catch (error) {
         this.$message({
-          message: this.$t('top.login_fail'),
-          type: 'error',
+          message: error,
           center: true,
-          duration: 2000
+          type: 'error'
         });
-        this.logining = false
+        return
       }
+      // try {
+      //   this.logining = true
+      //   let message = 'Welcome to MarketPlace'
+      //   let result = await client.api.message.signMessage({ message });
+      //   console.log(result)
+      //   if (!result.data || !result.publicKey) {
+      //     this.$message({
+      //       message: this.$t('top.login_fail'),
+      //       type: 'error',
+      //       center: true,
+      //       duration: 2000
+      //     });
+      //     this.logining = false
+      //     return
+      //   }
+      //   let res = await client.api.identity.getIdentity()
+
+      //   try {
+      //     let result = await this.$store.dispatch('login', res)
+      //     if (result.data.result) {
+      //       sessionStorage.setItem("ons", result.data.result)
+      //       sessionStorage.setItem("user_ontid", res)
+      //       this.userAccount = result.data.result
+      //       this.logining = false
+      //       this.$message({
+      //         message: this.$t('top.login_suc'),
+      //         type: 'success',
+      //         center: true,
+      //         duration: 2000
+      //       });
+      //       this.$router.push({ path: '/' });
+      //     } else {
+      //       this.logining = false
+      //       this.$message({
+      //         message: this.$t('top.ontid_fail'),
+      //         type: 'warning',
+      //         center: true,
+      //         duration: 2000
+      //       });
+      //       this.$router.push({ path: 'register' });
+      //     }
+      //   } catch (error) {
+      //     this.$message({
+      //       message: this.$t('top.login_fail'),
+      //       type: 'error',
+      //       center: true,
+      //       duration: 2000
+      //     });
+      //     this.logining = false
+      //   }
+      // } catch (error) {
+      //   this.$message({
+      //     message: this.$t('top.login_fail'),
+      //     type: 'error',
+      //     center: true,
+      //     duration: 2000
+      //   });
+      //   this.logining = false
+      // }
     },
     toOrder(command) {
       console.log(command)
@@ -156,6 +204,65 @@ export default {
       LangStorage.setLang(this.$i18n.locale)
       window.location.reload()
     },
+    async getLoginResult() {
+      if (this.isShow) {
+        try {
+          let res = await this.$store.dispatch('getLoginRes', this.dataId)
+          console.log('getLoginResult', res)
+          if (res.data.msg === 'SUCCESS') {
+            if (res.data.result && res.data.result.result === '1') {
+              if (!res.data.result.ons) {
+                this.$message({
+                  message: 'Please Sign Up ONS',
+                  center: true,
+                  type: 'error'
+                });
+                clearInterval(this.getResTimer)
+                return
+              } else {
+                this.$message({
+                  message: 'Sign In Successful',
+                  center: true,
+                  type: 'success'
+                });
+                this.$store.commit('CHANGE_MODEL_STATE', false)
+                clearInterval(this.getResTimer)
+                sessionStorage.setItem("ons", res.data.result.ons)
+                sessionStorage.setItem("user_ontid", res.data.result.ontid)
+                this.userAccount = res.data.result.ons
+                this.$router.push({ path: '/' });
+                return
+              }
+            }
+          } else {
+            this.$message({
+              message: 'Get Sign In Result Fail!',
+              center: true,
+              type: 'error'
+            });
+            clearInterval(this.getResTimer)
+            return
+          }
+        } catch (error) {
+          this.$message({
+            message: error,
+            center: true,
+            type: 'error'
+          });
+          clearInterval(this.getResTimer)
+          return
+        }
+      } else {
+        clearInterval(this.getResTimer)
+        return
+      }
+
+    }
+  },
+  computed: {
+    ...mapState({
+      isShow: state => state.qrcodeParams.isShow,
+    })
   }
 }
 </script>

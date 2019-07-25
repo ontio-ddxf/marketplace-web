@@ -551,7 +551,7 @@ export default {
   },
   async mounted() {
     // this.accountid = await client.api.asset.getAccount()
-    this.accountid = await client.api.identity.getIdentity();
+    this.accountid = sessionStorage.getItem("user_ontid")
     console.log(this.accountid);
     if (!this.accountid) {
       return

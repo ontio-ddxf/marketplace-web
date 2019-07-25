@@ -74,7 +74,7 @@ export default {
     }
   },
   async mounted() {
-    this.ontid = await client.api.identity.getIdentity()
+    this.ontid = sessionStorage.getItem("user_ontid")
     await this.getCertData()
   }
 }

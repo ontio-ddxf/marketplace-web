@@ -77,7 +77,13 @@
               round
               size="small"
             >{{$t('common.pending_order')}}</el-button>
-            <el-button v-if="scope.row.state === '2'" round size="small" @click="withdrawal(scope.row)" type="danger">{{$t('common.withdrawal')}}</el-button>
+            <el-button
+              v-if="scope.row.state === '2'"
+              round
+              size="small"
+              @click="withdrawal(scope.row)"
+              type="danger"
+            >{{$t('common.withdrawal')}}</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -128,6 +134,8 @@ import { TEST_NET } from '../assets/control'
 import { sha256 } from 'js-sha256'
 import { throws } from 'assert';
 import moment from 'moment'
+import { unescape } from 'querystring';
+import { encode } from 'punycode';
 export default {
   data() {
     return {
@@ -242,109 +250,114 @@ export default {
       console.log(row)
     },
     async proDataId(formName) {
-      // this.$refs[formName].validate(async (valid) => {
-      // if (valid) {
-      // if (+this.form.totalAmount > 10) {
-      //   this.$message({
-      //     message: 'TotalAmount Must Less than 10',
-      //     type: 'error',
-      //     center: true,
-      //     duration: 2000
-      //   });
-      //   return
-      // }
       const privateKey = Crypto.PrivateKey.random();
       var identity = Identity.create(privateKey, '', '')
       let params0 = {
         dataId: identity.ontid,
+        id: this.cortData.id,
         ontid: this.ontid,
-        pubKey: 1,
-        // contractVo: {
-        //   argsList: [{
-        //     name: "account",
-        //     value: "Address:" + this.ontid.substring(8)
-        //   }, {
-        //     name: "dataId",
-        //     value: "String:" + identity.ontid
-        //   }, {
-        //     name: "ontid",
-        //     value: "String:" + this.ontid
-        //   }, {
-        //     name: "index",
-        //     value: 1
-        //   }, {
-        //     name: "symbol",
-        //     value: "String:" + this.form.symbol
-        //   }, {
-        //     name: "name",
-        //     value: "String:" + this.form.name
-        //   }, {
-        //     name: "amount",
-        //     value: this.form.totalAmount
-        //   }, {
-        //     name: 'transferCount',
-        //     value: this.form.transferCount
-        //   }, {
-        //     name: 'accessCount',
-        //     value: this.form.accessCount
-        //   },
-        //   {
-        //     name: 'expireTime',
-        //     value: moment(this.form.expireTime).unix()
-        //   }],
-        //   contractHash: "06633f64506fbf7fd4b65b422224905d362d1f55",
-        //   method: "createTokenWithController",
-        // }
+        pubKey: 1
       }
       console.log('params0', params0)
+      let result = await this.$store.dispatch('getTID', params0)
+      console.log('result', result)
       // return
-      let res = await this.$store.dispatch('getDID', params0)
-      console.log('result', res)
-      if (res.data.msg === 'SUCCESS') {
-        let params1 = {
-          id: this.cortData.id,
-          dataId: identity.ontid,
-          sigDataVo: {
-            txHex: res.data.result,
-            pubKeys: '',
-            sigData: ''
+      if (result.data.msg === 'SUCCESS') {
+
+        let message = result.data.result.message
+        message = message.slice(0, message.length - 2)
+        message = utils.sha256(message)
+        message = utils.sha256(message)
+        // message = utils.hexstr2str(message)
+        // console.log('messageth', message.length)
+        console.log('message2', message)
+        // message = utils.hexstring2ab(message)
+        // console.log('messageth', message.length)
+        // return
+        // let msgaaaa = message
+        // console.log('msgaaaa', msgaaaa)
+
+        // return
+        // let signData = await client.api.message.signMessage({ message });
+        // console.log('signData', signData)
+        let codeParams = {
+          action: 'signMessage',
+          version: 'v1.0.0',
+          id: result.data.result.id,
+          params: {
+            // type: 'ontid',
+            type: 'address',
+            // domain: 'on.ont',
+            // dappName: 'dapp Name',
+            // dappIcon: 'dapp Icon',
+            message: message,
+            ishex: true,
+            callback: result.data.result.callback,
           }
         }
-
-        let message0 = res.data.result
-        console.log('message1', message0)
-        message0 = message0.slice(0, message0.length - 2)
-        message0 = utils.sha256(message0)
-        message0 = utils.sha256(message0)
-        message0 = utils.hexstr2str(message0)
-        try {
-          let signData = await client.api.message.signMessage({ message: message0 });
-          params1.sigDataVo.pubKeys = signData.publicKey
-          params1.sigDataVo.sigData = signData.data
-        } catch (error) {
-          this.$message({
-            message: this.$t('common.data_id_fail'),
-            type: 'error',
-            center: true,
-            duration: 2000
-          });
-          this.dialogFormVisible = false
-          // this.$refs[formName].resetFields()
-          return
+        console.log('codeParams', codeParams)
+        let qrparams = {
+          params: codeParams,
+          isShow: true
         }
+        this.$store.dispatch('changeQrcode', qrparams)
+        // let params1 = {
+        //   id: this.cortData.id,
+        //   dataId: identity.ontid,
+        //   sigDataVo: {
+        //     txHex: res.data.result,
+        //     pubKeys: '',
+        //     sigData: ''
+        //   }
+        // }
 
-        // let message1 = res.data.result[1]
-        // console.log('message2', message1)
-        //
-        // message1 = message1.slice(0, message1.length - 2)
-        // message1 = utils.sha256(message1)
-        // message1 = utils.sha256(message1)
-        // message1 = utils.hexstr2str(message1)
+        // let message0 = res.data.result
+        // console.log('message1', message0)
+        // message0 = message0.slice(0, message0.length - 2)
+        // message0 = utils.sha256(message0)
+        // message0 = utils.sha256(message0)
+        // message0 = utils.hexstr2str(message0)
         // try {
-        //   let signData = await client.api.message.signMessage({ message: message1 });
-        //   params1.sigTokenVo.pubKeys = signData.publicKey
-        //   params1.sigTokenVo.sigData = signData.data
+        //   let signData = await client.api.message.signMessage({ message: message0 });
+        //   params1.sigDataVo.pubKeys = signData.publicKey
+        //   params1.sigDataVo.sigData = signData.data
         // } catch (error) {
+        //   this.$message({
+        //     message: this.$t('common.data_id_fail'),
+        //     type: 'error',
+        //     center: true,
+        //     duration: 2000
+        //   });
+        //   this.dialogFormVisible = false
+        //   return
+        // }
+        // console.log('params1', params1.dataId)
+        // console.log(JSON.stringify(params1))
+        // retutn
+        // try {
+        //   let res = await this.$store.dispatch('getTID', params1)
+        //   console.log('getTID', res)
+        //   if (res.data.msg == 'SUCCESS') {
+        //     this.$message({
+        //       message: this.$t('common.data_id_suc'),
+        //       type: 'success',
+        //       center: true,
+        //       duration: 2000
+        //     });
+        //     this.dialogFormVisible = false
+        //     // this.$refs[formName].resetFields()
+        //   } else {
+        //     this.$message({
+        //       message: this.$t('common.data_id_fail'),
+        //       type: 'error',
+        //       center: true,
+        //       duration: 2000
+        //     });
+        //     this.dialogFormVisible = false
+        //     // this.$refs[formName].resetFields()
+        //   }
+        // } catch (error) {
+        //   console.log('error', error)
         //   this.$message({
         //     message: this.$t('common.data_id_fail'),
         //     type: 'error',
@@ -355,44 +368,6 @@ export default {
         //   // this.$refs[formName].resetFields()
         //   return
         // }
-
-        console.log('params1', params1.dataId)
-        console.log(JSON.stringify(params1))
-        // retutn
-        try {
-          let res = await this.$store.dispatch('getTID', params1)
-          console.log('getTID', res)
-          if (res.data.msg == 'SUCCESS') {
-            this.$message({
-              message: this.$t('common.data_id_suc'),
-              type: 'success',
-              center: true,
-              duration: 2000
-            });
-            this.dialogFormVisible = false
-            // this.$refs[formName].resetFields()
-          } else {
-            this.$message({
-              message: this.$t('common.data_id_fail'),
-              type: 'error',
-              center: true,
-              duration: 2000
-            });
-            this.dialogFormVisible = false
-            // this.$refs[formName].resetFields()
-          }
-        } catch (error) {
-          console.log('error', error)
-          this.$message({
-            message: this.$t('common.data_id_fail'),
-            type: 'error',
-            center: true,
-            duration: 2000
-          });
-          this.dialogFormVisible = false
-          // this.$refs[formName].resetFields()
-          return
-        }
 
 
       } else {
@@ -405,11 +380,6 @@ export default {
         this.dialogFormVisible = false
         this.$refs[formName].resetFields()
       }
-      // } else {
-      // console.log('error submit!!');
-      // return false;
-      // }
-      // });
     },
     setUrl() {
       const net = localStorage.getItem('net');
@@ -432,18 +402,8 @@ export default {
         });
         return
       }
-      // if (!this.address) {
-      //   this.$message({
-      //     message: this.$t('common.wallet_acc'),
-      //     type: 'error',
-      //     center: true,
-      //     duration: 2000
-      //   });
-      //   return
-      // }
       this.cortData = data
       this.proDataId()
-      // this.dialogFormVisible = true
     },
     async withdrawal(data) {
       console.log('withdrawaldata', data)
@@ -538,7 +498,7 @@ export default {
   },
   async mounted() {
     this.url = this.setUrl()
-    this.ontid = await client.api.identity.getIdentity()
+    this.ontid = sessionStorage.getItem("user_ontid")
     this.getSellData()
   },
 }

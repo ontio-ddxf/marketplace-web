@@ -84,6 +84,7 @@
 
 <script>
 import { client } from 'ontology-dapi'
+import { mapState } from 'vuex'
 
 export default {
   data() {
@@ -91,7 +92,9 @@ export default {
       signing: false,
       detailList: { data: {} },
       isCert: null,
-      OJlist: null
+      OJlist: null,
+      cerId: '',
+      cerTimer: null
     }
   },
   created() {
@@ -125,43 +128,94 @@ export default {
         type: 'success'
       }).then(async () => {//确定
 
-        let params = {}
-        params.id = this.detailList.id
-        params.certifier = this.detailList.certifier
         try {
-          console.log('params', params)
-          let res = await this.$store.dispatch('toCert', params)
-          console.log(res);
-          if (res.status === 200 && res.data.msg === 'SUCCESS') {
-            this.$message({
-              message: this.$t('common.verified'),
-              type: 'success',
-              center: true,
-              duration: 2000
-            });
-            sessionStorage.setItem('isCert', 1)
-            this.isCert = 1
-            window.location.reload();
+          let result = await this.$store.dispatch('getCerMsg', this.$route.query.commodityId)
+          console.log('this.$route.query.commodityId', result)
+          if (result.data.msg === 'SUCCESS') {
+            this.cerId = result.data.result.id
+            let codeParams = {
+              action: 'signMessage',
+              version: 'v1.0.0',
+              id: result.data.result.id,
+              params: {
+                // type: 'ontid',
+                type: 'address',
+                // domain: 'on.ont',
+                dappName: 'dapp Name',
+                dappIcon: 'dapp Icon',
+                message: result.data.result.message,
+                callback: result.data.result.callback,
+              }
+            }
+            console.log('codeParams', codeParams)
+            let qrparams = {
+              params: codeParams,
+              isShow: true
+            }
+            this.$store.dispatch('changeQrcode', qrparams)
+            this.cerTimer = setInterval(() => {
+              this.getCerResult()
+            }, 3000)
           } else {
             this.$message({
-              message: this.$t('common.cer_fail'),
-              type: 'success',
+              message: 'Get Message Fail!',
               center: true,
-              duration: 2000
+              type: 'error'
             });
+            return
           }
         } catch (error) {
           this.$message({
-            message: this.$t('common.cer_fail'),
-            type: 'success',
+            message: error,
+            type: 'error',
             center: true,
             duration: 2000
           });
+          return
         }
-      }).catch(() => {
+      }).catch((error) => {
+        this.$message({
+          message: error,
+          center: true,
+          type: 'error'
+        });
+        this.$store.commit('CHANGE_MODEL_STATE', false)
       });
+    },
+    async getCerResult() {
+      if (this.isShow) {
+        try {
+          let res = await this.$store.dispatch('getCerQrRes', this.cerId)
+          console.log('getCerQrRes', res)
+          if (res.data.msg === 'SUCCESS' && res.data.result && res.data.result === '1') {
+            clearInterval(this.getResTimer)
+            this.$store.commit('CHANGE_MODEL_STATE', false)
+            sessionStorage.setItem('isCert', 1)
+            this.isCert = 1
+            window.location.reload();
+            return
+          }
+        } catch (error) {
+          this.$message({
+            message: error,
+            center: true,
+            type: 'error'
+          });
+          this.$store.commit('CHANGE_MODEL_STATE', false)
+          clearInterval(this.cerTimer)
+          return
+        }
+      } else {
+        clearInterval(this.cerTimer)
+        return
+      }
     }
   },
+  computed: {
+    ...mapState({
+      isShow: state => state.qrcodeParams.isShow,
+    })
+  }
 }
 </script>
 

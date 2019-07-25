@@ -242,7 +242,7 @@ export default {
   },
   async mounted() {
     this.accountid = await client.api.asset.getAccount()
-    this.ont_id = await client.api.identity.getIdentity()
+    this.ont_id = sessionStorage.getItem("user_ontid")
     try {
       let res = await this.$store.dispatch('getCertifier')
       if (res.data && res.data.msg === 'SUCCESS') {

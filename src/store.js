@@ -3,6 +3,7 @@ import Vuex from "vuex";
 import { client } from "ontology-dapi";
 import axios from "axios";
 import LangStorage from "./helpers/lang";
+import QRCode from 'qrcode'
 
 Vue.use(Vuex);
 
@@ -19,14 +20,40 @@ export default new Vuex.Store({
       gasLimit: 30000,
       requireIdentity: true
     },
-    lang: LangStorage.getLang("en")
+    lang: LangStorage.getLang("en"),
+    qrcodeParams: {
+      isShow: false,
+      qrcodeUrl: ''
+    }
   },
   mutations: {
     UPDATE_HOME_LANG(state, payload) {
       state.lang = payload.lang;
+    },
+    CREATE_QRCODE(state, payload) {
+      QRCode.toDataURL(payload.url)
+      .then(url => {
+        state.qrcodeParams.qrcodeUrl = url
+        state.qrcodeParams.isShow = payload.isShow
+      })
+      .catch(err => {
+      })
+    },
+    CHANGE_MODEL_STATE(state, payload) {
+      state.qrcodeParams.isShow = payload
     }
   },
   actions: {
+    changeQrcode({ dispatch, commit }, params) {
+      let p = {
+        url: '',
+        isShow: false
+      }
+      p.url = JSON.stringify(params.params)
+      p.isShow = params.isShow
+      console.log('p',p)
+      commit('CREATE_QRCODE', p)
+    },
     async dapiInvoke({ dispatch, commit }, params) {
       console.log("params", params);
       const { operation, args } = params;
@@ -449,6 +476,50 @@ export default new Vuex.Store({
         );
       } catch (error) {
         return error;
+      }
+    },
+    async getLoginMsg({ dispatch, commit }, params) {
+      try {
+        return axios.get(process.env.VUE_APP_API + "/api/v1/login");
+      } catch (error) {
+        return error;
+      }
+    },
+    async getLoginRes({ dispatch, commit }, params) {
+      try {
+        return axios.get(process.env.VUE_APP_API + '/api/v1/login/result/' + params);
+      } catch (error) {
+        return error;
+      }
+    },
+    async sendONS({ dispatch, commit }, params) {
+      try {
+        return axios.get(process.env.VUE_APP_API + "/api/v1/ons/" + params);
+      } catch (error) {
+        return error;
+      }
+    },
+    async checkSignUp({ dispatch, commit }, params) {
+      try {
+        return axios.get(
+          process.env.VUE_APP_API + "/api/v1/ons/result/" + params
+        );
+      } catch (error) {
+        return error;
+      }
+    },
+    async getCerMsg({ dispatch, commit }, params) {
+      try {
+        return axios.get(process.env.VUE_APP_DDXF_API + '/api/v1/certifier/message/' + params)
+      } catch (error) {
+        return error
+      }
+    },
+    async getCerQrRes({ dispatch, commit }, params) {
+      try {
+        return axios.get(process.env.VUE_APP_DDXF_API + '/api/v1/certifier/result/' + params)
+      } catch (error) {
+        return error
       }
     }
   }

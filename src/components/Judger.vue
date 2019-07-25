@@ -221,9 +221,9 @@ export default {
   },
   async mounted() {
     // this.ontid = await client.api.identity.getIdentity()
-    this.ontid = await client.api.asset.getAccount()
+    this.ontid = sessionStorage.getItem("user_ontid")
     let params = {
-      ontid: 'did:ont:' + this.ontid,
+      ontid: this.ontid,
       pageSize: 10,
       pageNum: 0
     }

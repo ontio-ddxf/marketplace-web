@@ -47,7 +47,7 @@
           <el-input disabled v-model="dynamicValidateForm.data.img"></el-input>
         </el-form-item>
         <!-- price -->
-        <el-form-item
+        <!-- <el-form-item
           prop="price"
           :label="tableLang.price"
           :rules="[
@@ -62,8 +62,7 @@
             :min="0"
             :max="100"
           ></el-input-number>
-          <!-- <el-input type='number' min="1" max="100"  v-model.number="dynamicValidateForm.price"></el-input> -->
-        </el-form-item>
+        </el-form-item> -->
         <!-- amount -->
         <el-form-item
           prop="amount"
@@ -123,7 +122,7 @@
           ></el-input-number>
         </el-form-item>
         <!-- accessCount -->
-        <el-form-item
+        <!-- <el-form-item
           prop="accessCount"
           :label="tableLang.accessCount"
           :rules="[
@@ -138,7 +137,7 @@
             :min="0"
             :max="100"
           ></el-input-number>
-        </el-form-item>
+        </el-form-item> -->
         <!-- expireTime -->
         <el-form-item :label="tableLang.expireTime" prop="expireTime">
           <!-- <el-input type="age" v-model.number="form.expireTime" autocomplete="off"></el-input> -->
@@ -270,12 +269,12 @@ export default {
       },
       dynamicValidateForm: {
         tags: [],
-        price: '',
+        price: 0,
         amount: '',
         symbol: '',
         tokenName: '',
         transferCount: '',
-        accessCount: '',
+        accessCount: 999999999,
         expireTime: '',
         coin: 'ONG',
         data: {

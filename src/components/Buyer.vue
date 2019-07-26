@@ -107,7 +107,9 @@ export default {
       accountid: '',
       orderCount: 0,
       pageSize: 10,
-      pageNum: 0
+      pageNum: 0,
+      commonId: null,
+      commonTimer: null
     }
   },
   methods: {
@@ -123,7 +125,6 @@ export default {
           type: 1
         }
         let res = await this.$store.dispatch('getBuyOrder', params)
-        // console.log(res)
         if (res.status === 200 && res.data.msg === 'SUCCESS') {
           this.tableData = res.data.result.recordList
           this.orderCount = res.data.result.recordCount
@@ -203,18 +204,53 @@ export default {
           method: "confirm"
         }
       }
-      let paramsData = {
-        txHex: '',
-        pubKeys: '',
-        sigData: ''
-      }
+
       try {
-        let res = await this.$store.dispatch('makeTransaction', sureParams)
-        console.log('makeTransaction', res)
-        // return
-        if (res.data.msg === 'SUCCESS') {
-          paramsData.txHex = res.data.result
-          console.log('paramsData', paramsData)
+        let result = await this.$store.dispatch('MakeCommonHash', sureParams)
+        console.log('common', result)
+        if (result.data.msg === 'SUCCESS') {
+          this.commonId = result.data.result.id
+          let message = result.data.result.message
+          message = message.slice(0, message.length - 2)
+          message = utils.sha256(message)
+          message = utils.sha256(message)
+          let codeParams = {
+            action: 'signMessage',
+            version: 'v1.0.0',
+            id: result.data.result.id,
+            params: {
+              type: 'address',
+              message: message,
+              ishex: true,
+              callback: result.data.result.callback,
+            }
+          }
+          console.log('codeParams', codeParams)
+          let qrparams = {
+            params: codeParams,
+            isShow: true
+          }
+          this.$store.dispatch('changeQrcode', qrparams)
+          this.commonTimer = setInterval(async () => {
+            let result = await this.$store.dispatch('getCheckRes', this.commonId)
+            console.log('result orjs', result)
+            if (result === 1) {
+              clearInterval(this.commonTimer)
+              this.$message({
+                message: this.$t('common.delivery_suc'),
+                center: true,
+                type: 'success'
+              });
+            } else if (result === 3) {
+              clearInterval(this.commonTimer)
+              this.$message({
+                message: this.$t('common.delivery_fail'),
+                type: 'error',
+                center: true,
+                duration: 2000
+              });
+            } else { }
+          }, 3000)
         } else {
           this.$message({
             message: this.$t('common.delivery_fail'),
@@ -222,62 +258,10 @@ export default {
             center: true,
             duration: 2000
           })
-          return
-        }
-      } catch (error) {
-        console.log(error)
-        this.$message({
-          message: this.$t('common.delivery_fail'),
-          type: 'error',
-          center: true,
-          duration: 2000
-        })
-        return
-      }
-
-      try {
-        let message = paramsData.txHex
-        message = message.slice(0, message.length - 2)
-        message = utils.sha256(message)
-        message = utils.sha256(message)
-        message = utils.hexstr2str(message)
-        let signData = await client.api.message.signMessage({ message });
-        paramsData.pubKeys = signData.publicKey
-        paramsData.sigData = signData.data
-      } catch (error) {
-        this.$message({
-          message: this.$t('common.delivery_fail'),
-          type: 'error',
-          center: true,
-          duration: 2000
-        })
-        return
-      }
-
-      console.log('paramsData', paramsData)
-
-      try {
-        let res = await this.$store.dispatch('sendPass', paramsData)
-        console.log('sendPass', res)
-        if (res.data.msg === 'SUCCESS') {
-          this.$message({
-            message: this.$t('common.delivery_suc'),
-            type: 'success',
-            center: true,
-            duration: 2000
-          })
-        } else {
-          this.$message({
-            message: this.$t('common.delivery_fail'),
-            type: 'error',
-            center: true,
-            duration: 2000
-          })
-          return
         }
       } catch (error) {
         this.$message({
-          message: this.$t('common.delivery_fail'),
+          message: error,
           type: 'error',
           center: true,
           duration: 2000
@@ -413,7 +397,6 @@ export default {
         sigData: ''
       }
       try {
-        // console.log('appealParams', appealParams)
         let res = await this.$store.dispatch('makeTransaction', appealParams)
         console.log('makeTransaction', res)
         if (res.data.msg === 'SUCCESS') {
@@ -455,8 +438,6 @@ export default {
         })
         return
       }
-
-      // console.log('paramsData', paramsData)
       try {
         let res = await this.$store.dispatch('sendPass', paramsData)
         console.log('sendPass', res)
@@ -568,7 +549,6 @@ export default {
     }
   },
   async mounted() {
-    // this.accountid = await client.api.asset.getAccount()
     this.accountid = sessionStorage.getItem("user_ontid")
     console.log(this.accountid);
     if (!this.accountid) {

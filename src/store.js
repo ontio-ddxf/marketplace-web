@@ -3,7 +3,7 @@ import Vuex from "vuex";
 import { client } from "ontology-dapi";
 import axios from "axios";
 import LangStorage from "./helpers/lang";
-import QRCode from 'qrcode'
+import QRCode from "qrcode";
 
 Vue.use(Vuex);
 
@@ -23,7 +23,7 @@ export default new Vuex.Store({
     lang: LangStorage.getLang("en"),
     qrcodeParams: {
       isShow: false,
-      qrcodeUrl: ''
+      qrcodeUrl: ""
     }
   },
   mutations: {
@@ -32,27 +32,26 @@ export default new Vuex.Store({
     },
     CREATE_QRCODE(state, payload) {
       QRCode.toDataURL(payload.url)
-      .then(url => {
-        state.qrcodeParams.qrcodeUrl = url
-        state.qrcodeParams.isShow = payload.isShow
-      })
-      .catch(err => {
-      })
+        .then(url => {
+          state.qrcodeParams.qrcodeUrl = url;
+          state.qrcodeParams.isShow = payload.isShow;
+        })
+        .catch(err => {});
     },
     CHANGE_MODEL_STATE(state, payload) {
-      state.qrcodeParams.isShow = payload
+      state.qrcodeParams.isShow = payload;
     }
   },
   actions: {
     changeQrcode({ dispatch, commit }, params) {
       let p = {
-        url: '',
+        url: "",
         isShow: false
-      }
-      p.url = JSON.stringify(params.params)
-      p.isShow = params.isShow
-      console.log('p',p)
-      commit('CREATE_QRCODE', p)
+      };
+      p.url = JSON.stringify(params.params);
+      p.isShow = params.isShow;
+      console.log("p", p);
+      commit("CREATE_QRCODE", p);
     },
     async dapiInvoke({ dispatch, commit }, params) {
       console.log("params", params);
@@ -487,7 +486,9 @@ export default new Vuex.Store({
     },
     async getLoginRes({ dispatch, commit }, params) {
       try {
-        return axios.get(process.env.VUE_APP_API + '/api/v1/login/result/' + params);
+        return axios.get(
+          process.env.VUE_APP_API + "/api/v1/login/result/" + params
+        );
       } catch (error) {
         return error;
       }
@@ -510,16 +511,96 @@ export default new Vuex.Store({
     },
     async getCerMsg({ dispatch, commit }, params) {
       try {
-        return axios.get(process.env.VUE_APP_DDXF_API + '/api/v1/certifier/message/' + params)
+        return axios.get(
+          process.env.VUE_APP_DDXF_API + "/api/v1/certifier/message/" + params
+        );
       } catch (error) {
-        return error
+        return error;
       }
     },
     async getCerQrRes({ dispatch, commit }, params) {
       try {
-        return axios.get(process.env.VUE_APP_DDXF_API + '/api/v1/certifier/result/' + params)
+        return axios.get(
+          process.env.VUE_APP_DDXF_API + "/api/v1/certifier/result/" + params
+        );
       } catch (error) {
-        return error
+        return error;
+      }
+    },
+    /**
+     *
+     * @param {1} 请求成功，成功同步结果
+     * @param {2} 请求成功，尚未扫码同步结果
+     * @param {3} 请求失败
+     */
+    async getCheckRes({ dispatch, commit, state }, params) {
+      try {
+        if (state.qrcodeParams.isShow) {
+          let result = await axios.get(
+            process.env.VUE_APP_DDXF_API + "/api/v1/contract/result/" + params
+          );
+          console.log("checkout result", result);
+          if (result.data.msg === "SUCCESS") {
+            if (result.data.result === "1") {
+              commit("CHANGE_MODEL_STATE", false);
+              return 1;
+            } else {
+              return 2;
+            }
+          } else {
+            commit("CHANGE_MODEL_STATE", false);
+            return 3;
+          }
+        } else {
+          commit("CHANGE_MODEL_STATE", false);
+          return 3;
+        }
+      } catch (error) {
+        commit("CHANGE_MODEL_STATE", false);
+        return 3;
+      }
+    },
+    /**
+     *
+     * Make panding order contract
+     *
+     * @param {param} param
+     */
+    async makePandingCont({ dispatch, commit }, params) {
+      try {
+        return await axios.post(
+          process.env.VUE_APP_DDXF_API + "/api/v1/order",
+          params
+        );
+      } catch (error) {
+        return error;
+      }
+    },
+    /**
+     *
+     * make order
+     */
+    async makeOrder({ dispatch, commit }, params) {
+      try {
+        return await axios.post(
+          process.env.VUE_APP_DDXF_API + "/api/v1/order/purchase",
+          params
+        );
+      } catch (error) {
+        return error;
+      }
+    },
+    /**
+     *  common make hash
+     */
+    async MakeCommonHash({ dispatch, commit }, params) {
+      try {
+        return await axios.post(
+          process.env.VUE_APP_DDXF_API + "/api/v1/contract",
+          params
+        );
+      } catch (error) {
+        return error;
       }
     }
   }

@@ -61,7 +61,8 @@
         </el-table-column>
         <el-table-column align="center" label="dataId" width="380">
           <template slot-scope="scope">
-            <el-button v-if="scope.row.dataId"
+            <el-button
+              v-if="scope.row.dataId"
               @click="toDataIDList(scope.row.dataId)"
               size="mini"
               type="primary"
@@ -142,8 +143,9 @@ import { TEST_NET } from '../assets/control'
 import { sha256 } from 'js-sha256'
 import { throws } from 'assert';
 import moment from 'moment'
-import { unescape } from 'querystring';
 import { encode } from 'punycode';
+
+import { mapState } from 'vuex'
 export default {
   data() {
     return {
@@ -193,7 +195,9 @@ export default {
         date: this.$t('common.date'),
         operating: this.$t('common.operating'),
         state: this.$t('common.certification_status')
-      }
+      },
+      dataIdTimer: null,
+      DId: null
     }
   },
   methods: {
@@ -271,33 +275,18 @@ export default {
       console.log('result', result)
       // return
       if (result.data.msg === 'SUCCESS') {
-
+        // DId .data.result.id
+        this.DId = result.data.result.id
         let message = result.data.result.message
         message = message.slice(0, message.length - 2)
         message = utils.sha256(message)
         message = utils.sha256(message)
-        // message = utils.hexstr2str(message)
-        // console.log('messageth', message.length)
-        console.log('message2', message)
-        // message = utils.hexstring2ab(message)
-        // console.log('messageth', message.length)
-        // return
-        // let msgaaaa = message
-        // console.log('msgaaaa', msgaaaa)
-
-        // return
-        // let signData = await client.api.message.signMessage({ message });
-        // console.log('signData', signData)
         let codeParams = {
           action: 'signMessage',
           version: 'v1.0.0',
           id: result.data.result.id,
           params: {
-            // type: 'ontid',
             type: 'address',
-            // domain: 'on.ont',
-            // dappName: 'dapp Name',
-            // dappIcon: 'dapp Icon',
             message: message,
             ishex: true,
             callback: result.data.result.callback,
@@ -309,75 +298,26 @@ export default {
           isShow: true
         }
         this.$store.dispatch('changeQrcode', qrparams)
-        // let params1 = {
-        //   id: this.cortData.id,
-        //   dataId: identity.ontid,
-        //   sigDataVo: {
-        //     txHex: res.data.result,
-        //     pubKeys: '',
-        //     sigData: ''
-        //   }
-        // }
-
-        // let message0 = res.data.result
-        // console.log('message1', message0)
-        // message0 = message0.slice(0, message0.length - 2)
-        // message0 = utils.sha256(message0)
-        // message0 = utils.sha256(message0)
-        // message0 = utils.hexstr2str(message0)
-        // try {
-        //   let signData = await client.api.message.signMessage({ message: message0 });
-        //   params1.sigDataVo.pubKeys = signData.publicKey
-        //   params1.sigDataVo.sigData = signData.data
-        // } catch (error) {
-        //   this.$message({
-        //     message: this.$t('common.data_id_fail'),
-        //     type: 'error',
-        //     center: true,
-        //     duration: 2000
-        //   });
-        //   this.dialogFormVisible = false
-        //   return
-        // }
-        // console.log('params1', params1.dataId)
-        // console.log(JSON.stringify(params1))
-        // retutn
-        // try {
-        //   let res = await this.$store.dispatch('getTID', params1)
-        //   console.log('getTID', res)
-        //   if (res.data.msg == 'SUCCESS') {
-        //     this.$message({
-        //       message: this.$t('common.data_id_suc'),
-        //       type: 'success',
-        //       center: true,
-        //       duration: 2000
-        //     });
-        //     this.dialogFormVisible = false
-        //     // this.$refs[formName].resetFields()
-        //   } else {
-        //     this.$message({
-        //       message: this.$t('common.data_id_fail'),
-        //       type: 'error',
-        //       center: true,
-        //       duration: 2000
-        //     });
-        //     this.dialogFormVisible = false
-        //     // this.$refs[formName].resetFields()
-        //   }
-        // } catch (error) {
-        //   console.log('error', error)
-        //   this.$message({
-        //     message: this.$t('common.data_id_fail'),
-        //     type: 'error',
-        //     center: true,
-        //     duration: 2000
-        //   });
-        //   this.dialogFormVisible = false
-        //   // this.$refs[formName].resetFields()
-        //   return
-        // }
-
-
+        this.dataIdTimer = setInterval(async () => {
+          let result = await this.$store.dispatch('getCheckRes', this.DId)
+          console.log('result orjs', result)
+          if (result === 1) {
+            clearInterval(this.dataIdTimer)
+            this.$message({
+              message: this.$t('common.data_id_suc'),
+              center: true,
+              type: 'success'
+            });
+          } else if(result === 3) {
+            clearInterval(this.dataIdTimer)
+            this.$message({
+              message: this.$t('common.data_id_fail'),
+              type: 'error',
+              center: true,
+              duration: 2000
+            });
+          } else {}
+        }, 3000)
       } else {
         this.$message({
           message: this.$t('common.data_id_fail'),
@@ -512,6 +452,11 @@ export default {
     this.ontid = sessionStorage.getItem("user_ontid")
     this.getSellData()
   },
+  computed: {
+    ...mapState({
+      isShow: state => state.qrcodeParams.isShow,
+    })
+  }
 }
 </script>
 

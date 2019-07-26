@@ -113,7 +113,8 @@ export default {
     height: 'Height',
     hash: 'Hash',
     transferTimes: 'TransferTimes',
-    transferDetail: 'TransferDetail'
+    transferDetail: 'TransferDetail',
+    qrcode: 'QR code'
   },
   sign: {
     sign_up: 'Sign Up',

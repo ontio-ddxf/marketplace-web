@@ -1,10 +1,10 @@
 <template>
   <div>
-    <el-dialog title="Qrcode" :visible.sync="isShow" width="30%" center>
+    <el-dialog :title="$t('common.qrcode')" :visible.sync="isShow" width="30%" center>
       <img class="qrcoe_url" :src="url" alt />
       <span slot="footer" class="dialog-footer">
-        <el-button @click="close">取 消</el-button>
-        <el-button type="primary" @click="close">确 定</el-button>
+        <el-button @click="close">{{$t('common.cancel')}}</el-button>
+        <el-button type="primary" @click="close">{{$t('common.sure')}}</el-button>
       </span>
     </el-dialog>
   </div>

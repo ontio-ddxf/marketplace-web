@@ -153,8 +153,23 @@ export default {
               isShow: true
             }
             this.$store.dispatch('changeQrcode', qrparams)
-            this.cerTimer = setInterval(() => {
-              this.getCerResult()
+            this.cerTimer = setInterval(async () => {
+              let result = await this.$store.dispatch('getCheckRes', this.cerId)
+              console.log('result orjs', result)
+              if (result === 1) {
+                clearInterval(this.cerTimer)
+                sessionStorage.setItem('isCert', 1)
+                this.isCert = 1
+                window.location.reload();
+              } else if (result === 3) {
+                clearInterval(this.cerTimer)
+                this.$message({
+                  message: this.$t('common.buy_fail'),
+                  type: 'error',
+                  center: true,
+                  duration: 2000
+                });
+              } else { }
             }, 3000)
           } else {
             this.$message({
@@ -181,34 +196,6 @@ export default {
         });
         this.$store.commit('CHANGE_MODEL_STATE', false)
       });
-    },
-    async getCerResult() {
-      if (this.isShow) {
-        try {
-          let res = await this.$store.dispatch('getCerQrRes', this.cerId)
-          console.log('getCerQrRes', res)
-          if (res.data.msg === 'SUCCESS' && res.data.result && res.data.result === '1') {
-            clearInterval(this.getResTimer)
-            this.$store.commit('CHANGE_MODEL_STATE', false)
-            sessionStorage.setItem('isCert', 1)
-            this.isCert = 1
-            window.location.reload();
-            return
-          }
-        } catch (error) {
-          this.$message({
-            message: error,
-            center: true,
-            type: 'error'
-          });
-          this.$store.commit('CHANGE_MODEL_STATE', false)
-          clearInterval(this.cerTimer)
-          return
-        }
-      } else {
-        clearInterval(this.cerTimer)
-        return
-      }
     }
   },
   computed: {

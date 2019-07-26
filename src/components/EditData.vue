@@ -46,23 +46,6 @@
         <el-form-item prop="data.img" :label="tableLang.imgAddress">
           <el-input disabled v-model="dynamicValidateForm.data.img"></el-input>
         </el-form-item>
-        <!-- price -->
-        <!-- <el-form-item
-          prop="price"
-          :label="tableLang.price"
-          :rules="[
-            { required: true, message: tableLang.priceTip1 },
-            { type: 'number', message: tableLang.priceTip2 }
-          ]"
-          style="text-align:left;"
-        >
-          <el-input-number
-            v-model="dynamicValidateForm.price"
-            controls-position="right"
-            :min="0"
-            :max="100"
-          ></el-input-number>
-        </el-form-item> -->
         <!-- amount -->
         <el-form-item
           prop="amount"
@@ -121,23 +104,6 @@
             :max="100"
           ></el-input-number>
         </el-form-item>
-        <!-- accessCount -->
-        <!-- <el-form-item
-          prop="accessCount"
-          :label="tableLang.accessCount"
-          :rules="[
-            { required: true, message: this.$t('common.please_enter') + 'accessCount' },
-            { type: 'number', message: 'accessCount' + this.$t('common.mbnum') },
-          ]"
-          style="text-align:left;"
-        >
-          <el-input-number
-            v-model="dynamicValidateForm.accessCount"
-            controls-position="right"
-            :min="0"
-            :max="100"
-          ></el-input-number>
-        </el-form-item> -->
         <!-- expireTime -->
         <el-form-item :label="tableLang.expireTime" prop="expireTime">
           <!-- <el-input type="age" v-model.number="form.expireTime" autocomplete="off"></el-input> -->
@@ -210,27 +176,6 @@
 </template>
 
 <script>
-function uuid(len, radix) {
-  var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'.split('');
-  var uuid = [], i;
-  radix = radix || chars.length;
-
-  if (len) {
-    for (i = 0; i < len; i++) uuid[i] = chars[0 | Math.random() * radix];
-  } else {
-    var r;
-    uuid[8] = uuid[13] = uuid[18] = uuid[23] = '-';
-    uuid[14] = '4';
-    for (i = 0; i < 36; i++) {
-      if (!uuid[i]) {
-        r = 0 | Math.random() * 16;
-        uuid[i] = chars[(i == 19) ? (r & 0x3) | 0x8 : r];
-      }
-    }
-  }
-
-  return uuid.join('');
-}
 import { client } from 'ontology-dapi'
 import { sha256 } from 'js-sha256'
 import { OntidContract, TransactionBuilder, TxSignature, Identity, Crypto, RestClient, utils } from 'ontology-ts-sdk';
@@ -269,7 +214,7 @@ export default {
       },
       dynamicValidateForm: {
         tags: [],
-        price: 0,
+        price: 1,
         amount: '',
         symbol: '',
         tokenName: '',
@@ -298,7 +243,7 @@ export default {
       metadata: {
         context: '',
         type: 'Dataset',
-        identifier: '',  // uuid----dataId
+        identifier: '',  //
         name: '',   // name----name
         description: '', //  description
         keywords: '',
@@ -313,6 +258,8 @@ export default {
       certifierArr: [],
       judgerArr: [],
       detailList: { data: {}, nnn: 2 },
+      hashId: null,
+      idTimer: null
     };
   },
   methods: {
@@ -358,7 +305,6 @@ export default {
       this.dataParams.id = this.detailList.id
 
       console.log('this.dataParams', this.dataParams)
-      // return
       let OJList = []
       this.dataParams.judger.map((item, idx) => {
         OJList.push('Address:' + item.substring(8))
@@ -388,7 +334,7 @@ export default {
           value: this.dataParams.transferCount
         }, {
           name: "accessCount",
-          value: this.dataParams.accessCount
+          value: 99
         }, {
           name: "expireTime",
           value: moment(this.dataParams.expireTime).unix()
@@ -397,7 +343,6 @@ export default {
           value: "ByteArray:3e7d3d82df5e1f951610ffa605af76846802fbae"
         }, {
           name: "makerReceiveAddress",
-          // value: "Address:" + this.ont_id.substring(8)
           value: "Address:" + this.accountid
         }, {
           name: "mpReceiveAddress",
@@ -411,84 +356,63 @@ export default {
       }
       console.log('contracParams', contracParams)
       console.log('this.dataParams', this.dataParams);
-      // 构造交易
+      let orderParams = {
+        id: this.detailList.id,
+        token: "ong",
+        price: this.dataParams.price * Math.pow(10, 9),
+        amount: this.dataParams.amount,
+        ojList: this.dataParams.judger,
+        contractVo: contracParams
+      }
       try {
-        let res = await this.$store.dispatch('makeTransaction', contracParams)
-        console.log('makeTransaction', res)
-        if (res.data.msg === 'SUCCESS') {
-          let sigVo = {
-            txHex: res.data.result,
-            pubKeys: '',
-            sigData: ''
-          }
-          let message = res.data.result
+        let result = await this.$store.dispatch('makePandingCont', orderParams)
+        console.log('orderresult', result)
+        if (result.data.msg === 'SUCCESS') {
+          this.hashId = result.data.result.id
+          let message = result.data.result.message
           message = message.slice(0, message.length - 2)
           message = utils.sha256(message)
           message = utils.sha256(message)
-          message = utils.hexstr2str(message)
-          try {
-            let signData = await client.api.message.signMessage({ message });
-            sigVo.pubKeys = signData.publicKey
-            sigVo.sigData = signData.data
-          } catch (error) {
-            this.$message({
-              message: this.$t('common.pro_fail'),
-              type: 'error',
-              center: true,
-              duration: 2000
-            })
-            return
+          let codeParams = {
+            action: 'signMessage',
+            version: 'v1.0.0',
+            id: result.data.result.id,
+            params: {
+              type: 'address',
+              message: message,
+              ishex: true,
+              callback: result.data.result.callback,
+            }
           }
-
-
-          let orderParams = {
-            // dataId: this.detailList.dataId,
-            // tokenId: +tid,
-            id: this.detailList.id,
-            token: "ong",
-            price: this.dataParams.price * Math.pow(10, 9),
-            amount: this.dataParams.amount,
-            // providerOntid: this.ont_id,
-            ojList: this.dataParams.judger,
-            // keywords: this.detailList.data.keywords,
-            sigVo,
-            // amount: this.dataParams.tokenNum,
-            // name: this.detailList.data.name,
-            // desc: this.detailList.data.desc,
-            // img: this.detailList.data.img
+          console.log('codeParams', codeParams)
+          let qrparams = {
+            params: codeParams,
+            isShow: true
           }
-
-          try {
-            let res = await this.$store.dispatch('createOrderID', orderParams)
-            console.log('orderParams', res)
-            if (res.data.msg === 'SUCCESS' && res.data.result) {
+          this.$store.dispatch('changeQrcode', qrparams)
+          this.idTimer = setInterval(async () => {
+            let result = await this.$store.dispatch('getCheckRes', this.hashId)
+            console.log('result orjs', result)
+            if (result === 1) {
+              clearInterval(this.idTimer)
               this.$message({
                 message: this.$t('common.pro_success'),
-                type: 'success',
                 center: true,
-                duration: 2000
-              })
+                type: 'success'
+              });
               this.$router.push({ path: '/commoditymanage' })
-            } else {
+            } else if (result === 3) {
+              clearInterval(this.idTimer)
               this.$message({
                 message: this.$t('common.pro_fail'),
                 type: 'error',
                 center: true,
                 duration: 2000
-              })
-              return false
-            }
-          } catch (error) {
-            this.$message({
-              message: this.$t('common.pro_fail'),
-              type: 'error',
-              center: true,
-              duration: 2000
-            })
-            return false
-          }
-
+              });
+            } else { }
+          }, 3000)
         } else {
+          this.$store.commit('CHANGE_MODEL_STATE', false)
           this.$message({
             message: this.$t('common.pro_fail'),
             type: 'error',
@@ -498,7 +422,6 @@ export default {
           return false
         }
       } catch (error) {
-        throw error
         this.$message({
           message: this.$t('common.pro_fail'),
           type: 'error',
@@ -507,10 +430,6 @@ export default {
         })
         return false
       }
-
-    },
-    toDataId() {
-      this.dynamicValidateForm.data.dataId = uuid()
     },
     async getDetail(id) {
       let params = {
@@ -547,8 +466,8 @@ export default {
     }
   },
   async mounted() {
-    this.accountid = await client.api.asset.getAccount()
-    this.ont_id = await client.api.identity.getIdentity()
+    this.accountid = sessionStorage.getItem("user_ontid").substring(8)
+    this.ont_id = sessionStorage.getItem("user_ontid")
     try {
       let res = await this.$store.dispatch('getCertifier')
       if (res.data && res.data.msg === 'SUCCESS') {
@@ -581,31 +500,18 @@ export default {
       ontid: this.ont_id.substring(8),
       tokenId: this.detailList.tokenId
     }
-
-    // try {
-    //   let results = await this.$store.dispatch('queryTokenNum', pars)
-
-    //   if (results.data.msg === "SUCCESS") {
-
-    //     this.dynamicValidateForm.tokenTotal = results.data.result
-
-    //   }
-    // } catch (error) {
-
-    // }
-
   },
   computed: {
     dataParams() {
       let cpas = {
         coin: '',
-        price: null,
+        price: 1,
         ontid: '',
         judger: [],
         challengePeriod: []
       }
       cpas.coin = this.dynamicValidateForm.coin || 'ONG'
-      cpas.price = this.dynamicValidateForm.price
+      // cpas.price = this.dynamicValidateForm.price
       cpas.amount = this.dynamicValidateForm.amount
       cpas.ontid = this.ont_id
       cpas.certifier = this.dynamicValidateForm.certifier

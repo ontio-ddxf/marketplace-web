@@ -113,7 +113,8 @@ export default {
     height: '高度',
     hash: '哈希',
     transferTimes: '流转次数',
-    transferDetail: '流转详情'
+    transferDetail: '流转详情',
+    qrcode: '二维码'
   },
   sign: {
     sign_up: '注册',

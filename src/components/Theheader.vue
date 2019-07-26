@@ -132,65 +132,6 @@ export default {
         });
         return
       }
-      // try {
-      //   this.logining = true
-      //   let message = 'Welcome to MarketPlace'
-      //   let result = await client.api.message.signMessage({ message });
-      //   console.log(result)
-      //   if (!result.data || !result.publicKey) {
-      //     this.$message({
-      //       message: this.$t('top.login_fail'),
-      //       type: 'error',
-      //       center: true,
-      //       duration: 2000
-      //     });
-      //     this.logining = false
-      //     return
-      //   }
-      //   let res = await client.api.identity.getIdentity()
-
-      //   try {
-      //     let result = await this.$store.dispatch('login', res)
-      //     if (result.data.result) {
-      //       sessionStorage.setItem("ons", result.data.result)
-      //       sessionStorage.setItem("user_ontid", res)
-      //       this.userAccount = result.data.result
-      //       this.logining = false
-      //       this.$message({
-      //         message: this.$t('top.login_suc'),
-      //         type: 'success',
-      //         center: true,
-      //         duration: 2000
-      //       });
-      //       this.$router.push({ path: '/' });
-      //     } else {
-      //       this.logining = false
-      //       this.$message({
-      //         message: this.$t('top.ontid_fail'),
-      //         type: 'warning',
-      //         center: true,
-      //         duration: 2000
-      //       });
-      //       this.$router.push({ path: 'register' });
-      //     }
-      //   } catch (error) {
-      //     this.$message({
-      //       message: this.$t('top.login_fail'),
-      //       type: 'error',
-      //       center: true,
-      //       duration: 2000
-      //     });
-      //     this.logining = false
-      //   }
-      // } catch (error) {
-      //   this.$message({
-      //     message: this.$t('top.login_fail'),
-      //     type: 'error',
-      //     center: true,
-      //     duration: 2000
-      //   });
-      //   this.logining = false
-      // }
     },
     toOrder(command) {
       console.log(command)

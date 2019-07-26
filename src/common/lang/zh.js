@@ -1,6 +1,6 @@
 export default {
   common: {
-    lang: "中文",
+    lang: '中文',
     please_enter: '请输入',
     prompt: '提示',
     sure: '确定',
@@ -11,10 +11,10 @@ export default {
     price: '价格',
     amount: '数量',
     symbol: 'Token符号',
-    tokenName:'Token名称',
-    transferCount:"流转次数",
-    accessCount:"访问次数",
-    expireTime:"有效期",
+    tokenName: 'Token名称',
+    transferCount: '流转次数',
+    accessCount: '访问次数',
+    expireTime: '有效期',
     date: '日期',
     operating: '操作',
     enter_dateil: '进入详情',
@@ -22,7 +22,7 @@ export default {
     to_home: '返回首页',
     kyc: '发布商品需要KYC认证',
     not_certified: '还未认证，',
-    to_cer: "立即认证",
+    to_cer: '立即认证',
     get_add: '获取地址',
     add_data: '新增商品',
     certification_status: '认证状态',
@@ -105,9 +105,9 @@ export default {
     resale_noenough: '条件不足，无法转卖！',
     resale_fail: '转卖失败！',
     resale_suc: '转卖成功！',
-    maker_receive_amount:'卖家收取钱款(ONG)',
-    taker_receive_amount:'买家收取钱款(ONG)',
-    arbitrage_result:'仲裁结果',
+    maker_receive_amount: '卖家收取钱款(ONG)',
+    taker_receive_amount: '买家收取钱款(ONG)',
+    arbitrage_result: '仲裁结果',
     refresh: '请稍后刷新页面',
     withdrawal: '撤单',
     height: '高度',
@@ -132,10 +132,10 @@ export default {
     sure_out: '确定退出当前登录吗？',
     login_fail: '登录失败,请重试!',
     login_suc: '登陆成功',
-    ontid_fail: 'ONT ID 未注册，请先注册！',
+    ontid_fail: 'ONT ID 未注册，请先注册！'
   },
   commoditylist: {
-    content: '请输入商品标签',
+    content: '请输入商品标签'
   },
   center: {
     buyer: '买家中心',
@@ -143,6 +143,6 @@ export default {
     certification: '认证中心',
     arbitration: '仲裁中心',
     buy: '买家',
-    sell: '卖家',
+    sell: '卖家'
   }
-};
+}

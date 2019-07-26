@@ -1,6 +1,6 @@
 export default {
   common: {
-    'lang': 'English',
+    lang: 'English',
     please_enter: 'Please Input',
     prompt: 'Prompt',
     sure: 'Confirm',
@@ -9,12 +9,12 @@ export default {
     tags: 'Tags',
     coin: 'Coin',
     price: 'Price',
-    amount:'Amount',
-    symbol:'Token Symbol',
-    tokenName:'Token Name',
-    transferCount:"Transfer Count",
-    accessCount:"Access Count",
-    expireTime:"Expire Time",
+    amount: 'Amount',
+    symbol: 'Token Symbol',
+    tokenName: 'Token Name',
+    transferCount: 'Transfer Count',
+    accessCount: 'Access Count',
+    expireTime: 'Expire Time',
     date: 'Date',
     operating: 'Operation',
     enter_dateil: 'Details',
@@ -105,9 +105,9 @@ export default {
     resale_noenough: 'Insufficient conditions, can not be resold!',
     resale_fail: 'Resale failure',
     resale_suc: 'Resale success',
-    maker_receive_amount:'Buyer Receive Amount(ONG)',
-    taker_receive_amount:'Seller Receive Amount(ONG)',
-    arbitrage_result:'Arbitrage Result',
+    maker_receive_amount: 'Buyer Receive Amount(ONG)',
+    taker_receive_amount: 'Seller Receive Amount(ONG)',
+    arbitrage_result: 'Arbitrage Result',
     refresh: 'Please refresh the page later',
     withdrawal: 'Withdrawal',
     height: 'Height',
@@ -132,10 +132,10 @@ export default {
     sure_out: 'Are you sure you want to quit your current login?',
     login_fail: 'Login failed, please try again!',
     login_suc: 'Login successful',
-    ontid_fail: 'ONT ID is not registered, please register first!',
+    ontid_fail: 'ONT ID is not registered, please register first!'
   },
   commoditylist: {
-    content: 'Please Input product Tag',
+    content: 'Please Input product Tag'
   },
   center: {
     buyer: 'Buyer',
@@ -143,6 +143,6 @@ export default {
     certification: 'Certification',
     arbitration: 'Arbitration',
     buy: 'Buyer',
-    sell: 'Seller',
+    sell: 'Seller'
   }
-};
+}

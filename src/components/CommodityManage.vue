@@ -137,7 +137,7 @@
 <script>
 import { client } from 'ontology-dapi'
 import { setTimeout } from 'timers';
-import { OntidContract, TransactionBuilder, TxSignature, Identity, Crypto, RestClient, utils } from 'ontology-ts-sdk';
+// import { OntidContract, TransactionBuilder, TxSignature, Identity, Crypto, RestClient, utils } from 'ontology-ts-sdk';
 
 import { TEST_NET } from '../assets/control'
 import { sha256 } from 'js-sha256'
@@ -262,8 +262,8 @@ export default {
       console.log(row)
     },
     async proDataId(formName) {
-      const privateKey = Crypto.PrivateKey.random();
-      var identity = Identity.create(privateKey, '', '')
+      const privateKey = Ont.Crypto.PrivateKey.random();
+      var identity = Ont.Identity.create(privateKey, '', '')
       let params0 = {
         dataId: identity.ontid,
         id: this.cortData.id,
@@ -273,14 +273,66 @@ export default {
       console.log('params0', params0)
       let result = await this.$store.dispatch('getTID', params0)
       console.log('result', result)
+      let orderParams = {
+        id: this.cortData.id,
+        token: "ong",
+        price: 1000000000,
+        amount: 1,
+        ojList: ['did:ont:AN3H8EAC5AtSkXqG3VbXobyeS9tTbNz4S2'],  // to do
+        contractVo: {
+          argsList: [{
+            name: "dataId",
+            value: "String:" + identity.ontid  
+          }, {
+            name: "index",
+            value: 1
+          }, {
+            name: "symbol",
+            value: "String:aaa"
+          }, {
+            name: "name",
+            value: "String:bbb"
+          }, {
+            name: "authAmount",
+            value: 1
+          }, {
+            name: "price",
+            value: 1000000000
+          }, {
+            name: "transferCount",
+            value: 1
+          }, {
+            name: "accessCount",
+            value: 99
+          }, {
+            name: "expireTime",
+            value: 0
+          }, {
+            name: "makerTokenHash",
+            value: "ByteArray:3e7d3d82df5e1f951610ffa605af76846802fbae"
+          }, {
+            name: "makerReceiveAddress",
+            value: "Address:" + this.ontid.substring(8)
+          }, {
+            name: "mpReceiveAddress",
+            value: "Address:AePd2vTPeb1DggiFj82mR8F4qQXM2H9YpB"
+          }, {
+            name: "OJList",
+            value: ['did:ont:AN3H8EAC5AtSkXqG3VbXobyeS9tTbNz4S2']
+          }],
+          contractHash: 'f261464e2cd21c2ab9c06fa3e627ce03c7715ec9',
+          method: 'authOrder'
+        }
+      }
+      console.log('orderParams', orderParams)
       // return
       if (result.data.msg === 'SUCCESS') {
         // DId .data.result.id
         this.DId = result.data.result.id
         let message = result.data.result.message
         message = message.slice(0, message.length - 2)
-        message = utils.sha256(message)
-        message = utils.sha256(message)
+        message = Ont.utils.sha256(message)
+        message = Ont.utils.sha256(message)
         let codeParams = {
           action: 'signMessage',
           version: 'v1.0.0',
@@ -308,7 +360,7 @@ export default {
               center: true,
               type: 'success'
             });
-          } else if(result === 3) {
+          } else if (result === 3) {
             clearInterval(this.dataIdTimer)
             this.$message({
               message: this.$t('common.data_id_fail'),
@@ -316,7 +368,7 @@ export default {
               center: true,
               duration: 2000
             });
-          } else {}
+          } else { }
         }, 3000)
       } else {
         this.$message({
@@ -398,9 +450,9 @@ export default {
       try {
         let message = paramsData.txHex
         message = message.slice(0, message.length - 2)
-        message = utils.sha256(message)
-        message = utils.sha256(message)
-        message = utils.hexstr2str(message)
+        message = Ont.utils.sha256(message)
+        message = Ont.utils.sha256(message)
+        message = Ont.utils.hexstr2str(message)
         let signData = await client.api.message.signMessage({ message });
         paramsData.pubKeys = signData.publicKey
         paramsData.sigData = signData.data

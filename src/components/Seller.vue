@@ -66,7 +66,7 @@
 <script>
 import { client } from 'ontology-dapi'
 import { Base64 } from 'js-base64'
-import { OntidContract, TransactionBuilder, TxSignature, Identity, Crypto, RestClient, utils } from 'ontology-ts-sdk';
+// import { OntidContract, TransactionBuilder, TxSignature, Identity, Crypto, RestClient, utils } from 'ontology-ts-sdk';
 
 export default {
   data() {
@@ -224,9 +224,9 @@ export default {
       try {
         let message = paramsData.txHex
         message = message.slice(0, message.length - 2)
-        message = utils.sha256(message)
-        message = utils.sha256(message)
-        message = utils.hexstr2str(message)
+        message = Ont.utils.sha256(message)
+        message = Ont.utils.sha256(message)
+        message = Ont.utils.hexstr2str(message)
         let signData = await client.api.message.signMessage({ message });
         paramsData.pubKeys = signData.publicKey
         paramsData.sigData = signData.data

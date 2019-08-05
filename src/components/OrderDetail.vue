@@ -70,7 +70,7 @@
 
 <script>
 import { client } from 'ontology-dapi'
-import { OntidContract, TransactionBuilder, TxSignature, Identity, Crypto, RestClient, utils } from 'ontology-ts-sdk';
+// import { OntidContract, TransactionBuilder, TxSignature, Identity, Crypto, RestClient, utils } from 'ontology-ts-sdk';
 
 export default {
   data() {
@@ -115,6 +115,7 @@ export default {
         return
       }
       let params = {}
+      let sureParams = {}
       if (this.orderData.authId) {
         params = {
           argsList: [
@@ -140,6 +141,17 @@ export default {
           contractVo: params
         }
 
+        sureParams = {
+          argsList: [
+            // { name: "orderId", value: "ByteArray:" + data.orderId }],
+            { name: "orderId", value: "ByteArray:" + this.orderData.authId }],  // to do
+          contractHash: "f261464e2cd21c2ab9c06fa3e627ce03c7715ec9",
+          method: "confirm"
+        }
+
+
+
+
         try {
           let result = await this.$store.dispatch('makeOrder', buyDataParams)
           console.log('orderResult', result)
@@ -147,8 +159,8 @@ export default {
             this.orderHashId = result.data.result.id
             let message = result.data.result.message
             message = message.slice(0, message.length - 2)
-            message = utils.sha256(message)
-            message = utils.sha256(message)
+            message = Ont.utils.sha256(message)
+            message = Ont.utils.sha256(message)
             let codeParams = {
               action: 'signMessage',
               version: 'v1.0.0',
@@ -206,6 +218,13 @@ export default {
           return false
         }
       } else {
+        sureParams = {
+          argsList: [
+            // { name: "orderId", value: "ByteArray:" + data.orderId }],
+            { name: "orderId", value: "ByteArray:" + this.orderData.authId }],  // to do
+          contractHash: "7c2b06ae3e70a470d01ac5ce63017d18b88e08b7",
+          method: "confirm"
+        }
         params = {
           argsList: [
             { name: "orderId", "value": "ByteArray:" + this.orderData.orderId },
@@ -256,9 +275,9 @@ export default {
         try {
           let message = buyDataParams.sigVo.txHex
           message = message.slice(0, message.length - 2)
-          message = utils.sha256(message)
-          message = utils.sha256(message)
-          message = utils.hexstr2str(message)
+          message = Ont.utils.sha256(message)
+          message = Ont.utils.sha256(message)
+          message = Ont.utils.hexstr2str(message)
           let signData = await client.api.message.signMessage({ message });
           buyDataParams.sigVo.pubKeys = signData.publicKey
           buyDataParams.sigVo.sigData = signData.data

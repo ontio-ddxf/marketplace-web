@@ -9,6 +9,8 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
+    "babel-plugin-component": "^1.1.1",
+    "babel-preset-env": "^1.7.0",
     "core-js": "^2.6.5",
     "element-ui": "^2.8.2",
     "js-base64": "^2.5.1",

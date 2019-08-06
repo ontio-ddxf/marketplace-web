@@ -87,8 +87,10 @@ export default {
   created() {
     this.orderData = JSON.parse(sessionStorage.getItem('orderData'))
     console.log('this.orderData', this.orderData)
-    this.address = sessionStorage.getItem("user_ontid").substring(8)
-    this.ontid = sessionStorage.getItem("user_ontid")
+    if (sessionStorage.getItem("user_ontid")) {
+      this.address = sessionStorage.getItem("user_ontid").substring(8)
+      this.ontid = sessionStorage.getItem("user_ontid")
+    }
   },
   methods: {
     toIndex() {

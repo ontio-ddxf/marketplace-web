@@ -3,8 +3,69 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 
-import ElementUI from 'element-ui'
-import 'element-ui/lib/theme-chalk/index.css'
+// import ElementUI from 'element-ui'
+import {
+  Pagination,
+  Table,
+  TableColumn,
+  Container,
+  Header,
+  Main,
+  Footer,
+  Select,
+  Option,
+  Button,
+  Dropdown,
+  DropdownMenu,
+  DropdownItem,
+  Dialog,
+  Input,
+  InputNumber,
+  Tag,
+  Form,
+  FormItem,
+  Message,
+  Icon,
+  Tabs,
+  TabPane,
+  Link,
+  DatePicker,
+  Checkbox,
+  CheckboxGroup,
+  MessageBox,
+  Radio
+} from 'element-ui'
+Vue.use(Pagination)
+Vue.use(Table)
+Vue.use(TableColumn)
+Vue.use(Container)
+Vue.use(Header)
+Vue.use(Main)
+Vue.use(Footer)
+Vue.use(Select)
+Vue.use(Option)
+Vue.use(Button)
+Vue.use(Dropdown)
+Vue.use(DropdownMenu)
+Vue.use(DropdownItem)
+Vue.use(Dialog)
+Vue.use(Input)
+Vue.use(Tag)
+Vue.use(Form)
+Vue.use(FormItem)
+Vue.use(Tabs)
+Vue.use(Icon)
+Vue.use(TabPane)
+Vue.use(Link)
+Vue.use(InputNumber)
+Vue.use(DatePicker)
+Vue.use(Checkbox)
+Vue.use(CheckboxGroup)
+Vue.use(Radio)
+Vue.prototype.$message = Message
+Vue.prototype.$confirm = MessageBox.confirm
+Vue.prototype.$prompt = MessageBox.prompt
+// import 'element-ui/lib/theme-chalk/index.css'
 import axios from 'axios'
 import { client } from 'ontology-dapi'
 import zh from './common/lang/zh'
@@ -51,7 +112,7 @@ axios.interceptors.request.use(
 // }
 
 client.registerClient({})
-Vue.use(ElementUI)
+// Vue.use(ElementUI)
 Vue.prototype.$http = axios
 
 Vue.config.productionTip = false

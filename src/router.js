@@ -1,18 +1,17 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Layout from './views/Layout.vue'
-import CommodityDetail from './components/CommodityDetail'
-import OrderCenter from './components/OrderCenter'
-import AddNewData from './components/AddNewData'
-import CommodityManage from './components/CommodityManage'
-import EditData from './components/EditData'
-import ResaleDetail from './components/ResaleDetail'
-import Register from './components/Register'
-import OrderDetail from './components/OrderDetail'
-import DataIDList from './components/DataIDList'
-import TokenDetail from './components/TokenDetail'
-import SecondHandCommoditylist from './components/SecondHandCommoditylist'
-
+const Layout = () => import('@/views/Layout')
+const CommodityDetail = () => import('@/components/CommodityDetail')
+const OrderCenter = () => import('@/components/OrderCenter')
+const AddNewData = () => import('@/components/AddNewData')
+const CommodityManage = () => import('@/components/CommodityManage')
+const EditData = () => import('@/components/EditData')
+const ResaleDetail = () => import('@/components/ResaleDetail')
+const Register = () => import('@/components/Register')
+const OrderDetail = () => import('@/components/OrderDetail')
+const DataIDList = () => import('@/components/DataIDList')
+const TokenDetail = () => import('@/components/TokenDetail')
+const SecondHandCommoditylist = () => import('@/components/SecondHandCommoditylist')
 Vue.use(Router)
 const router = new Router({
   // mode: 'history',

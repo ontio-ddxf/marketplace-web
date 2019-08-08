@@ -479,7 +479,7 @@ export default new Vuex.Store({
     },
     async getLoginMsg({ dispatch, commit }, params) {
       try {
-        return axios.get(process.env.VUE_APP_API + "/api/v1/login");
+        return axios.get(process.env.VUE_APP_DDXF_API + "/api/v1/ons/login");
       } catch (error) {
         return error;
       }
@@ -487,7 +487,7 @@ export default new Vuex.Store({
     async getLoginRes({ dispatch, commit }, params) {
       try {
         return axios.get(
-          process.env.VUE_APP_API + "/api/v1/login/result/" + params
+          process.env.VUE_APP_DDXF_API + "/api/v1/ons/login/result/" + params
         );
       } catch (error) {
         return error;
@@ -495,7 +495,7 @@ export default new Vuex.Store({
     },
     async sendONS({ dispatch, commit }, params) {
       try {
-        return axios.get(process.env.VUE_APP_API + "/api/v1/ons/" + params);
+        return axios.get(process.env.VUE_APP_DDXF_API + "/api/v1/ons/" + params);
       } catch (error) {
         return error;
       }
@@ -503,7 +503,7 @@ export default new Vuex.Store({
     async checkSignUp({ dispatch, commit }, params) {
       try {
         return axios.get(
-          process.env.VUE_APP_API + "/api/v1/ons/result/" + params
+          process.env.VUE_APP_DDXF_API + "/api/v1/ons/result/" + params
         );
       } catch (error) {
         return error;

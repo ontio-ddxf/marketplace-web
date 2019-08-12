@@ -59,7 +59,7 @@ export default {
       try {
         let res = await this.$store.dispatch('getCertData', params)
         console.log('certifier', res)
-        if (res.status === 200 && res.data.msg === 'SUCCESS') {
+        if (res.status === 200 && res.data.desc === 'SUCCESS') {
           this.tableData = res.data.result.recordList
         } else {
           this.tableData = []

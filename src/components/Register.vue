@@ -53,7 +53,7 @@ export default {
           try {
             let res = await this.$store.dispatch('sendONS', this.ruleForm.domain)
             console.log('res', res)
-            if (res.data.msg === 'SUCCESS') {
+            if (res.data.desc === 'SUCCESS') {
               qrcodeParams.action = 'signTransaction'
               qrcodeParams.version = res.data.version
               qrcodeParams.id = res.data.result.id
@@ -100,7 +100,7 @@ export default {
         try {
           let res = await this.$store.dispatch('checkSignUp', this.dataId)
           console.log('checkout', res)
-          if (res.data.msg === 'SUCCESS') {
+          if (res.data.desc === 'SUCCESS') {
             if (res.data.result === '1') {
               this.$message({
                 message: 'Sign Up Successfuly!',

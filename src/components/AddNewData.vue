@@ -208,7 +208,7 @@ export default {
         // return
         let res = await this.$store.dispatch('addCommodity', this.dataParams)
         console.log('addnewdata', res)
-        if (res && res.data.msg === 'SUCCESS') {
+        if (res && res.data.desc === 'SUCCESS') {
           this.$message({
             message: this.$t('common.add_suc'),
             type: 'success',
@@ -245,7 +245,7 @@ export default {
     this.ont_id = sessionStorage.getItem("user_ontid")
     try {
       let res = await this.$store.dispatch('getCertifier')
-      if (res.data && res.data.msg === 'SUCCESS') {
+      if (res.data && res.data.desc === 'SUCCESS') {
         this.certifierArr = res.data.result
         this.dynamicValidateForm.certifier = this.certifierArr[0].ontid
       } else {
@@ -259,7 +259,7 @@ export default {
 
     try {
       let res = await this.$store.dispatch('getJudger')
-      if (res.data && res.data.msg === 'SUCCESS') {
+      if (res.data && res.data.desc === 'SUCCESS') {
         this.judgerArr = res.data.result
         this.dynamicValidateForm.judger = this.judgerArr[0].ontid
       } else {

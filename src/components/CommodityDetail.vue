@@ -139,7 +139,7 @@ export default {
               id: result.data.result.id,
               params: {
                 // type: 'ontid',
-                type: 'address',
+                type: 'ontid',
                 // domain: 'on.ont',
                 dappName: 'dapp Name',
                 dappIcon: 'dapp Icon',

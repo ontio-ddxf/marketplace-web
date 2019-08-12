@@ -91,7 +91,7 @@ export default {
       try {
         let result = await this.$store.dispatch('getLoginMsg')
         console.log('loginmsg', result)
-        if (result.data.msg === 'SUCCESS') {
+        if (result.data.desc === 'SUCCESS') {
           this.dataId = result.data.result.id
           let codeParams = {
             action: 'onsLogin',
@@ -104,9 +104,12 @@ export default {
               dappName: 'dapp Name',
               dappIcon: 'dapp Icon',
               message: result.data.result.message,
+              domainListUrl: result.data.result.domain_list_url + '/?domain=on.ont&ontid=',
               callback: result.data.result.callback,
             }
           }
+          // ons_list_url
+          // domainListUrl: '/?domain=ont.io&ontid='
           console.log('codeParams', codeParams)
           let qrparams = {
             params: codeParams,
@@ -150,7 +153,7 @@ export default {
         try {
           let res = await this.$store.dispatch('getLoginRes', this.dataId)
           console.log('getLoginResult', res)
-          if (res.data.msg === 'SUCCESS') {
+          if (res.data.desc === 'SUCCESS') {
             if (res.data.result && res.data.result.result === '1') {
               if (!res.data.result.ons) {
                 this.$message({

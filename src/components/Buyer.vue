@@ -125,7 +125,7 @@ export default {
           type: 1
         }
         let res = await this.$store.dispatch('getBuyOrder', params)
-        if (res.status === 200 && res.data.msg === 'SUCCESS') {
+        if (res.status === 200 && res.data.desc === 'SUCCESS') {
           this.tableData = res.data.result.recordList
           this.orderCount = res.data.result.recordCount
           console.log('buyData', this.tableData)
@@ -208,7 +208,7 @@ export default {
       try {
         let result = await this.$store.dispatch('MakeCommonHash', sureParams)
         console.log('common', result)
-        if (result.data.msg === 'SUCCESS') {
+        if (result.data.desc === 'SUCCESS') {
           this.commonId = result.data.result.id
           let message = result.data.result.message
           message = message.slice(0, message.length - 2)
@@ -219,7 +219,7 @@ export default {
             version: 'v1.0.0',
             id: result.data.result.id,
             params: {
-              type: 'address',
+              type: 'ontid',
               message: message,
               ishex: true,
               callback: result.data.result.callback,
@@ -293,7 +293,7 @@ export default {
         let res = await this.$store.dispatch('makeTransaction', transactionParams)
         console.log('makeTransaction', res)
         // return
-        if (res.data.msg === 'SUCCESS') {
+        if (res.data.desc === 'SUCCESS') {
           paramsData.txHex = res.data.result
           console.log('paramsData', paramsData)
         } else {
@@ -342,7 +342,7 @@ export default {
       try {
         let res = await this.$store.dispatch('checkData', params)
         console.log('viewInfo', res)
-        if (res.status === 200 && res.data.msg === 'SUCCESS') {
+        if (res.status === 200 && res.data.desc === 'SUCCESS') {
           this.openMsgBox(res.data.result)
         } else {
           this.$message({
@@ -399,7 +399,7 @@ export default {
       try {
         let res = await this.$store.dispatch('makeTransaction', appealParams)
         console.log('makeTransaction', res)
-        if (res.data.msg === 'SUCCESS') {
+        if (res.data.desc === 'SUCCESS') {
           paramsData.txHex = res.data.result
         } else {
           this.$message({
@@ -441,7 +441,7 @@ export default {
       try {
         let res = await this.$store.dispatch('sendPass', paramsData)
         console.log('sendPass', res)
-        if (res.data.msg === 'SUCCESS') {
+        if (res.data.desc === 'SUCCESS') {
           this.$message({
             message: this.$t('common.to_appeal_suc'),
             type: 'success',
@@ -470,7 +470,7 @@ export default {
       try {
         let res = await this.$store.dispatch('viewOtherInfo', data.tokenId)
         console.log('viewInfo', res.data.result)
-        if (res.status === 200 && res.data.msg === 'SUCCESS') {
+        if (res.status === 200 && res.data.desc === 'SUCCESS') {
 
           let infoCode = res.data.result
           let timer = ''
@@ -509,7 +509,7 @@ export default {
       try {
         let res = await this.$store.dispatch('viewOtherInfo', data.tokenId)
         console.log('viewInfo', res.data.result)
-        if (res.status === 200 && res.data.msg === 'SUCCESS') {
+        if (res.status === 200 && res.data.desc === 'SUCCESS') {
           let infoCode = res.data.result
           if (+infoCode.accessCount <= 0 || +infoCode.transferCount <= 0) {
             this.$message({

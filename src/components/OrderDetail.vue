@@ -168,7 +168,7 @@ export default {
               version: 'v1.0.0',
               id: result.data.result.id,
               params: {
-                type: 'address',
+                type: 'ontid',
                 message: message,
                 ishex: true,
                 callback: result.data.result.callback,

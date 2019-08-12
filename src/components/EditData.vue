@@ -259,7 +259,9 @@ export default {
       judgerArr: [],
       detailList: { data: {}, nnn: 2 },
       hashId: null,
-      idTimer: null
+      idTimer: null,
+      DId: null,
+      dataIdTimer: null
     };
   },
   methods: {
@@ -309,11 +311,12 @@ export default {
       this.dataParams.judger.map((item, idx) => {
         OJList.push('Address:' + item.substring(8))
       })
-
+      const privateKey = Ont.Crypto.PrivateKey.random();
+      var identity = Ont.Identity.create(privateKey, '', '')
       let contracParams = {
         argsList: [{
           name: "dataId",
-          value: "String:" + this.detailList.dataId
+          value: "String:" + identity.ontid
         }, {
           name: "index",
           value: 1
@@ -364,71 +367,84 @@ export default {
         ojList: this.dataParams.judger,
         contractVo: contracParams
       }
-      try {
-        let result = await this.$store.dispatch('makePandingCont', orderParams)
-        console.log('orderresult', result)
-        if (result.data.msg === 'SUCCESS') {
-          this.hashId = result.data.result.id
-          let message = result.data.result.message
-          message = message.slice(0, message.length - 2)
-          message = Ont.utils.sha256(message)
-          message = Ont.utils.sha256(message)
-          let codeParams = {
-            action: 'signMessage',
-            version: 'v1.0.0',
-            id: result.data.result.id,
-            params: {
-              type: 'address',
-              message: message,
-              ishex: true,
-              callback: result.data.result.callback,
-            }
-          }
-          console.log('codeParams', codeParams)
-          let qrparams = {
-            params: codeParams,
-            isShow: true
-          }
-          this.$store.dispatch('changeQrcode', qrparams)
-          this.idTimer = setInterval(async () => {
-            let result = await this.$store.dispatch('getCheckRes', this.hashId)
-            console.log('result orjs', result)
-            if (result === 1) {
-              clearInterval(this.idTimer)
-              this.$message({
-                message: this.$t('common.pro_success'),
-                center: true,
-                type: 'success'
-              });
-              this.$router.push({ path: '/commoditymanage' })
-            } else if (result === 3) {
-              clearInterval(this.idTimer)
-              this.$message({
-                message: this.$t('common.pro_fail'),
-                type: 'error',
-                center: true,
-                duration: 2000
-              });
-            } else { }
-          }, 3000)
-        } else {
-          this.$store.commit('CHANGE_MODEL_STATE', false)
-          this.$message({
-            message: this.$t('common.pro_fail'),
-            type: 'error',
-            center: true,
-            duration: 2000
-          })
-          return false
+
+      let idParams = {
+        dataIdVo: {
+          dataId: identity.ontid,
+          id: this.detailList.id,
+          ontid: this.ont_id,
+          pubKey: 1
+        },
+        orderVo: {
+          id: this.detailList.id,
+          amount: 0,
+          contractVo: contracParams,
+          ojList: this.dataParams.judger,
+          price: this.dataParams.price * Math.pow(10, 9),
+          // providerOntid: 'string',
+          token: 'ong'
         }
-      } catch (error) {
+      }
+      console.log('idParams', idParams)
+      let result = await this.$store.dispatch('getTID', idParams)
+      console.log('result', result)
+      if (result.data.desc === 'SUCCESS') {
+        this.DId = result.data.result.id
+        let message = result.data.result.message
+        console.log('message', message)
+        let msgArr = []
+        message.map((item, index) => {
+          item = item.slice(0, item.length - 2)
+          item = Ont.utils.sha256(item)
+          item = Ont.utils.sha256(item)
+          msgArr.push(item)
+        })
+        console.log('msgArr', msgArr)
+        let codeParams = {
+          action: 'signMultiMessage',
+          version: 'v1.0.0',
+          id: this.DId,
+          params: {
+            type: 'ontid',
+            message: msgArr,
+            ishex: true,
+            callback: result.data.result.callback
+          }
+        }
+        console.log('codeParams', codeParams)
+        let qrparams = {
+          params: codeParams,
+          isShow: true
+        }
+        this.$store.dispatch('changeQrcode', qrparams)
+        this.dataIdTimer = setInterval(async () => {
+          let result = await this.$store.dispatch('getCheckRes', this.DId)
+          console.log('result orjs', result)
+          if (result === 1) {
+            clearInterval(this.dataIdTimer)
+            this.$message({
+              message: this.$t('common.pro_success'),
+              center: true,
+              type: 'success'
+            });
+            this.$router.push({path: '/'})
+          } else if (result === 3) {
+            clearInterval(this.dataIdTimer)
+            this.$message({
+              message: this.$t('common.pro_fail'),
+              type: 'error',
+              center: true,
+              duration: 2000
+            });
+          } else { }
+        }, 3000)
+      } else {
         this.$message({
           message: this.$t('common.pro_fail'),
           type: 'error',
           center: true,
           duration: 2000
-        })
-        return false
+        });
       }
     },
     async getDetail(id) {
@@ -437,7 +453,7 @@ export default {
       }
       try {
         let res = await this.$store.dispatch('getCommodityDetail', params)
-        if (res.status === 200 && res.data.msg === 'SUCCESS') {
+        if (res.status === 200 && res.data.desc === 'SUCCESS') {
           this.detailList = res.data.result
           console.log('this.detailList', this.detailList)
           this.dynamicValidateForm.certifier = this.detailList.certifier
@@ -468,9 +484,10 @@ export default {
   async mounted() {
     this.accountid = sessionStorage.getItem("user_ontid").substring(8)
     this.ont_id = sessionStorage.getItem("user_ontid")
+    
     try {
       let res = await this.$store.dispatch('getCertifier')
-      if (res.data && res.data.msg === 'SUCCESS') {
+      if (res.data && res.data.desc === 'SUCCESS') {
         this.certifierArr = res.data.result
         this.dynamicValidateForm.certifier = this.certifierArr[0].ontid
       } else {
@@ -484,7 +501,7 @@ export default {
 
     try {
       let res = await this.$store.dispatch('getJudger')
-      if (res.data && res.data.msg === 'SUCCESS') {
+      if (res.data && res.data.desc === 'SUCCESS') {
         this.judgerArr = res.data.result
       } else {
         this.judgerArr = []
@@ -525,6 +542,9 @@ export default {
       return cpas
     }
   },
+  beforeDestroy() {
+    clearInterval(this.dataIdTimer)
+  }
 }
 </script>
 

@@ -540,7 +540,7 @@ export default new Vuex.Store({
             process.env.VUE_APP_DDXF_API + "/api/v1/contract/result/" + params
           );
           console.log("checkout result", result);
-          if (result.data.msg === "SUCCESS") {
+          if (result.data.desc === "SUCCESS") {
             if (result.data.result === "1") {
               commit("CHANGE_MODEL_STATE", false);
               return 1;
@@ -601,6 +601,28 @@ export default new Vuex.Store({
         );
       } catch (error) {
         return error;
+      }
+    },
+    /**
+     * 
+     * get claim
+     */
+    async getClaim({ dispatch, commit }, params) {
+      try {
+        return await axios.get(process.env.VUE_APP_DDXF_API + '/api/v1/claim/getClaim')
+      } catch (error) {
+        return error
+      }
+    },
+    /**
+     * 
+     * post claim
+     */
+    async postClaim({ dispatch, commit }, params) {
+      try {
+        return await axios.get(process.env.VUE_APP_DDXF_API + '/api/v1/claim/postClaim')
+      } catch (error) {
+        return error
       }
     }
   }

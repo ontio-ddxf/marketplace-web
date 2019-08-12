@@ -35,6 +35,8 @@
         @click="toAddData()"
         type="primary"
       >{{$t('common.add_data')}}</el-button>
+      <el-button style="margin-bottom: 20px;" @click="getClaim()" type="primary">Get Claim</el-button>
+      <!-- <el-button style="margin-bottom: 20px;" @click="postClaim()" type="primary">Post Claim</el-button> -->
     </div>
     <div class="table_box">
       <el-table :data="tableData" border style="width: 100%" :empty-text="$t('common.no_data')">
@@ -72,19 +74,26 @@
         <el-table-column prop="createTime" align="center" :label="tableLang.date" width="200"></el-table-column>
         <el-table-column :label="tableLang.operating" align="center" width="400">
           <template slot-scope="scope">
-            <el-button @click="dialog(scope.row)" type="primary" round size="small">DataId</el-button>
+            <!-- <el-button @click="dialog(scope.row)" type="primary" round size="small">DataId</el-button> -->
             <el-button
               @click="handleClick(scope.row)"
               type="primary"
               round
               size="small"
             >{{$t('common.detail')}}</el-button>
-            <el-button
+            <!-- <el-button
               @click="prodOperat(scope.row)"
               v-if="scope.row.state === '1' || scope.row.state === '3' || scope.row.state === '4'"
               type="warning"
               round
               size="small"
+            >{{$t('common.pending_order')}}</el-button>-->
+            <el-button
+              @click="prodOperat(scope.row)"
+              type="warning"
+              round
+              size="small"
+              v-if="!scope.row.dataId"
             >{{$t('common.pending_order')}}</el-button>
             <el-button
               v-if="scope.row.state === '2'"
@@ -197,7 +206,12 @@ export default {
         state: this.$t('common.certification_status')
       },
       dataIdTimer: null,
-      DId: null
+      DId: null,
+      getClaimId: null,
+      getClaimTimer: null,
+      postClaimId: null,
+      postClaimTimer: null,
+      isClaim: null
     }
   },
   methods: {
@@ -217,7 +231,18 @@ export default {
       this.$router.push({ path: '/' })
     },
     toAddData() {
-      this.$router.push({ path: 'addnewdata' })
+      this.isClaim = sessionStorage.getItem('isclaim')
+      if (!this.isClaim) {
+        this.$message({
+          message: 'Please Get Claim',
+          type: 'error',
+          center: true,
+          duration: 2000
+        });
+        return
+      } else {
+        this.postClaim()
+      }
     },
     indexMethod(idx) {
       return idx + 1
@@ -233,7 +258,7 @@ export default {
         console.log(params)
         let res = await this.$store.dispatch('getSellData', params)
         console.log(res);
-        if (res.status === 200 && res.data.msg === 'SUCCESS') {
+        if (res.status === 200 && res.data.desc === 'SUCCESS') {
           this.tableData = res.data.result.recordList
         } else {
           this.tableData = []
@@ -273,60 +298,60 @@ export default {
       console.log('params0', params0)
       let result = await this.$store.dispatch('getTID', params0)
       console.log('result', result)
-      let orderParams = {
-        id: this.cortData.id,
-        token: "ong",
-        price: 1000000000,
-        amount: 1,
-        ojList: ['did:ont:AN3H8EAC5AtSkXqG3VbXobyeS9tTbNz4S2'],  // to do
-        contractVo: {
-          argsList: [{
-            name: "dataId",
-            value: "String:" + identity.ontid  
-          }, {
-            name: "index",
-            value: 1
-          }, {
-            name: "symbol",
-            value: "String:aaa"
-          }, {
-            name: "name",
-            value: "String:bbb"
-          }, {
-            name: "authAmount",
-            value: 1
-          }, {
-            name: "price",
-            value: 1000000000
-          }, {
-            name: "transferCount",
-            value: 1
-          }, {
-            name: "accessCount",
-            value: 99
-          }, {
-            name: "expireTime",
-            value: 0
-          }, {
-            name: "makerTokenHash",
-            value: "ByteArray:3e7d3d82df5e1f951610ffa605af76846802fbae"
-          }, {
-            name: "makerReceiveAddress",
-            value: "Address:" + this.ontid.substring(8)
-          }, {
-            name: "mpReceiveAddress",
-            value: "Address:AePd2vTPeb1DggiFj82mR8F4qQXM2H9YpB"
-          }, {
-            name: "OJList",
-            value: ['did:ont:AN3H8EAC5AtSkXqG3VbXobyeS9tTbNz4S2']
-          }],
-          contractHash: 'f261464e2cd21c2ab9c06fa3e627ce03c7715ec9',
-          method: 'authOrder'
-        }
-      }
-      console.log('orderParams', orderParams)
+      // let orderParams = {
+      //   id: this.cortData.id,
+      //   token: "ong",
+      //   price: 1000000000,
+      //   amount: 1,
+      //   ojList: ['did:ont:AN3H8EAC5AtSkXqG3VbXobyeS9tTbNz4S2'],  // to do
+      //   contractVo: {
+      //     argsList: [{
+      //       name: "dataId",
+      //       value: "String:" + identity.ontid  
+      //     }, {
+      //       name: "index",
+      //       value: 1
+      //     }, {
+      //       name: "symbol",
+      //       value: "String:aaa"
+      //     }, {
+      //       name: "name",
+      //       value: "String:bbb"
+      //     }, {
+      //       name: "authAmount",
+      //       value: 1
+      //     }, {
+      //       name: "price",
+      //       value: 1000000000
+      //     }, {
+      //       name: "transferCount",
+      //       value: 1
+      //     }, {
+      //       name: "accessCount",
+      //       value: 99
+      //     }, {
+      //       name: "expireTime",
+      //       value: 0
+      //     }, {
+      //       name: "makerTokenHash",
+      //       value: "ByteArray:3e7d3d82df5e1f951610ffa605af76846802fbae"
+      //     }, {
+      //       name: "makerReceiveAddress",
+      //       value: "Address:" + this.ontid.substring(8)
+      //     }, {
+      //       name: "mpReceiveAddress",
+      //       value: "Address:AePd2vTPeb1DggiFj82mR8F4qQXM2H9YpB"
+      //     }, {
+      //       name: "OJList",
+      //       value: ['did:ont:AN3H8EAC5AtSkXqG3VbXobyeS9tTbNz4S2']
+      //     }],
+      //     contractHash: 'f261464e2cd21c2ab9c06fa3e627ce03c7715ec9',
+      //     method: 'authOrder'
+      //   }
+      // }
+      // console.log('orderParams', orderParams)
       // return
-      if (result.data.msg === 'SUCCESS') {
+      if (result.data.desc === 'SUCCESS') {
         // DId .data.result.id
         this.DId = result.data.result.id
         let message = result.data.result.message
@@ -338,7 +363,7 @@ export default {
           version: 'v1.0.0',
           id: result.data.result.id,
           params: {
-            type: 'address',
+            type: 'ontid',
             message: message,
             ishex: true,
             callback: result.data.result.callback,
@@ -393,15 +418,15 @@ export default {
     },
     dialog(data) {
       console.log('data', data)
-      if (data.isCertificated == 0) {
-        this.$message({
-          message: this.$t('common.b_dataid'),
-          type: 'error',
-          center: true,
-          duration: 2000
-        });
-        return
-      }
+      // if (data.isCertificated == 0) {
+      //   this.$message({
+      //     message: this.$t('common.b_dataid'),
+      //     type: 'error',
+      //     center: true,
+      //     duration: 2000
+      //   });
+      //   return
+      // }
       this.cortData = data
       this.proDataId()
     },
@@ -424,7 +449,7 @@ export default {
         let res = await this.$store.dispatch('makeTransaction', withdrawalParams)
         console.log('makeTransaction', res)
         // return
-        if (res.data.msg === 'SUCCESS') {
+        if (res.data.desc === 'SUCCESS') {
           paramsData.txHex = res.data.result
           console.log('paramsData', paramsData)
         } else {
@@ -469,7 +494,7 @@ export default {
       try {
         let res = await this.$store.dispatch('sendPass', paramsData)
         console.log('sendPass', res)
-        if (res.data.msg === 'SUCCESS') {
+        if (res.data.desc === 'SUCCESS') {
           this.$message({
             message: 'SUCCESS ' + this.$t('common.refresh'),
             type: 'success',
@@ -497,11 +522,134 @@ export default {
     },
     toDataIDList(dataId) {
       this.$router.push({ name: 'DataIDList', query: { dataId: dataId } })
+    },
+    async getClaim() {
+      try {
+        let result = await this.$store.dispatch('getClaim')
+        console.log('result', result)
+        this.getClaimId = result.data.result.id
+        let params = {
+          action: 'getClaim',
+          id: result.data.result.id,
+          version: 'v1.0.0',
+          params: {
+            dappName: 'dapp Name',
+            dappIcon: 'dapp Icon',
+            message: result.data.result.message,
+            expire: result.data.result.expire,
+            callback: result.data.result.callback
+          }
+        }
+        let qrparams = {
+          params,
+          isShow: true
+        }
+        this.$store.dispatch('changeQrcode', qrparams)
+        this.getClaimTimer = setInterval(async () => {
+          let result = await this.$store.dispatch('getCheckRes', this.getClaimId)
+          console.log('result orjs', result)
+          if (result === 1) {
+            clearInterval(this.getClaimTimer)
+            sessionStorage.setItem('isclaim', true)
+            this.$message({
+              message: 'SUCCESS',
+              center: true,
+              type: 'success'
+            });
+          } else if (result === 3) {
+            clearInterval(this.getClaimTimer)
+            this.$message({
+              message: 'Fail',
+              type: 'error',
+              center: true,
+              duration: 2000
+            });
+          } else { }
+        }, 3000)
+      } catch (error) {
+        this.$message({
+          message: error,
+          type: 'error',
+          center: true,
+          duration: 2000
+        });
+      }
+
+    },
+    async postClaim() {
+      try {
+        let result = await this.$store.dispatch('postClaim')
+        console.log('result', result)
+        this.postClaimId = result.data.result.id
+        let params = {
+          action: 'postClaim',
+          version: 'v1.0.0',
+          params: {
+            dappName: 'dapp Name',
+            dappIcon: 'dapp Icon',
+            claimTemplate: 'claims:yus_chinese_id_authentication',
+            // message: result.data.result.message,
+            expire: result.data.result.expire,
+            callback: result.data.result.callback
+          }
+        }
+        let qrparams = {
+          params,
+          isShow: true
+        }
+        this.$store.dispatch('changeQrcode', qrparams)
+        this.postClaimTimer = setInterval(async () => {
+          let result = await this.$store.dispatch('getCheckRes', this.postClaimId)
+          console.log('result orjs', result)
+          if (result === 1) {
+            clearInterval(this.postClaimTimer)
+            this.$router.push({ path: 'addnewdata' })
+
+            this.$message({
+              message: 'SUCCESS',
+              center: true,
+              type: 'success'
+            });
+          } else if (result === 3) {
+            clearInterval(this.postClaimTimer)
+            this.$message({
+              message: 'Fail',
+              type: 'error',
+              center: true,
+              duration: 2000
+            });
+          } else { }
+        }, 3000)
+      } catch (error) {
+        this.$message({
+          message: error,
+          type: 'error',
+          center: true,
+          duration: 2000
+        });
+      }
+      // let params = {
+      //   action: 'postClaim',
+      //   version: 'v1.0.0',
+      //   params: {
+      //     dappName: 'dapp Name',
+      //     dappIcon: 'dapp Icon',
+      //     claimTemplate: 'claims:yus_chinese_id_authentication',
+      //     expire: 1573549257,
+      //     callback: 'http://101.132.193.149:4027/invoke/callback'
+      //   }
+      // }
+      // let qrparams = {
+      //   params,
+      //   isShow: true
+      // }
+      // this.$store.dispatch('changeQrcode', qrparams)
     }
   },
   async mounted() {
     this.url = this.setUrl()
     this.ontid = sessionStorage.getItem("user_ontid")
+    this.isClaim = sessionStorage.getItem('isclaim')
     this.getSellData()
   },
   computed: {

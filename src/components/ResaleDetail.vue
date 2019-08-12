@@ -296,7 +296,7 @@ export default {
       try {
         let res = await this.$store.dispatch('makeTransaction', contracParams)
         console.log('makeTransaction', res)
-        if (res.data.msg === 'SUCCESS') {
+        if (res.data.desc === 'SUCCESS') {
           let sigVo = {
             txHex: res.data.result,
             pubKeys: '',
@@ -341,7 +341,7 @@ export default {
           try {
             let res = await this.$store.dispatch('updateOrder', orderParams)
             console.log('orderParams', res)
-            if (res.data.msg === 'SUCCESS' && res.data.result) {
+            if (res.data.desc === 'SUCCESS' && res.data.result) {
               this.$message({
                 message: this.$t('common.pro_success'),
                 type: 'success',
@@ -398,7 +398,7 @@ export default {
       }
       try {
         let res = await this.$store.dispatch('getDataByDataID', params)
-        if (res.status === 200 && res.data.msg === 'SUCCESS') {
+        if (res.status === 200 && res.data.desc === 'SUCCESS') {
           this.detailList = res.data.result
           console.log('this.detailList', this.detailList)
           this.dynamicValidateForm.certifier = this.detailList.certifier
@@ -430,7 +430,7 @@ export default {
     this.ont_id = await client.api.identity.getIdentity()
     try {
       let res = await this.$store.dispatch('getCertifier')
-      if (res.data && res.data.msg === 'SUCCESS') {
+      if (res.data && res.data.desc === 'SUCCESS') {
         this.certifierArr = res.data.result
         this.dynamicValidateForm.certifier = this.certifierArr[0].ontid
       } else {
@@ -444,7 +444,7 @@ export default {
 
     try {
       let res = await this.$store.dispatch('getJudger')
-      if (res.data && res.data.msg === 'SUCCESS') {
+      if (res.data && res.data.desc === 'SUCCESS') {
         this.judgerArr = res.data.result
       } else {
         this.judgerArr = []

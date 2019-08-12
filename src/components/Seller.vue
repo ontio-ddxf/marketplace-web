@@ -198,7 +198,7 @@ export default {
         let res = await this.$store.dispatch('makeTransaction', sureParams)
         console.log('makeTransaction', res)
         // return
-        if (res.data.msg === 'SUCCESS') {
+        if (res.data.desc === 'SUCCESS') {
           paramsData.txHex = res.data.result
           console.log('paramsData', paramsData)
         } else {
@@ -245,7 +245,7 @@ export default {
       try {
         let res = await this.$store.dispatch('sendPass', paramsData)
         console.log('sendPass', res)
-        if (res.data.msg === 'SUCCESS') {
+        if (res.data.desc === 'SUCCESS') {
           this.$message({
             message: this.$t('common.receipt_suc'),
             type: 'success',

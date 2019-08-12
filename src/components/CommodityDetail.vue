@@ -114,7 +114,7 @@ export default {
       try {
         let res = await this.$store.dispatch('getCommodityDetail', params)
         console.log(res)
-        if (res.status === 200 && res.data.msg === 'SUCCESS') {
+        if (res.status === 200 && res.data.desc === 'SUCCESS') {
           this.detailList = res.data.result
         }
       } catch (error) {
@@ -131,7 +131,7 @@ export default {
         try {
           let result = await this.$store.dispatch('getCerMsg', this.$route.query.commodityId)
           console.log('this.$route.query.commodityId', result)
-          if (result.data.msg === 'SUCCESS') {
+          if (result.data.desc === 'SUCCESS') {
             this.cerId = result.data.result.id
             let codeParams = {
               action: 'signMessage',

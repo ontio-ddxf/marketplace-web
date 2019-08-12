@@ -92,7 +92,7 @@ export default {
         let res = await this.$store.dispatch('getCommodityList', params)
         console.log(res)
 
-        if (res.status === 200 && res.data.msg === 'SUCCESS') {
+        if (res.status === 200 && res.data.desc === 'SUCCESS') {
           this.tableData = res.data.result.recordList
           this.tableData.map((item, idx) => {
             item.price = item.price * Math.pow(10, -9)

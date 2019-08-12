@@ -128,7 +128,7 @@ export default {
         // console.log('appealParams', appealParams)
         let res = await this.$store.dispatch('makeTransaction', ojparams)
         console.log('makeTransaction', res)
-        if (res.data.msg === 'SUCCESS') {
+        if (res.data.desc === 'SUCCESS') {
           paramsData.txHex = res.data.result
         } else {
           this.$message({
@@ -178,7 +178,7 @@ export default {
         }
         let res = await this.$store.dispatch('sendOJData', params)
         console.log('sendOJData', res)
-        if (res.data.msg === 'SUCCESS') {
+        if (res.data.desc === 'SUCCESS') {
           this.$message({
             message: this.$t('common.oj_suc'),
             type: 'success',
@@ -229,7 +229,7 @@ export default {
     }
     try {
       let res = await this.$store.dispatch('queryjuderData', params)
-      if (res.data.msg === 'SUCCESS') {
+      if (res.data.desc === 'SUCCESS') {
         this.tableData = res.data.result.recordList
         this.tableData.map((item, idx) => {
           item.price = item.price * Math.pow(10, -9)

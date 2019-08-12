@@ -157,7 +157,7 @@ export default {
         try {
           let result = await this.$store.dispatch('makeOrder', buyDataParams)
           console.log('orderResult', result)
-          if (result.data.msg === 'SUCCESS') {
+          if (result.data.desc === 'SUCCESS') {
             this.orderHashId = result.data.result.id
             let message = result.data.result.message
             message = message.slice(0, message.length - 2)
@@ -253,7 +253,7 @@ export default {
         try {
           let res = await this.$store.dispatch('makeTransaction', params)
           console.log('makeTransaction', res)
-          if (res.data.msg === 'SUCCESS') {
+          if (res.data.desc === 'SUCCESS') {
             buyDataParams.sigVo.txHex = res.data.result
           } else {
             this.$message({
@@ -297,7 +297,7 @@ export default {
         try {
           let res = await this.$store.dispatch('buySecondHandData', buyDataParams)
           console.log('buySecondHandData', res)
-          if (res.data.msg == 'SUCCESS' && res.data.result) {
+          if (res.data.desc == 'SUCCESS' && res.data.result) {
             this.$message({
               message: this.$t('common.buy_suc'),
               type: 'success',

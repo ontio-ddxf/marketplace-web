@@ -587,7 +587,7 @@ export default {
           params: {
             dappName: 'dapp Name',
             dappIcon: 'dapp Icon',
-            claimTemplate: 'claims:yus_chinese_id_authentication',
+            claimTemplate: 'claims:yus_chinese_id_authentication'+this.getClaimId,
             // message: result.data.result.message,
             expire: result.data.result.expire,
             callback: result.data.result.callback

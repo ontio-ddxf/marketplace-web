@@ -116,6 +116,7 @@ export default {
             isShow: true
           }
           this.$store.dispatch('changeQrcode', qrparams)
+          clearInterval(this.getResTimer)
           this.getResTimer = setInterval(() => {
             this.getLoginResult()
           }, 3000)
@@ -207,6 +208,9 @@ export default {
     ...mapState({
       isShow: state => state.qrcodeParams.isShow,
     })
+  },
+  beforeDestroy() {
+    clearInterval(this.getResTimer)
   }
 }
 </script>

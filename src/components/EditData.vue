@@ -214,7 +214,7 @@ export default {
       },
       dynamicValidateForm: {
         tags: [],
-        price: 1,
+        price: 0,
         amount: '',
         symbol: '',
         tokenName: '',
@@ -340,7 +340,8 @@ export default {
           value: 99
         }, {
           name: "expireTime",
-          value: moment(this.dataParams.expireTime).unix()
+          // value: moment(this.dataParams.expireTime).unix()
+          value: 0
         }, {
           name: "makerTokenHash",
           value: "ByteArray:3e7d3d82df5e1f951610ffa605af76846802fbae"
@@ -354,19 +355,19 @@ export default {
           name: "OJList",
           value: OJList
         }],
-        contractHash: 'f261464e2cd21c2ab9c06fa3e627ce03c7715ec9',
+        contractHash: '57a078f603a6894ea4c3688251b981e543fe1cb1',
         method: 'authOrder'
       }
       console.log('contracParams', contracParams)
       console.log('this.dataParams', this.dataParams);
-      let orderParams = {
-        id: this.detailList.id,
-        token: "ong",
-        price: this.dataParams.price * Math.pow(10, 9),
-        amount: this.dataParams.amount,
-        ojList: this.dataParams.judger,
-        contractVo: contracParams
-      }
+      // let orderParams = {
+      //   id: this.detailList.id,
+      //   token: "ong",
+      //   price: this.dataParams.price * Math.pow(10, 9),
+      //   amount: this.dataParams.amount,
+      //   ojList: this.dataParams.judger,
+      //   contractVo: contracParams
+      // }
 
       let idParams = {
         dataIdVo: {
@@ -377,7 +378,7 @@ export default {
         },
         orderVo: {
           id: this.detailList.id,
-          amount: 0,
+          amount: this.dataParams.amount,
           contractVo: contracParams,
           ojList: this.dataParams.judger,
           price: this.dataParams.price * Math.pow(10, 9),
@@ -417,6 +418,7 @@ export default {
           isShow: true
         }
         this.$store.dispatch('changeQrcode', qrparams)
+        clearInterval(this.dataIdTimer)
         this.dataIdTimer = setInterval(async () => {
           let result = await this.$store.dispatch('getCheckRes', this.DId)
           console.log('result orjs', result)
@@ -436,7 +438,7 @@ export default {
               center: true,
               duration: 2000
             });
-          } else { }
+          }  else if (result === 4) { clearInterval(this.dataIdTimer) } else {}
         }, 3000)
       } else {
         this.$message({

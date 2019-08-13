@@ -145,7 +145,6 @@
 
 <script>
 import { client } from 'ontology-dapi'
-import { setTimeout } from 'timers';
 // import { OntidContract, TransactionBuilder, TxSignature, Identity, Crypto, RestClient, utils } from 'ontology-ts-sdk';
 
 import { TEST_NET } from '../assets/control'
@@ -206,12 +205,12 @@ export default {
         state: this.$t('common.certification_status')
       },
       dataIdTimer: null,
-      DId: null,
-      getClaimId: null,
-      getClaimTimer: null,
-      postClaimId: null,
-      postClaimTimer: null,
-      isClaim: null
+      DId: '',
+      getClaimId: '',
+      getClaimTimer: '',
+      postClaimId: '',
+      postClaimTimer: '',
+      isClaim: ''
     }
   },
   methods: {
@@ -231,18 +230,19 @@ export default {
       this.$router.push({ path: '/' })
     },
     toAddData() {
-      this.isClaim = sessionStorage.getItem('isclaim')
-      if (!this.isClaim) {
-        this.$message({
-          message: 'Please Get Claim',
-          type: 'error',
-          center: true,
-          duration: 2000
-        });
-        return
-      } else {
+      // this.isClaim = sessionStorage.getItem('isclaim')
+      // if (!this.isClaim) {
+      //   this.$message({
+      //     message: 'Please Get Claim',
+      //     type: 'error',
+      //     center: true,
+      //     duration: 2000
+      //   });
+      //   return
+      // } else {
+      //   this.postClaim()
+      // }
         this.postClaim()
-      }
     },
     indexMethod(idx) {
       return idx + 1
@@ -345,7 +345,7 @@ export default {
       //       name: "OJList",
       //       value: ['did:ont:AN3H8EAC5AtSkXqG3VbXobyeS9tTbNz4S2']
       //     }],
-      //     contractHash: 'f261464e2cd21c2ab9c06fa3e627ce03c7715ec9',
+      //     contractHash: '57a078f603a6894ea4c3688251b981e543fe1cb1',
       //     method: 'authOrder'
       //   }
       // }
@@ -375,6 +375,7 @@ export default {
           isShow: true
         }
         this.$store.dispatch('changeQrcode', qrparams)
+        clearInterval(this.dataIdTimer)
         this.dataIdTimer = setInterval(async () => {
           let result = await this.$store.dispatch('getCheckRes', this.DId)
           console.log('result orjs', result)
@@ -393,7 +394,7 @@ export default {
               center: true,
               duration: 2000
             });
-          } else { }
+          }  else if (result === 4) { clearInterval(this.dataIdTimer) } else {}
         }, 3000)
       } else {
         this.$message({
@@ -437,7 +438,7 @@ export default {
           name: "authId",
           value: "ByteArray:" + data.authId
         }],
-        contractHash: "f261464e2cd21c2ab9c06fa3e627ce03c7715ec9",
+        contractHash: "57a078f603a6894ea4c3688251b981e543fe1cb1",
         method: "cancelAuth"
       }
       let paramsData = {
@@ -545,11 +546,12 @@ export default {
           isShow: true
         }
         this.$store.dispatch('changeQrcode', qrparams)
+        window.clearInterval(this.getClaimTimer)
         this.getClaimTimer = setInterval(async () => {
           let result = await this.$store.dispatch('getCheckRes', this.getClaimId)
           console.log('result orjs', result)
           if (result === 1) {
-            clearInterval(this.getClaimTimer)
+            window.clearInterval(this.getClaimTimer)
             sessionStorage.setItem('isclaim', true)
             this.$message({
               message: 'SUCCESS',
@@ -557,14 +559,14 @@ export default {
               type: 'success'
             });
           } else if (result === 3) {
-            clearInterval(this.getClaimTimer)
+            window.clearInterval(this.getClaimTimer)
             this.$message({
               message: 'Fail',
               type: 'error',
               center: true,
               duration: 2000
             });
-          } else { }
+          }   else if (result === 4) { window.clearInterval(this.getClaimTimer) } else {}
         }, 3000)
       } catch (error) {
         this.$message({
@@ -587,7 +589,7 @@ export default {
           params: {
             dappName: 'dapp Name',
             dappIcon: 'dapp Icon',
-            claimTemplate: 'claims:yus_chinese_id_authentication'+this.getClaimId,
+            claimTemplate: 'claims:yus_chinese_id_authentication',
             // message: result.data.result.message,
             expire: result.data.result.expire,
             callback: result.data.result.callback
@@ -598,11 +600,12 @@ export default {
           isShow: true
         }
         this.$store.dispatch('changeQrcode', qrparams)
+        window.clearInterval(this.postClaimTimer)
         this.postClaimTimer = setInterval(async () => {
           let result = await this.$store.dispatch('getCheckRes', this.postClaimId)
           console.log('result orjs', result)
           if (result === 1) {
-            clearInterval(this.postClaimTimer)
+            window.clearInterval(this.postClaimTimer)
             this.$router.push({ path: 'addnewdata' })
 
             this.$message({
@@ -611,14 +614,14 @@ export default {
               type: 'success'
             });
           } else if (result === 3) {
-            clearInterval(this.postClaimTimer)
+            window.clearInterval(this.postClaimTimer)
             this.$message({
               message: 'Fail',
               type: 'error',
               center: true,
               duration: 2000
             });
-          } else { }
+          }   else if (result === 4) { window.clearInterval(this.postClaimTimer) } else {}
         }, 3000)
       } catch (error) {
         this.$message({
@@ -656,6 +659,11 @@ export default {
     ...mapState({
       isShow: state => state.qrcodeParams.isShow,
     })
+  },
+  beforeDestroy() {
+   window.clearInterval(this.dataIdTimer) 
+   window.clearInterval(this.getClaimTimer)
+   window.clearInterval(this.postClaimTimer)
   }
 }
 </script>

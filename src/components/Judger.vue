@@ -102,7 +102,7 @@ export default {
             { "name": "makerReceiveAmount", "value": this.form.makerReceiveAmount * Math.pow(10, 9) },
             { "name": "takerReceiveAmount", "value": this.form.takerReceiveAmount * Math.pow(10, 9) }
           ],
-          "contractHash": "f261464e2cd21c2ab9c06fa3e627ce03c7715ec9",
+          "contractHash": "57a078f603a6894ea4c3688251b981e543fe1cb1",
           "method": "arbitrage"
         }
       } else {

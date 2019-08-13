@@ -193,7 +193,7 @@ export default {
         sureParams = {
           argsList: [
             { name: "orderId", value: "ByteArray:" + data.orderId }],
-          contractHash: "f261464e2cd21c2ab9c06fa3e627ce03c7715ec9",
+          contractHash: "57a078f603a6894ea4c3688251b981e543fe1cb1",
           method: "confirm"
         }
       } else {
@@ -231,6 +231,7 @@ export default {
             isShow: true
           }
           this.$store.dispatch('changeQrcode', qrparams)
+          clearInterval(this.commonTimer)
           this.commonTimer = setInterval(async () => {
             let result = await this.$store.dispatch('getCheckRes', this.commonId)
             console.log('result orjs', result)
@@ -249,7 +250,7 @@ export default {
                 center: true,
                 duration: 2000
               });
-            } else { }
+            } else if (result === 4) { clearInterval(this.commonTimer) } else {}
           }, 3000)
         } else {
           this.$message({
@@ -376,7 +377,7 @@ export default {
           argsList: [
             { name: "orderId", value: "ByteArray:" + data.orderId }
           ],
-          contractHash: "f261464e2cd21c2ab9c06fa3e627ce03c7715ec9",
+          contractHash: "57a078f603a6894ea4c3688251b981e543fe1cb1",
           method: "applyArbitrage"
 
         }
@@ -556,6 +557,9 @@ export default {
     }
     this.getBuyOrder()
   },
+  beforeDestroy() {
+    clearInterval(this.commonTimer) 
+  }
 }
 </script>
 

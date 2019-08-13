@@ -102,6 +102,7 @@ export default {
     this.getDetail(id)
     this.isCert = +sessionStorage.getItem('isCert')
     console.log(this.isCert)
+    // console.log(this.query())
   },
   methods: {
     toIndex() {
@@ -153,6 +154,7 @@ export default {
               isShow: true
             }
             this.$store.dispatch('changeQrcode', qrparams)
+            clearInterval(this.cerTimer)
             this.cerTimer = setInterval(async () => {
               let result = await this.$store.dispatch('getCheckRes', this.cerId)
               console.log('result orjs', result)
@@ -169,7 +171,7 @@ export default {
                   center: true,
                   duration: 2000
                 });
-              } else { }
+              } else if (result === 4) { clearInterval(this.cerTimer) } else {}
             }, 3000)
           } else {
             this.$message({
@@ -196,12 +198,30 @@ export default {
         });
         this.$store.commit('CHANGE_MODEL_STATE', false)
       });
+    },
+    query() {
+      var urlSearch = window.location.hash;
+      var searchParamObj = {};
+
+      if (urlSearch.indexOf('?') > -1) {
+        let idx = urlSearch.indexOf('?')
+        var searchArr = urlSearch.substr(idx + 1).split('&');
+
+        for (var m = 0; m < searchArr.length; m++) {
+          searchParamObj[searchArr[m].split('=')[0]] = searchArr[m].split('=')[1];
+        }
+      }
+
+      return searchParamObj;
     }
   },
   computed: {
     ...mapState({
       isShow: state => state.qrcodeParams.isShow,
     })
+  },
+  beforeDestroy() {
+   clearInterval(this.cerTimer) 
   }
 }
 </script>

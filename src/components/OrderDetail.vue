@@ -126,7 +126,7 @@ export default {
             { name: "tokenAmount", "value": 1 },
             { name: "OJ", "value": "Address:" + this.OJlist.substring(8) }
           ],
-          contractHash: "f261464e2cd21c2ab9c06fa3e627ce03c7715ec9",
+          contractHash: "57a078f603a6894ea4c3688251b981e543fe1cb1",
           method: "takeOrder"
         }
         console.log('params', params)
@@ -147,7 +147,7 @@ export default {
           argsList: [
             // { name: "orderId", value: "ByteArray:" + data.orderId }],
             { name: "orderId", value: "ByteArray:" + this.orderData.authId }],  // to do
-          contractHash: "f261464e2cd21c2ab9c06fa3e627ce03c7715ec9",
+          contractHash: "57a078f603a6894ea4c3688251b981e543fe1cb1",
           method: "confirm"
         }
 
@@ -180,6 +180,7 @@ export default {
               isShow: true
             }
             this.$store.dispatch('changeQrcode', qrparams)
+            clearInterval(this.hashTimer)
             this.hashTimer = setInterval(async () => {
               let result = await this.$store.dispatch('getCheckRes', this.orderHashId)
               console.log('result orjs', result)
@@ -199,7 +200,7 @@ export default {
                   center: true,
                   duration: 2000
                 });
-              } else { }
+              } else if (result === 4) { clearInterval(this.hashTimer) } else {}
             }, 3000)
           } else {
             this.$message({
@@ -328,6 +329,9 @@ export default {
       }
     }
   },
+  beforeDestroy() {
+   clearInterval(this.hashTimer) 
+  }
 }
 </script>
 

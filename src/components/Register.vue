@@ -67,6 +67,7 @@ export default {
                 isShow: true
               }
               this.$store.dispatch('changeQrcode', dataParams)
+              clearInterval(this.checkTimer)
               this.checkTimer = setInterval(() => {
                 this.checkResult()
               }, 3000)
@@ -152,6 +153,9 @@ export default {
     ...mapState({
       isShow: state => state.qrcodeParams.isShow,
     })
+  },
+  beforeDestroy() {
+    clearInterval(this.checkTimer)
   }
 }
 </script>

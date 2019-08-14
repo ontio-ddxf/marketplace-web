@@ -14,7 +14,7 @@ const TokenDetail = () => import('@/components/TokenDetail')
 const SecondHandCommoditylist = () => import('@/components/SecondHandCommoditylist')
 Vue.use(Router)
 const router = new Router({
-  mode: 'history',
+  // mode: 'history',
   routes: [
     {
       path: '/',

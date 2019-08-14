@@ -49,7 +49,7 @@ export default {
       this.$refs[formName].validate(async (valid) => {
         if (valid) {
           this.ruleForm.domain = this.ruleForm.domain + '.on.ont'
-          let qrcodeParams = { params: { login: true } }
+          let qrcodeParams = { params: { ontidSign: true } }
           try {
             let res = await this.$store.dispatch('sendONS', this.ruleForm.domain)
             console.log('res', res)

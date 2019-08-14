@@ -147,7 +147,7 @@ export default {
     }
   },
   async mounted() {
-    this.ruleForm.ontid = await client.api.identity.getIdentity()
+    // this.ruleForm.ontid = await client.api.identity.getIdentity()
   },
   computed: {
     ...mapState({

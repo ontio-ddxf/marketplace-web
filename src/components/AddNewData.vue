@@ -241,7 +241,7 @@ export default {
     }
   },
   async mounted() {
-    this.accountid = await client.api.asset.getAccount()
+    // this.accountid = await client.api.asset.getAccount()
     this.ont_id = sessionStorage.getItem("user_ontid")
     try {
       let res = await this.$store.dispatch('getCertifier')

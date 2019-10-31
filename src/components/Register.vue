@@ -10,10 +10,7 @@
         label-width="100px"
         class="demo-ruleForm"
       >
-        <!-- <el-form-item label="ONT ID" prop="ontid">
-          <el-input v-model="ruleForm.ontid"></el-input>
-        </el-form-item>-->
-        <el-form-item label="ONS" prop="domain">
+        <el-form-item label="Account" prop="domain">
           <el-input v-model="ruleForm.domain"></el-input>
         </el-form-item>
         <el-button type="primary" @click="submitForm('ruleForm')">{{$t('sign.sign_up')}}</el-button>
@@ -48,37 +45,38 @@ export default {
     submitForm(formName) {
       this.$refs[formName].validate(async (valid) => {
         if (valid) {
-          this.ruleForm.domain = this.ruleForm.domain + '.on.ont'
+          // this.ruleForm.domain = this.ruleForm.domain + '.on.ont'
           let qrcodeParams = { params: { ontidSign: true } }
+
           try {
-            let res = await this.$store.dispatch('sendONS', this.ruleForm.domain)
+            let res = await this.$store.dispatch('sendONS', { userName: this.ruleForm.domain })
             console.log('res', res)
-            if (res.data.desc === 'SUCCESS') {
-              qrcodeParams.action = 'signTransaction'
-              qrcodeParams.version = res.data.version
-              qrcodeParams.id = res.data.result.id
-              qrcodeParams.params.callback = res.data.result.callback
-              qrcodeParams.params.qrcodeUrl = res.data.result.qrcodeUrl
-              this.dataId = res.data.result.id
-              console.log('qrcodeParams', qrcodeParams)
-              console.log('dataId', this.dataId)
-              let dataParams = {
-                params: qrcodeParams,
-                isShow: true
-              }
-              this.$store.dispatch('changeQrcode', dataParams)
-              clearInterval(this.checkTimer)
-              this.checkTimer = setInterval(() => {
-                this.checkResult()
-              }, 3000)
-            } else {
-              this.$message({
-                message: 'Sign Up Fail!',
-                center: true,
-                type: 'error'
-              });
-              return
-            }
+            // if (res.data.desc === 'SUCCESS') {
+            //   qrcodeParams.action = 'signTransaction'
+            //   qrcodeParams.version = res.data.version
+            //   qrcodeParams.id = res.data.result.id
+            //   qrcodeParams.params.callback = res.data.result.callback
+            //   qrcodeParams.params.qrcodeUrl = res.data.result.qrcodeUrl
+            //   this.dataId = res.data.result.id
+            //   console.log('qrcodeParams', qrcodeParams)
+            //   console.log('dataId', this.dataId)
+            //   let dataParams = {
+            //     params: qrcodeParams,
+            //     isShow: true
+            //   }
+            //   this.$store.dispatch('changeQrcode', dataParams)
+            //   clearInterval(this.checkTimer)
+            //   this.checkTimer = setInterval(() => {
+            //     this.checkResult()
+            //   }, 3000)
+            // } else {
+            //   this.$message({
+            //     message: 'Sign Up Fail!',
+            //     center: true,
+            //     type: 'error'
+            //   });
+            //   return
+            // }
           } catch (error) {
             this.$message({
               message: 'Sign Up Fail!',
@@ -165,7 +163,7 @@ export default {
   width: 100%;
   max-width: 500px;
   margin: 0 auto;
-  margin-top: 80px;
+  margin-top: 280px;
   padding: 50px 50px;
   box-sizing: border-box;
   border-radius: 10px;

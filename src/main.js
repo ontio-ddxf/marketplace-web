@@ -94,7 +94,26 @@ axios.interceptors.request.use(
     return Promise.reject(error)
   }
 )
-
+// response interceptor
+axios.interceptors.response.use(
+  response => {
+    // console.log('erere', response)
+    return response
+  },
+  error => {
+    const rest = error.response;
+    if (rest) {
+      if (rest.status === 400) {
+        // 提示错误
+        Message({ message: rest.data.desc, type: "error" });
+      }
+    } else {
+      Message({ message: error, type: "error" });
+    }
+    console.error('err' + error) // for debug
+    return Promise.reject(error)
+  }
+)
 // const SECURE_CONTENT_TYPE = 'application/json'
 // Vue.config.errorHandler = (error, vm, info) => {
 //   const { response } = error

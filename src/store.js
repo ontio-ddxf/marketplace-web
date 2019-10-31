@@ -495,7 +495,7 @@ export default new Vuex.Store({
     },
     async sendONS({ dispatch, commit }, params) {
       try {
-        return axios.get(process.env.VUE_APP_DDXF_API + '/api/v1/ons/' + params)
+        return axios.post(process.env.VUE_APP_API + '/api/v1/ontid/register', params)
       } catch (error) {
         return error
       }

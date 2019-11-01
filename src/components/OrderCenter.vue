@@ -21,12 +21,12 @@
       <el-tab-pane :label="$t('center.seller')" name="second">
         <Seller></Seller>
       </el-tab-pane>
-      <el-tab-pane :label="$t('center.certification')" name="third">
+      <!-- <el-tab-pane :label="$t('center.certification')" name="third">
         <Certifier></Certifier>
       </el-tab-pane>
       <el-tab-pane :label="$t('center.arbitration')" name="fourth">
         <Judger></Judger>
-      </el-tab-pane>
+      </el-tab-pane> -->
     </el-tabs>
   </div>
 </template>

@@ -2,8 +2,8 @@
   <div>
     <el-table border :data="tableData" style="width: 100%" :empty-text="$t('common.no_data')">
       <el-table-column type="index" :index="indexMethod" align="center"></el-table-column>
-      <el-table-column prop="provider" :label="tableLang.seller" width="260" align="center"></el-table-column>
-      <el-table-column label="dataId" width="360" align="center">
+      <el-table-column prop="provider" :label="tableLang.seller" align="center"></el-table-column>
+      <!-- <el-table-column label="dataId" width="360" align="center">
         <template slot-scope="scope">
           <el-button
             @click="toDataIDList(scope.row.dataId)"
@@ -11,71 +11,66 @@
             type="primary"
           >{{scope.row.dataId}}</el-button>
         </template>
-      </el-table-column>
-      <el-table-column label="tokenId" width="100" align="center">
+      </el-table-column>-->
+      <el-table-column label="Token ID" width="100" align="center">
         <template slot-scope="scope">
-          <el-button
+          <!-- <el-button
             @click="toTokenId(scope.row.tokenId)"
             size="mini"
             type="primary"
-          >{{scope.row.tokenId}}</el-button>
+          >{{scope.row.tokenId}}</el-button>-->
+          <el-button size="mini" type="primary">{{scope.row.tokenId}}</el-button>
         </template>
       </el-table-column>
-      <el-table-column prop="orderId" :label="tableLang.order_num" width="260" align="center"></el-table-column>
-      <el-table-column :label="tableLang.desc" prop="desc" align="center" width="180"></el-table-column>
-      <el-table-column prop="boughtTime" :label="tableLang.buy_date" width="180" align="center"></el-table-column>
+      <el-table-column prop="orderId" :label="tableLang.order_num" align="center"></el-table-column>
+      <!-- <el-table-column :label="tableLang.desc" prop="desc" align="center" width="180"></el-table-column> -->
+      <el-table-column prop="createTime" :label="tableLang.buy_date" width="280" align="center"></el-table-column>
       <el-table-column :label="tableLang.state" width="220" align="center">
         <template slot-scope="scope">
           <el-button
             size="mini"
-            v-if="scope.row.state == 3"
+            v-if="scope.row.state == 2"
             type="danger"
           >{{$t('common.order_over')}}</el-button>
-          <el-button
+          <!-- <el-button
             size="mini"
             v-else-if="scope.row.state == 4"
             type="danger"
-          >{{$t('common.appeal')}}</el-button>
-          <el-button
+          >{{$t('common.appeal')}}</el-button>-->
+          <!-- <el-button
             size="mini"
             v-else-if="scope.row.state == 5"
             type="success"
-          >{{$t('common.apple_end')}}</el-button>
-          <el-button
+          >{{$t('common.apple_end')}}</el-button>-->
+          <!-- <el-button
             size="mini"
             v-else-if="scope.row.state == 1"
             type="danger"
-          >{{$t('common.pending_order')}}</el-button>
-          <el-button
-            size="mini"
-            v-else
-            type="danger"
-            @click="toAppeal(scope.row)"
-          >{{$t('common.to_appeal')}}</el-button>
-          <el-tag type="info" v-show="scope.row.arbitrage == '1'">{{$t('common.appeal_suc')}}</el-tag>
-          <el-tag type="danger" v-show="scope.row.arbitrage == '0'">{{$t('common.appeal_fail')}}</el-tag>
+          >{{$t('common.pending_order')}}</el-button>-->
+          <el-button size="mini" v-else type="success">{{$t('common.buy_suc')}}</el-button>
+          <!-- <el-tag type="info" v-show="scope.row.arbitrage == '1'">{{$t('common.appeal_suc')}}</el-tag> -->
+          <!-- <el-tag type="danger" v-show="scope.row.arbitrage == '0'">{{$t('common.appeal_fail')}}</el-tag> -->
         </template>
       </el-table-column>
       <el-table-column :label="tableLang.operating" width="380" align="center">
         <template slot-scope="scope">
-          <el-button size="mini" @click="viewInfo(scope.row)">{{$t('common.view_info')}}</el-button>
+          <el-button
+            v-show="scope.row.state == 2"
+            size="mini"
+            @click="viewInfo(scope.row)"
+          >{{$t('common.view_info')}}</el-button>
           <el-button size="mini" @click="viewOther(scope.row)">{{$t('common.view_other')}}</el-button>
           <el-button
             size="mini"
-            v-show="!scope.row.arbitrage && scope.row.state != '3'"
+            v-show="scope.row.state == 1"
             type="success"
             @click="confirmReceipt(scope.row)"
           >{{$t('common.sure_order')}}</el-button>
-          <el-button
-            size="mini"
-            v-show="scope.row.state == 3 || scope.row.arbitrage == '0'"
-            @click="Resale(scope.row)"
-          >{{$t('common.resale')}}</el-button>
         </template>
       </el-table-column>
     </el-table>
 
-    <div class="paginatio">
+    <!-- <div class="paginatio">
       <el-pagination
         @current-change="handleCurrentChange"
         background
@@ -83,14 +78,14 @@
         :total="orderCount"
         :page-size="pageSize"
       ></el-pagination>
-    </div>
+    </div>-->
   </div>
 </template>
 
 <script>
 import { client } from 'ontology-dapi'
-// import { OntidContract, TransactionBuilder, TxSignature, Identity, Crypto, RestClient, utils } from 'ontology-ts-sdk';
 import moment from 'moment'
+import { mapState } from 'vuex'
 
 export default {
   data() {
@@ -109,8 +104,14 @@ export default {
       pageSize: 10,
       pageNum: 0,
       commonId: null,
-      commonTimer: null
+      commonTimer: null,
+      viewTimer: null
     }
+  },
+  computed: {
+    ...mapState({
+      isShow: state => state.qrcodeParams.isShow,
+    })
   },
   methods: {
     indexMethod(index) {
@@ -120,15 +121,15 @@ export default {
       try {
         let params = {
           ontid: this.accountid,
-          pageNum: this.pageNum,
-          pageSize: this.pageSize,
-          type: 1
+          type: 2
         }
         let res = await this.$store.dispatch('getBuyOrder', params)
+        console.log('res buy', res)
         if (res.status === 200 && res.data.desc === 'SUCCESS') {
-          this.tableData = res.data.result.recordList
-          this.orderCount = res.data.result.recordCount
-          console.log('buyData', this.tableData)
+          this.tableData = res.data.result
+          this.tableData.map((item, idx) => {
+            item.createTime = moment(item.createTime * 1000).format('LLL')
+          })
         } else {
           this.tableData = []
         }
@@ -188,44 +189,12 @@ export default {
 
     },
     async confirmReceipt(data) {   //  确认收货
-      let sureParams = {}
-      if (data.authId) {
-        sureParams = {
-          argsList: [
-            { name: "orderId", value: "ByteArray:" + data.orderId }],
-          contractHash: "57a078f603a6894ea4c3688251b981e543fe1cb1",
-          method: "confirm"
-        }
-      } else {
-        sureParams = {
-          argsList: [
-            { name: "orderId", value: "ByteArray:" + data.orderId }],
-          contractHash: "7c2b06ae3e70a470d01ac5ce63017d18b88e08b7",
-          method: "confirm"
-        }
-      }
-
+      let sureParams = { orderId: data.orderId }
       try {
-        let result = await this.$store.dispatch('MakeCommonHash', sureParams)
-        console.log('common', result)
+        let result = await this.$store.dispatch('SureOrder', sureParams)
         if (result.data.desc === 'SUCCESS') {
-          this.commonId = result.data.result.id
-          let message = result.data.result.message
-          message = message.slice(0, message.length - 2)
-          message = Ont.utils.sha256(message)
-          message = Ont.utils.sha256(message)
-          let codeParams = {
-            action: 'signMessage',
-            version: 'v1.0.0',
-            id: result.data.result.id,
-            params: {
-              type: 'ontid',
-              message: message,
-              ishex: true,
-              callback: result.data.result.callback,
-            }
-          }
-          console.log('codeParams', codeParams)
+          this.commonId = result.data.result.appId
+          let codeParams = result.data.result
           let qrparams = {
             params: codeParams,
             isShow: true
@@ -242,7 +211,7 @@ export default {
                 center: true,
                 type: 'success'
               });
-            } else if (result === 3) {
+            } else if (result === 0) {
               clearInterval(this.commonTimer)
               this.$message({
                 message: this.$t('common.delivery_fail'),
@@ -250,7 +219,7 @@ export default {
                 center: true,
                 duration: 2000
               });
-            } else if (result === 4) { clearInterval(this.commonTimer) } else {}
+            } else if (result === 4) { clearInterval(this.commonTimer) } else { }
           }, 3000)
         } else {
           this.$message({
@@ -261,13 +230,7 @@ export default {
           })
         }
       } catch (error) {
-        this.$message({
-          message: error,
-          type: 'error',
-          center: true,
-          duration: 2000
-        })
-        return
+        return false
       }
 
     },
@@ -276,27 +239,22 @@ export default {
       this.getBuyOrder()
     },
     async viewInfo(data) {
-
       console.log('data', data)
-      let transactionParams = {
-        argsList: [
-          { name: 'tokenId', value: data.tokenId }
-        ],
-        contractHash: "3e7d3d82df5e1f951610ffa605af76846802fbae",
-        method: "consumeToken"
-      }
-      let paramsData = {
-        txHex: '',
-        pubKeys: '',
-        sigData: ''
-      }
       try {
-        let res = await this.$store.dispatch('makeTransaction', transactionParams)
-        console.log('makeTransaction', res)
-        // return
+        let res = await this.$store.dispatch('jwtMsg', data.tokenId)
+        // console.log('makeTransaction', res)
         if (res.data.desc === 'SUCCESS') {
-          paramsData.txHex = res.data.result
-          console.log('paramsData', paramsData)
+          let commonId = res.data.result.appId
+          let codeParams = res.data.result
+          let qrparams = {
+            params: codeParams,
+            isShow: true
+          }
+          this.$store.dispatch('changeQrcode', qrparams)
+          clearInterval(this.viewTimer)
+          this.viewTimer = setInterval(() => {
+            this.getdataResult(commonId)
+          }, 3000)
         } else {
           this.$message({
             message: this.$t('common.view_fail'),
@@ -304,10 +262,10 @@ export default {
             center: true,
             duration: 2000
           })
-          return
+          return false
         }
       } catch (error) {
-        console.log(error)
+        throw error
         this.$message({
           message: this.$t('common.view_fail'),
           type: 'error',
@@ -316,52 +274,6 @@ export default {
         })
         return
       }
-
-      try {
-        let message = paramsData.txHex
-        message = message.slice(0, message.length - 2)
-        message = Ont.utils.sha256(message)
-        message = Ont.utils.sha256(message)
-        message = Ont.utils.hexstr2str(message)
-        let signData = await client.api.message.signMessage({ message });
-        paramsData.pubKeys = signData.publicKey
-        paramsData.sigData = signData.data
-      } catch (error) {
-        this.$message({
-          message: this.$t('common.view_fail'),
-          type: 'error',
-          center: true,
-          duration: 2000
-        })
-        return
-      }
-      let params = {
-        id: data.id,
-        ontid: this.accountid,
-        sigVo: paramsData
-      }
-      try {
-        let res = await this.$store.dispatch('checkData', params)
-        console.log('viewInfo', res)
-        if (res.status === 200 && res.data.desc === 'SUCCESS') {
-          this.openMsgBox(res.data.result)
-        } else {
-          this.$message({
-            message: this.$t('common.view_fail'),
-            type: 'error',
-            center: true,
-            duration: 2000
-          })
-        }
-      } catch (error) {
-        this.$message({
-          message: this.$t('common.view_fail'),
-          type: 'error',
-          center: true,
-          duration: 2000
-        })
-      }
-
     },
     openMsgBox(msg) {
       this.$alert(msg, 'Message', {
@@ -470,15 +382,13 @@ export default {
     async viewOther(data) {
       try {
         let res = await this.$store.dispatch('viewOtherInfo', data.tokenId)
-        console.log('viewInfo', res.data.result)
         if (res.status === 200 && res.data.desc === 'SUCCESS') {
-
           let infoCode = res.data.result
           let timer = ''
-          if (+infoCode.expireTimeCount == 1) {
+          if (+infoCode.expireTime == 1) {
             timer = 'everlasting'
           } else {
-            timer = moment(infoCode.expireTimeCount * 1000).format('YYYY-MM-DD HH:mm:ss')
+            timer = moment(infoCode.expireTime * 1000).format('LLL')
           }
           let message = `
             accessCount: ${infoCode.accessCount}
@@ -488,7 +398,6 @@ export default {
           console.log('message', message)
           this.openMsgBox(message)
         } else {
-          console.log('1231')
           this.$message({
             message: this.$t('common.view_fail'),
             type: 'error',
@@ -497,7 +406,7 @@ export default {
           })
         }
       } catch (error) {
-        console.log('error', error)
+        throw error
         this.$message({
           message: this.$t('common.view_fail'),
           type: 'error',
@@ -547,18 +456,72 @@ export default {
     },
     toTokenId(tokenId) {
       this.$router.push({ name: 'TokenDetail', query: { tokenId: tokenId } })
+    },
+    async getdataResult(tok) {
+      if (this.isShow) {
+        try {
+          let res = await this.$store.dispatch('getdataRes', tok)
+          console.log('getdataResult', res)
+          if (res.data.desc === 'SUCCESS') {
+            if (res.data.result.result === '2') {
+              let jwt = res.data.result.jwt
+              this.$message({
+                message: 'Successful',
+                center: true,
+                type: 'success'
+              });
+              this.$store.commit('CHANGE_MODEL_STATE', false)
+              clearInterval(this.viewTimer)
+              let url = process.env.VUE_APP_API + '/api/v1/data/access?token=' + jwt
+              window.open(url, '_self')
+              return true
+            } else if (res.data.result.result === '0') {
+              this.$message({
+                message: this.$t('common.view_fail_to'),
+                center: true,
+                type: 'error'
+              });
+              clearInterval(this.viewTimer)
+              return false
+            } else { }
+          } else {
+            this.$message({
+              message: this.$t('common.view_fail'),
+              center: true,
+              type: 'error'
+            });
+            clearInterval(this.viewTimer)
+            return false
+          }
+        } catch (error) {
+          clearInterval(this.viewTimer)
+          return false
+        }
+      } else {
+        clearInterval(this.viewTimer)
+        return
+      }
+    },
+    downloadfiles(jwt) {
+      console.log('jwt', jwt)
+      try {
+        let url = process.env.VUE_APP_API + '/api/v1/data/access?token=' + jwt
+        console.log('url', url)
+        window.open(url)
+      } catch (error) {
+        throw error
+      }
     }
   },
   async mounted() {
     this.accountid = sessionStorage.getItem("user_ontid")
-    console.log(this.accountid);
     if (!this.accountid) {
       return
     }
     this.getBuyOrder()
   },
   beforeDestroy() {
-    clearInterval(this.commonTimer) 
+    clearInterval(this.commonTimer)
   }
 }
 </script>

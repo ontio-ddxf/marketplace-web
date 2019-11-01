@@ -26,7 +26,6 @@ export default {
   data() {
     return {
       ruleForm: {
-        // ontid: '',
         domain: '',
         checkTimer: null,
         dataId: ''
@@ -45,45 +44,31 @@ export default {
     submitForm(formName) {
       this.$refs[formName].validate(async (valid) => {
         if (valid) {
-          // this.ruleForm.domain = this.ruleForm.domain + '.on.ont'
-          let qrcodeParams = { params: { ontidSign: true } }
-
           try {
             let res = await this.$store.dispatch('sendONS', { userName: this.ruleForm.domain })
             console.log('res', res)
-            // if (res.data.desc === 'SUCCESS') {
-            //   qrcodeParams.action = 'signTransaction'
-            //   qrcodeParams.version = res.data.version
-            //   qrcodeParams.id = res.data.result.id
-            //   qrcodeParams.params.callback = res.data.result.callback
-            //   qrcodeParams.params.qrcodeUrl = res.data.result.qrcodeUrl
-            //   this.dataId = res.data.result.id
-            //   console.log('qrcodeParams', qrcodeParams)
-            //   console.log('dataId', this.dataId)
-            //   let dataParams = {
-            //     params: qrcodeParams,
-            //     isShow: true
-            //   }
-            //   this.$store.dispatch('changeQrcode', dataParams)
-            //   clearInterval(this.checkTimer)
-            //   this.checkTimer = setInterval(() => {
-            //     this.checkResult()
-            //   }, 3000)
-            // } else {
-            //   this.$message({
-            //     message: 'Sign Up Fail!',
-            //     center: true,
-            //     type: 'error'
-            //   });
-            //   return
-            // }
+            if (res.data.desc === 'SUCCESS') {
+              let qrcodeParams = res.data.result
+              this.dataId = res.data.result.appId
+              let dataParams = {
+                params: qrcodeParams,
+                isShow: true
+              }
+              this.$store.dispatch('changeQrcode', dataParams)
+              clearInterval(this.checkTimer)
+              this.checkTimer = setInterval(() => {
+                this.checkResult()
+              }, 3000)
+            } else {
+              this.$message({
+                message: 'Sign Up Fail!',
+                center: true,
+                type: 'error'
+              });
+              return
+            }
           } catch (error) {
-            this.$message({
-              message: 'Sign Up Fail!',
-              center: true,
-              type: 'error'
-            });
-            return
+            return false
           }
         } else {
           console.log('error submit!!');
@@ -98,9 +83,8 @@ export default {
       if (this.isShow) {
         try {
           let res = await this.$store.dispatch('checkSignUp', this.dataId)
-          console.log('checkout', res)
           if (res.data.desc === 'SUCCESS') {
-            if (res.data.result === '1') {
+            if (res.data.result.result === '1') {
               this.$message({
                 message: 'Sign Up Successfuly!',
                 center: true,
@@ -110,10 +94,18 @@ export default {
               this.$store.commit('CHANGE_MODEL_STATE', false)
               // this.$router.push({ path: '/login' })
               return true
-            } else if (res.data.result === '0') {
+            } else if (res.data.result.result === '0') {
               clearInterval(this.checkTimer)
               this.$message({
                 message: 'Sign Up Fail!',
+                center: true,
+                type: 'error'
+              });
+              return false
+            } else if (res.data.result.result === '2') {
+              clearInterval(this.checkTimer)
+              this.$message({
+                message: 'ONT ID Already registered!',
                 center: true,
                 type: 'error'
               });
@@ -131,11 +123,6 @@ export default {
           }
         } catch (error) {
           clearInterval(this.checkTimer)
-          this.$message({
-            message: error,
-            center: true,
-            type: 'error'
-          });
           return false
         }
       } else {
@@ -143,9 +130,6 @@ export default {
       }
 
     }
-  },
-  async mounted() {
-    // this.ruleForm.ontid = await client.api.identity.getIdentity()
   },
   computed: {
     ...mapState({

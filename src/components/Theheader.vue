@@ -26,7 +26,7 @@
         <el-dropdown-menu slot="dropdown" style="top:auto; top: 40px; padding-bottom: 0;">
           <el-dropdown-item command="ordercenter">{{$t('top.order_center')}}</el-dropdown-item>
           <el-dropdown-item command="commoditymanage">{{$t('top.Commodity_Center')}}</el-dropdown-item>
-          <el-dropdown-item command="secondHandCommoditylist">{{$t('top.second_hand_commodity')}}</el-dropdown-item>
+          <!-- <el-dropdown-item command="secondHandCommoditylist">{{$t('top.second_hand_commodity')}}</el-dropdown-item> -->
         </el-dropdown-menu>
       </el-dropdown>
     </div>
@@ -92,24 +92,8 @@ export default {
         let result = await this.$store.dispatch('getLoginMsg')
         console.log('loginmsg', result)
         if (result.data.desc === 'SUCCESS') {
-          this.dataId = result.data.result.id
-          let codeParams = {
-            action: 'onsLogin',
-            version: 'v1.0.0',
-            id: result.data.result.id,
-            params: {
-              // type: 'ontid',
-              // type: 'address',
-              domain: 'on.ont',
-              dappName: 'dapp Name',
-              dappIcon: 'dapp Icon',
-              message: result.data.result.message,
-              domainListUrl: result.data.result.domain_list_url + '/?domain=on.ont&ontid=',
-              callback: result.data.result.callback,
-            }
-          }
-          // ons_list_url
-          // domainListUrl: '/?domain=ont.io&ontid='
+          this.dataId = result.data.result.appId
+          let codeParams = result.data.result
           console.log('codeParams', codeParams)
           let qrparams = {
             params: codeParams,
@@ -126,15 +110,10 @@ export default {
             center: true,
             type: 'error'
           });
-          return
+          return false
         }
       } catch (error) {
-        this.$message({
-          message: error,
-          center: true,
-          type: 'error'
-        });
-        return
+        return false
       }
     },
     toOrder(command) {
@@ -155,30 +134,36 @@ export default {
           let res = await this.$store.dispatch('getLoginRes', this.dataId)
           console.log('getLoginResult', res)
           if (res.data.desc === 'SUCCESS') {
-            if (res.data.result && res.data.result.result === '1') {
-              if (!res.data.result.ons) {
-                this.$message({
-                  message: 'Please Sign Up ONS',
-                  center: true,
-                  type: 'error'
-                });
-                clearInterval(this.getResTimer)
-                return
-              } else {
-                this.$message({
-                  message: 'Sign In Successful',
-                  center: true,
-                  type: 'success'
-                });
-                this.$store.commit('CHANGE_MODEL_STATE', false)
-                clearInterval(this.getResTimer)
-                sessionStorage.setItem("ons", res.data.result.ons)
-                sessionStorage.setItem("user_ontid", res.data.result.ontid)
-                this.userAccount = res.data.result.ons
-                this.$router.push({ path: '/' });
-                return
-              }
-            }
+            if (res.data.result.result === '1') {
+              this.$message({
+                message: 'Sign In Successful',
+                center: true,
+                type: 'success'
+              });
+              this.$store.commit('CHANGE_MODEL_STATE', false)
+              clearInterval(this.getResTimer)
+              sessionStorage.setItem("ons", res.data.result.userName)
+              sessionStorage.setItem("user_ontid", res.data.result.ontid)
+              this.userAccount = res.data.result.userName
+              this.$router.push({ path: '/' });
+              return true
+            } else if (res.data.result.result === '0') {
+              this.$message({
+                message: 'Get Sign In Result Fail!',
+                center: true,
+                type: 'error'
+              });
+              clearInterval(this.getResTimer)
+              return false
+            } else if (res.data.result.result === '2') {
+              this.$message({
+                message: 'Please Sign Up Account',
+                center: true,
+                type: 'error'
+              });
+              clearInterval(this.getResTimer)
+              return false
+            } else { }
           } else {
             this.$message({
               message: 'Get Sign In Result Fail!',
@@ -186,16 +171,11 @@ export default {
               type: 'error'
             });
             clearInterval(this.getResTimer)
-            return
+            return false
           }
         } catch (error) {
-          this.$message({
-            message: error,
-            center: true,
-            type: 'error'
-          });
           clearInterval(this.getResTimer)
-          return
+          return false
         }
       } else {
         clearInterval(this.getResTimer)

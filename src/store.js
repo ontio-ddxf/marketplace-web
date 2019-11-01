@@ -4,6 +4,7 @@ import { client } from 'ontology-dapi'
 import axios from 'axios'
 import LangStorage from './helpers/lang'
 import QRCode from 'qrcode'
+import server from './api/request'
 
 Vue.use(Vuex)
 
@@ -78,7 +79,7 @@ export default new Vuex.Store({
       console.log(params)
       try {
         return await axios.post(
-          `${process.env.VUE_APP_DDXF_API}/api/v1/order/all`,
+          `${process.env.VUE_APP_API}/api/v1/data/query`,
           params
         )
       } catch (error) {
@@ -112,19 +113,17 @@ export default new Vuex.Store({
       let { id } = params
       try {
         return await axios.get(
-          `${process.env.VUE_APP_DDXF_API}/api/v1/dataset/${id}`
+          `${process.env.VUE_APP_API}/api/v1/data/query/${id}`
         )
       } catch (error) {
         return error
       }
     },
     async getBuyOrder({ dispatch, commit }, params) {
-      console.log(params)
-      // let { accountid, pageNum, pageSize } = params;
+      let { type, ontid } = params
       try {
-        return await axios.post(
-          `${process.env.VUE_APP_DDXF_API}/api/v1/order/self`,
-          params
+        return await axios.get(
+          `${process.env.VUE_APP_API}/api/v1/order/query/self/${type}/${ontid}`
         )
       } catch (error) {
         return error
@@ -134,9 +133,7 @@ export default new Vuex.Store({
       let { orderId, accountid } = params
       try {
         return await axios.get(
-          `${
-            process.env.VUE_APP_ORFDER
-          }/api/v1/data-dealer/tools/data?orderId=${orderId}&ontid=did:ont:${accountid}`
+          `${process.env.VUE_APP_ORFDER}/api/v1/data-dealer/tools/data?orderId=${orderId}&ontid=did:ont:${accountid}`
         )
       } catch (error) {
         return error
@@ -146,9 +143,7 @@ export default new Vuex.Store({
       let { accountid, pageNum, pageSize } = params
       try {
         return await axios.get(
-          `${
-            process.env.VUE_APP_ORFDER
-          }/api/v1/data-dealer/tools/orders/1?ontid=did:ont:${accountid}&pageNum=${pageNum}&pageSize=${pageSize}`
+          `${process.env.VUE_APP_ORFDER}/api/v1/data-dealer/tools/orders/1?ontid=did:ont:${accountid}&pageNum=${pageNum}&pageSize=${pageSize}`
         )
       } catch (error) {
         return error
@@ -174,9 +169,7 @@ export default new Vuex.Store({
       try {
         const { ontid, pageNum, pageSize } = params
         return await axios.get(
-          `${
-            process.env.VUE_APP_DDXF_API
-          }/api/v1/certifier/${ontid}?pageNum=${pageNum}&pageSize=${pageSize}`
+          `${process.env.VUE_APP_DDXF_API}/api/v1/certifier/${ontid}?pageNum=${pageNum}&pageSize=${pageSize}`
         )
       } catch (error) {
         return error
@@ -198,9 +191,7 @@ export default new Vuex.Store({
         const { ontid, pageNum, pageSize } = params
         console.log('ontid', ontid)
         return await axios.get(
-          `${
-            process.env.VUE_APP_DDXF_API
-          }/api/v1/dataset/provider/${ontid}?pageNum=${pageNum}&pageSize=${pageSize}`
+          `${process.env.VUE_APP_DDXF_API}/api/v1/dataset/provider/${ontid}?pageNum=${pageNum}&pageSize=${pageSize}`
         )
       } catch (error) {
         return error
@@ -343,9 +334,7 @@ export default new Vuex.Store({
     async queryjuderData({ dispatch, commit }, params) {
       try {
         return await axios.get(
-          `${process.env.VUE_APP_DDXF_API}/api/v1/judger/${
-            params.ontid
-          }?pageNum=${params.pageNum}&pageSize=${params.pageSize}`
+          `${process.env.VUE_APP_DDXF_API}/api/v1/judger/${params.ontid}?pageNum=${params.pageNum}&pageSize=${params.pageSize}`
         )
       } catch (error) {
         return error
@@ -431,10 +420,11 @@ export default new Vuex.Store({
         return error
       }
     },
+    // 查询token剩余流转次数和访问次数
     async viewOtherInfo({ dispatch, commit }, params) {
       try {
         return axios.get(
-          process.env.VUE_APP_DDXF_API + '/api/v1/order/token/balance/' + params
+          process.env.VUE_APP_API + '/api/v1/order/token/balance/' + params
         )
       } catch (error) {
         return error
@@ -477,33 +467,60 @@ export default new Vuex.Store({
         return error
       }
     },
+    // 登录app
     async getLoginMsg({ dispatch, commit }, params) {
       try {
-        return axios.get(process.env.VUE_APP_DDXF_API + '/api/v1/ons/login')
+        return axios.post(process.env.VUE_APP_API + '/api/v1/ontid/login')
       } catch (error) {
         return error
       }
     },
+    // 查询登录结果
     async getLoginRes({ dispatch, commit }, params) {
       try {
         return axios.get(
-          process.env.VUE_APP_DDXF_API + '/api/v1/ons/login/result/' + params
+          process.env.VUE_APP_API + '/api/v1/ontid/login/result/' + params
         )
       } catch (error) {
         return error
       }
     },
-    async sendONS({ dispatch, commit }, params) {
+    // 校验jwt并访问数据
+    async downloadfile({ dispatch, commit }, params) {
       try {
-        return axios.post(process.env.VUE_APP_API + '/api/v1/ontid/register', params)
+        return await axios.get(
+          process.env.VUE_APP_API + '/api/v1/data/access?token=' + params
+        )
       } catch (error) {
         return error
       }
     },
+    // 下载数据结果
+    async getdataRes({ dispatch, commit }, params) {
+      try {
+        return await axios.get(
+          process.env.VUE_APP_API + '/api/v1/back/result/' + params
+        )
+      } catch (error) {
+        return error
+      }
+    },
+    // 注册用户名
+    async sendONS({ dispatch, commit }, params) {
+      try {
+        return axios.post(
+          process.env.VUE_APP_API + '/api/v1/ontid/register',
+          params
+        )
+      } catch (error) {
+        return error
+      }
+    },
+    // 查询注册结果
     async checkSignUp({ dispatch, commit }, params) {
       try {
         return axios.get(
-          process.env.VUE_APP_DDXF_API + '/api/v1/ons/result/' + params
+          process.env.VUE_APP_API + '/api/v1/ontid/register/result/' + params
         )
       } catch (error) {
         return error
@@ -538,22 +555,25 @@ export default new Vuex.Store({
         console.log('state.qrcodeParams.isShow', state.qrcodeParams.isShow)
         if (state.qrcodeParams.isShow) {
           let result = await axios.get(
-            process.env.VUE_APP_DDXF_API + '/api/v1/contract/result/' + params
+            process.env.VUE_APP_API + '/api/v1/back/result/' + params
           )
           console.log('checkout result', result)
           if (result.data.desc === 'SUCCESS') {
-            if (result.data.result === '1') {
+            if (
+              result.data.result.result === '1' ||
+              result.data.result.result === '2'
+            ) {
               commit('CHANGE_MODEL_STATE', false)
               return 1
-            } else if (result.data.result === '2') {
+            } else if (result.data.result.result === '0') {
               commit('CHANGE_MODEL_STATE', false)
-              return 3
+              return 0
             } else {
               return 2
             }
           } else {
             commit('CHANGE_MODEL_STATE', false)
-            return 3
+            return 0
           }
         } else {
           commit('CHANGE_MODEL_STATE', false)
@@ -561,7 +581,7 @@ export default new Vuex.Store({
         }
       } catch (error) {
         commit('CHANGE_MODEL_STATE', false)
-        return 3
+        return 0
       }
     },
     /**
@@ -587,7 +607,7 @@ export default new Vuex.Store({
     async makeOrder({ dispatch, commit }, params) {
       try {
         return await axios.post(
-          process.env.VUE_APP_DDXF_API + '/api/v1/order/purchase',
+          process.env.VUE_APP_API + '/api/v1/order/take',
           params
         )
       } catch (error) {
@@ -628,6 +648,65 @@ export default new Vuex.Store({
       try {
         return await axios.get(
           process.env.VUE_APP_DDXF_API + '/api/v1/claim/postClaim'
+        )
+      } catch (error) {
+        return error
+      }
+    },
+    uploadFile({ dispatch, commit }, params) {
+      let data = params.file
+      try {
+        return server.post(
+          process.env.VUE_APP_API +
+            '/api/v1/data/dataId/register?ontid=' +
+            params.ontid,
+          data,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          }
+        )
+      } catch (error) {
+        return error
+      }
+    },
+    async getComList({ dispatch, commit }, params) {
+      try {
+        return axios.get(
+          process.env.VUE_APP_API + '/api/v1/data/query/self/' + params
+        )
+      } catch (error) {
+        return error
+      }
+    },
+    // 上架授权
+    async ShelfAuthorization({ dispatch, commit }, params) {
+      try {
+        return axios.post(
+          process.env.VUE_APP_API + '/api/v1/order/auth',
+          params
+        )
+      } catch (error) {
+        return error
+      }
+    },
+    // 确认订单
+    async SureOrder({ dispatch, commit }, params) {
+      try {
+        return axios.post(
+          process.env.VUE_APP_API + '/api/v1/order/confirm',
+          params
+        )
+      } catch (error) {
+        return error
+      }
+    },
+    // 校验DataToken并凭借DataToken生成jwt
+    async jwtMsg({ dispatch, commit }, params) {
+      try {
+        return axios.post(
+          process.env.VUE_APP_API + '/api/v1/data/token/' + params
         )
       } catch (error) {
         return error

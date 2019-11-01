@@ -20,31 +20,21 @@
         <p>{{$t('common.commodity_name')}}:</p>
         {{orderData.name}}
       </div>
-      <!-- 图片 -->
-      <div class="item">
-        <p>{{$t('common.thumbnail')}}:</p>
-        <img v-if="orderData.img" :src="orderData.img" alt />
-        <img v-else src="https://ont.io/upload_img/20190420001238_417.png" alt />
-      </div>
       <div class="item">
         <p>{{$t('common.tag')}}:</p>
-        <el-tag v-for="(item, idx) in orderData.keywords" :key="idx">{{item}}</el-tag>
+        <el-tag v-for="(item, idx) in orderData.tags" :key="idx">{{item}}</el-tag>
       </div>
       <div class="item">
         <p>{{$t('common.coin')}}:</p>ONG
       </div>
       <div class="item" v-show="orderData.price">
         <p>{{$t('common.price')}}:</p>
-        {{orderData.price}}
+        {{orderData.price * Math.pow(10, -9)}}
       </div>
       <!-- 描述 -->
-      <div class="item">
+      <div class="item" v-if="orderData.desc">
         <p>{{$t('common.description')}}:</p>
         {{orderData.desc}}
-      </div>
-      <div class="item">
-        <p>{{$t('common.certification_status')}}:</p>
-        <el-tag type="success">{{$t('common.verified')}}</el-tag>
       </div>
       <div class="item">
         <p>{{$t('common.number')}}:</p>
@@ -61,7 +51,7 @@
       </div>
       <div class="item">
         <p>{{$t('common.create_time')}}:</p>
-        {{orderData.createTime}}
+        {{orderData.createTime | formatTime}}
       </div>
     </div>
     <el-button type="success" :disabled="signing" @click="toBuy()" round>{{$t('common.buy')}}</el-button>
@@ -70,14 +60,16 @@
 
 <script>
 import { client } from 'ontology-dapi'
-// import { OntidContract, TransactionBuilder, TxSignature, Identity, Crypto, RestClient, utils } from 'ontology-ts-sdk';
+import moment from 'moment'
 
 export default {
   data() {
     return {
       signing: false,
       OJlist: null,
-      orderData: null,
+      orderData: {
+        name: ''
+      },
       address: null,
       ontid: null,
       orderHashId: null,
@@ -85,10 +77,9 @@ export default {
     }
   },
   created() {
-    this.orderData = JSON.parse(sessionStorage.getItem('orderData'))
-    console.log('this.orderData', this.orderData)
+    let data_id = this.$route.query.commodityId
+    this.getDetail(data_id)
     if (sessionStorage.getItem("user_ontid")) {
-      this.address = sessionStorage.getItem("user_ontid").substring(8)
       this.ontid = sessionStorage.getItem("user_ontid")
     }
   },
@@ -107,230 +98,87 @@ export default {
         });
         return
       }
-      if (!this.OJlist) {
-        this.$message({
-          message: this.$t('common.select') + ' ' + this.$t('common.judger'),
-          type: 'error',
-          center: true,
-          duration: 2000
-        })
-        return
+      let dataParams = {
+        authId: this.orderData.authId,
+        demander: sessionStorage.getItem('user_ontid'),
+        price: this.orderData.price,
+        provider: this.orderData.ontid,
+        tokenAmount: 1
       }
-      let params = {}
-      let sureParams = {}
-      if (this.orderData.authId) {
-        params = {
-          argsList: [
-            { name: "authId", "value": "ByteArray:" + this.orderData.authId },
-            { name: "takerReceiveAddress", "value": "Address:" + this.address },
-            { name: "tokenAmount", "value": 1 },
-            { name: "OJ", "value": "Address:" + this.OJlist.substring(8) }
-          ],
-          contractHash: "57a078f603a6894ea4c3688251b981e543fe1cb1",
-          method: "takeOrder"
-        }
-        console.log('params', params)
-        // return
-        let buyDataParams = {
-          id: this.orderData.id,
-          demanderOntid: this.ontid,
-          demanderAddress: this.address,
-          judger: this.OJlist,
-          name: this.orderData.name,
-          desc: this.orderData.desc,
-          img: this.orderData.img,
-          keywords: this.orderData.keywords,
-          contractVo: params
-        }
 
-        sureParams = {
-          argsList: [
-            // { name: "orderId", value: "ByteArray:" + data.orderId }],
-            { name: "orderId", value: "ByteArray:" + this.orderData.authId }],  // to do
-          contractHash: "57a078f603a6894ea4c3688251b981e543fe1cb1",
-          method: "confirm"
-        }
-
-
-
-
-        try {
-          let result = await this.$store.dispatch('makeOrder', buyDataParams)
-          console.log('orderResult', result)
-          if (result.data.desc === 'SUCCESS') {
-            this.orderHashId = result.data.result.id
-            let message = result.data.result.message
-            message = message.slice(0, message.length - 2)
-            message = Ont.utils.sha256(message)
-            message = Ont.utils.sha256(message)
-            let codeParams = {
-              action: 'signMessage',
-              version: 'v1.0.0',
-              id: result.data.result.id,
-              params: {
-                type: 'ontid',
-                message: message,
-                ishex: true,
-                callback: result.data.result.callback,
-              }
-            }
-            console.log('codeParams', codeParams)
-            let qrparams = {
-              params: codeParams,
-              isShow: true
-            }
-            this.$store.dispatch('changeQrcode', qrparams)
-            clearInterval(this.hashTimer)
-            this.hashTimer = setInterval(async () => {
-              let result = await this.$store.dispatch('getCheckRes', this.orderHashId)
-              console.log('result orjs', result)
-              if (result === 1) {
-                clearInterval(this.hashTimer)
-                this.$message({
-                  message: this.$t('common.buy_suc'),
-                  center: true,
-                  type: 'success'
-                });
-                this.$router.push({ path: '/' })
-              } else if (result === 3) {
-                clearInterval(this.hashTimer)
-                this.$message({
-                  message: this.$t('common.buy_fail'),
-                  type: 'error',
-                  center: true,
-                  duration: 2000
-                });
-              } else if (result === 4) { clearInterval(this.hashTimer) } else {}
-            }, 3000)
-          } else {
-            this.$message({
-              message: this.$t('common.buy_fail'),
-              type: 'error',
-              center: true,
-              duration: 2000
-            })
-            return false
+      try {
+        let result = await this.$store.dispatch('makeOrder', dataParams)
+        console.log('result', result)
+        if (result.data.desc === 'SUCCESS') {
+          this.orderHashId = result.data.result.appId
+          let codeParams = result.data.result
+          console.log('codeParams', codeParams)
+          let qrparams = {
+            params: codeParams,
+            isShow: true
           }
-        } catch (error) {
+          this.$store.dispatch('changeQrcode', qrparams)
+          clearInterval(this.hashTimer)
+          this.hashTimer = setInterval(async () => {
+            let result = await this.$store.dispatch('getCheckRes', this.orderHashId)
+            console.log('result orjs', result)
+            if (result === 1) {
+              clearInterval(this.hashTimer)
+              this.$message({
+                message: this.$t('common.buy_suc'),
+                center: true,
+                type: 'success'
+              });
+              this.$router.push({ path: '/' })
+            } else if (result === 0) {
+              clearInterval(this.hashTimer)
+              this.$message({
+                message: this.$t('common.buy_fail'),
+                type: 'error',
+                center: true,
+                duration: 2000
+              });
+            } else if (result === 4) { clearInterval(this.hashTimer) } else { }
+          }, 3000)
+        } else {
           this.$message({
-            message: error,
+            message: this.$t('common.buy_fail'),
             type: 'error',
             center: true,
             duration: 2000
           })
           return false
         }
+      } catch (error) {
+        return error
+      }
+    },
+    async getDetail(id) {
+      let params = {
+        id
+      }
+      try {
+        let res = await this.$store.dispatch('getCommodityDetail', params)
+        console.log(res)
+        if (res.status === 200 && res.data.desc === 'SUCCESS') {
+          this.orderData = res.data.result
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    },
+  },
+  filters: {
+    formatTime(val) {
+      if (!val) {
+        return ''
       } else {
-        sureParams = {
-          argsList: [
-            // { name: "orderId", value: "ByteArray:" + data.orderId }],
-            { name: "orderId", value: "ByteArray:" + this.orderData.authId }],  // to do
-          contractHash: "7c2b06ae3e70a470d01ac5ce63017d18b88e08b7",
-          method: "confirm"
-        }
-        params = {
-          argsList: [
-            { name: "orderId", "value": "ByteArray:" + this.orderData.orderId },
-            { name: "takerReceiveAddress", "value": "Address:" + this.address },
-            { name: "txFeeAmount", "value": this.orderData.price * Math.pow(10, 9) * 0.1 },
-            { name: "OJ", "value": "Address:" + this.OJlist.substring(8) }
-          ],
-          contractHash: "7c2b06ae3e70a470d01ac5ce63017d18b88e08b7",
-          method: "takeOrder"
-        }
-        console.log('params', params)
-        // return
-        let buyDataParams = {
-          id: this.orderData.id,
-          demanderOntid: this.ontid,
-          demanderAddress: this.address,
-          judger: this.OJlist,
-          sigVo: {
-            txHex: '',
-            pubKeys: '',
-            sigData: ''
-          }
-        }
-        try {
-          let res = await this.$store.dispatch('makeTransaction', params)
-          console.log('makeTransaction', res)
-          if (res.data.desc === 'SUCCESS') {
-            buyDataParams.sigVo.txHex = res.data.result
-          } else {
-            this.$message({
-              message: this.$t('common.buy_fail'),
-              type: 'error',
-              center: true,
-              duration: 2000
-            })
-            return false
-          }
-        } catch (error) {
-          this.$message({
-            message: this.$t('common.buy_fail'),
-            type: 'error',
-            center: true,
-            duration: 2000
-          })
-          return false
-        }
-
-        try {
-          let message = buyDataParams.sigVo.txHex
-          message = message.slice(0, message.length - 2)
-          message = Ont.utils.sha256(message)
-          message = Ont.utils.sha256(message)
-          message = Ont.utils.hexstr2str(message)
-          let signData = await client.api.message.signMessage({ message });
-          buyDataParams.sigVo.pubKeys = signData.publicKey
-          buyDataParams.sigVo.sigData = signData.data
-        } catch (error) {
-          this.$message({
-            message: this.$t('common.buy_fail'),
-            type: 'error',
-            center: true,
-            duration: 2000
-          })
-          return false
-        }
-        console.log('buyDataParams', buyDataParams)
-
-        try {
-          let res = await this.$store.dispatch('buySecondHandData', buyDataParams)
-          console.log('buySecondHandData', res)
-          if (res.data.desc == 'SUCCESS' && res.data.result) {
-            this.$message({
-              message: this.$t('common.buy_suc'),
-              type: 'success',
-              center: true,
-              duration: 2000
-            })
-            this.$router.push({ path: '/' })
-          } else {
-            console.log('error222')
-            this.$message({
-              message: this.$t('common.buy_fail'),
-              type: 'error',
-              center: true,
-              duration: 2000
-            })
-            return false
-          }
-        } catch (error) {
-          console.log('error', error)
-          this.$message({
-            message: this.$t('common.buy_fail'),
-            type: 'error',
-            center: true,
-            duration: 2000
-          })
-          return false
-        }
+        return moment(val * 1000).format('LLL')
       }
     }
   },
   beforeDestroy() {
-   clearInterval(this.hashTimer) 
+    clearInterval(this.hashTimer)
   }
 }
 </script>
@@ -345,10 +193,11 @@ export default {
     text-align: left;
     margin-bottom: 20px;
     .item {
+      margin-bottom: 30px;
       p {
         font-size: 22px;
         color: #000;
-        line-height: 28px;
+        line-height: 34px;
       }
       img {
         width: 160px;

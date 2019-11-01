@@ -17,14 +17,14 @@
           <template slot-scope="scope">
             <el-tag
               style="margin-right: 10px;"
-              v-for="(item, idx) in scope.row.keywords"
+              v-for="(item, idx) in scope.row.tags"
               :key="idx"
             >{{item}}</el-tag>
           </template>
         </el-table-column>
         <el-table-column align="center" :label="tableLang.coin" width="100">ONG</el-table-column>
-        <el-table-column prop="price" align="center" :label="tableLang.price" width="100"></el-table-column>
-        <el-table-column prop="createTime" align="center" :label="tableLang.date" width="240"></el-table-column>
+        <el-table-column prop="price" align="center" :label="tableLang.price" width="200"></el-table-column>
+        <el-table-column prop="date" align="center" :label="tableLang.date" width="240"></el-table-column>
         <el-table-column :label="tableLang.operating" align="center" width="140">
           <template slot-scope="scope">
             <el-button
@@ -49,6 +49,7 @@
 </template>
 
 <script>
+import moment from 'moment'
 export default {
   data() {
     return {
@@ -56,7 +57,7 @@ export default {
       searchText: '',
       tableData: [],
       pageSize: 10,
-      currentPage: 0,
+      currentPage: 1,
       tableLang: {
         name: this.$t('common.commodity_name'),
         tags: this.$t('common.tags'),
@@ -71,33 +72,27 @@ export default {
     handleClick(row) {
       console.log(row)
       sessionStorage.setItem('orderData', JSON.stringify(row))
-      this.$router.push({ path: 'orderdetail' });
+      this.$router.push({ path: 'orderdetail', query: { commodityId: row.id } });
     },
     searchClick() {
-      this.currentPage = 0
+      this.currentPage = 1
       this.getSearch()
     },
-    async getSearch(pageNum = 0) {
+    async getSearch(pageNum = 1) {
       let params = {
-        pageNum,
+        pageNumber: pageNum,
         pageSize: this.pageSize,
-        queryParams: [
-          {
-            percent: 100,
-            text: this.searchText
-          }
-        ]
+        tag: this.searchText
       }
       try {
         let res = await this.$store.dispatch('getCommodityList', params)
-        console.log(res)
-
         if (res.status === 200 && res.data.desc === 'SUCCESS') {
-          this.tableData = res.data.result.recordList
+          this.tableData = res.data.result.list
           this.tableData.map((item, idx) => {
+            item.date = moment(item.date * 1000).format('LLL')
             item.price = item.price * Math.pow(10, -9)
           })
-          this.recordCount = res.data.result.recordCount
+          this.recordCount = res.data.result.count
           console.log('this.tableData', this.tableData)
         } else {
           this.tableData = []
@@ -107,11 +102,11 @@ export default {
       }
     },
     handleCurrentChange(val) {
-      this.getSearch(val - 1)
-      this.currentPage = val - 1
+      this.getSearch(val)
+      this.currentPage = val
     },
     indexMethod(index) {
-      return this.currentPage * this.pageSize + index + 1;
+      return this.currentPage + index;
     }
   },
   mounted() {

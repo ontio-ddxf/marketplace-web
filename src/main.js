@@ -33,7 +33,9 @@ import {
   Checkbox,
   CheckboxGroup,
   MessageBox,
-  Radio
+  Radio,
+  Upload,
+  Loading
 } from 'element-ui'
 Vue.use(Pagination)
 Vue.use(Table)
@@ -62,9 +64,12 @@ Vue.use(DatePicker)
 Vue.use(Checkbox)
 Vue.use(CheckboxGroup)
 Vue.use(Radio)
+Vue.use(Upload)
+Vue.use(Loading)
 Vue.prototype.$message = Message
 Vue.prototype.$confirm = MessageBox.confirm
 Vue.prototype.$prompt = MessageBox.prompt
+Vue.prototype.$alert = MessageBox.alert;
 // import 'element-ui/lib/theme-chalk/index.css'
 import axios from 'axios'
 import { client } from 'ontology-dapi'
@@ -81,6 +86,7 @@ const i18n = new VueI18n({
   }
 })
 // axios.defaults.baseURL = 'http://192.168.50.96:8182'
+axios.defaults.timeout = 10000
 //http request 拦截器
 axios.interceptors.request.use(
   config => {
@@ -101,14 +107,15 @@ axios.interceptors.response.use(
     return response
   },
   error => {
-    const rest = error.response;
+    const rest = error.response
+    // console.log(rest)
     if (rest) {
       if (rest.status === 400) {
         // 提示错误
-        Message({ message: rest.data.desc, type: "error" });
+        Message({ message: rest.data.desc, type: 'error' })
       }
     } else {
-      Message({ message: error, type: "error" });
+      Message({ message: error, type: 'error' })
     }
     console.error('err' + error) // for debug
     return Promise.reject(error)

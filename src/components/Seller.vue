@@ -2,9 +2,9 @@
   <div>
     <el-table border :data="tableData" style="width: 100%" :empty-text="$t('common.no_data')">
       <el-table-column type="index" :index="indexMethod" align="center"></el-table-column>
-      <el-table-column prop="demander" :label="tableLang.buyer" width="260" align="center"></el-table-column>
-      <el-table-column prop="orderId" :label="tableLang.order_num" width="260" align="center"></el-table-column>
-      <el-table-column label="dataId" width="360" align="center">
+      <el-table-column prop="demander" :label="tableLang.buyer" align="center"></el-table-column>
+      <el-table-column prop="orderId" :label="tableLang.order_num" align="center"></el-table-column>
+      <!-- <el-table-column label="dataId" width="360" align="center">
         <template slot-scope="scope">
           <el-button
             @click="toDataIDList(scope.row.dataId)"
@@ -12,38 +12,39 @@
             type="primary"
           >{{scope.row.dataId}}</el-button>
         </template>
-      </el-table-column>
-      <el-table-column label="tokenId" width="100" align="center">
+      </el-table-column>-->
+      <el-table-column label="Token ID" width="200" align="center">
         <template slot-scope="scope">
-          <el-button
+          <!-- <el-button
             @click="toTokenId(scope.row.tokenId)"
             size="mini"
             type="primary"
-          >{{scope.row.tokenId}}</el-button>
+          >{{scope.row.tokenId}}</el-button>-->
+          <el-button size="mini" type="primary">{{scope.row.tokenId}}</el-button>
         </template>
       </el-table-column>
-      <el-table-column prop="boughtTime" :label="tableLang.buy_date" width="180" align="center"></el-table-column>
+      <el-table-column prop="createTime" :label="tableLang.buy_date" width="280" align="center"></el-table-column>
       <el-table-column :label="tableLang.state" width="180" align="center">
         <template slot-scope="scope">
-          <el-tag size="medium" type="info" v-if="scope.row.state == 1">{{$t('common.sold')}}</el-tag>
+          <el-tag size="medium" type="info" v-if="scope.row.state == 1">{{$t('common.sold_out')}}</el-tag>
           <el-tag
             size="medium"
             type="info"
             v-else-if="scope.row.state == 2"
-          >{{$t('common.sold_out')}}</el-tag>
-          <el-tag
+          >{{$t('common.order_over')}}</el-tag>
+          <!-- <el-tag
             size="medium"
             type="info"
-            v-else-if="scope.row.state == 3"
-          >{{$t('common.order_over')}}</el-tag>
+            v-else-if="scope.row.state == 2"
+          >{{$t('common.sold_out')}}</el-tag>
           <el-tag size="medium" type="info" v-else-if="scope.row.state == 4">{{$t('common.appeal')}}</el-tag>
-          <el-tag size="medium" type="info" v-else>{{$t('common.apple_end')}}</el-tag>
+          <el-tag size="medium" type="info" v-else>{{$t('common.apple_end')}}</el-tag>-->
         </template>
       </el-table-column>
       <el-table-column :label="tableLang.operating" width="180" align="center">
         <template slot-scope="scope">
           <el-button
-            v-show="scope.row.state == 2 && scope.row.isExpired == 1"
+            v-show="scope.row.state == 1 && scope.row.isExpire"
             @click="collectMoney(scope.row)"
             type="primary"
           >{{$t('common.receipt')}}</el-button>
@@ -51,7 +52,7 @@
       </el-table-column>
     </el-table>
 
-    <div class="paginatio">
+    <!-- <div class="paginatio">
       <el-pagination
         @current-change="handleCurrentChange"
         background
@@ -59,14 +60,14 @@
         :total="orderCount"
         :page-size="pageSize"
       ></el-pagination>
-    </div>
+    </div>-->
   </div>
 </template>
 
 <script>
 import { client } from 'ontology-dapi'
 import { Base64 } from 'js-base64'
-// import { OntidContract, TransactionBuilder, TxSignature, Identity, Crypto, RestClient, utils } from 'ontology-ts-sdk';
+import moment from 'moment'
 
 export default {
   data() {
@@ -83,7 +84,9 @@ export default {
       accountid: '',
       orderCount: 0,
       pageSize: 10,
-      pageNum: 0
+      pageNum: 0,
+      commonId: '',
+      commonTimer: null
     }
   },
   methods: {
@@ -150,57 +153,59 @@ export default {
       return (this.pageNum) * this.pageSize + index + 1
     },
     async getSellOrder() {
-      let params = {
-        ontid: this.accountid,
-        pageNum: this.pageNum,
-        pageSize: this.pageSize,
-        type: 2
-      }
       try {
-        // this.$store.dispatch('getSellOrderData', params)
+        let params = {
+          ontid: this.accountid,
+          type: 1
+        }
         let res = await this.$store.dispatch('getBuyOrder', params)
-        console.log('sellerorder', res)
-        if (res.status === 200 && res.data.msg === 'SUCCESS') {
-          this.tableData = res.data.result.recordList
-          this.orderCount = res.data.result.recordCount
+        if (res.status === 200 && res.data.desc === 'SUCCESS') {
+          this.tableData = res.data.result
+          this.tableData.map((item, idx) => {
+            item.createTime = moment(item.createTime * 1000).format('LLL')
+          })
         } else {
           this.tableData = []
         }
       } catch (error) {
+        console.error(error)
         this.tableData = []
-        console.log(error)
       }
     },
     async collectMoney(data) {
-      let sureParams = {}
-      if (data.authId) {
-        sureParams = {
-          argsList: [
-            { name: "orderId", value: "ByteArray:" + data.orderId }],
-          contractHash: "57a078f603a6894ea4c3688251b981e543fe1cb1",
-          method: "confirm"
-        }
-      } else {
-        sureParams = {
-          argsList: [
-            { name: "orderId", value: "ByteArray:" + data.orderId }],
-          contractHash: "7c2b06ae3e70a470d01ac5ce63017d18b88e08b7",
-          method: "confirm"
-        }
-      }
-      console.log('sureParams', sureParams)
-      let paramsData = {
-        txHex: '',
-        pubKeys: '',
-        sigData: ''
-      }
+      let sureParams = { orderId: data.orderId }
       try {
-        let res = await this.$store.dispatch('makeTransaction', sureParams)
-        console.log('makeTransaction', res)
-        // return
-        if (res.data.desc === 'SUCCESS') {
-          paramsData.txHex = res.data.result
-          console.log('paramsData', paramsData)
+        let result = await this.$store.dispatch('SureOrder', sureParams)
+        if (result.data.desc === 'SUCCESS') {
+          this.commonId = result.data.result.appId
+          let codeParams = result.data.result
+          let qrparams = {
+            params: codeParams,
+            isShow: true
+          }
+          this.$store.dispatch('changeQrcode', qrparams)
+          clearInterval(this.commonTimer)
+          this.commonTimer = setInterval(async () => {
+            let result = await this.$store.dispatch('getCheckRes', this.commonId)
+            console.log('result orjs', result)
+            if (result === 1) {
+              clearInterval(this.commonTimer)
+              this.$message({
+                message: this.$t('common.receipt_suc'),
+                center: true,
+                type: 'success'
+              });
+              this.getSellOrder()
+            } else if (result === 0) {
+              clearInterval(this.commonTimer)
+              this.$message({
+                message: this.$t('common.receipt_fail'),
+                type: 'error',
+                center: true,
+                duration: 2000
+              });
+            } else if (result === 4) { clearInterval(this.commonTimer) } else { }
+          }, 3000)
         } else {
           this.$message({
             message: this.$t('common.receipt_fail'),
@@ -208,67 +213,10 @@ export default {
             center: true,
             duration: 2000
           })
-          return
         }
       } catch (error) {
-        console.log(error)
-        this.$message({
-          message: this.$t('common.receipt_fail'),
-          type: 'error',
-          center: true,
-          duration: 2000
-        })
-        return
-      }
-
-      try {
-        let message = paramsData.txHex
-        message = message.slice(0, message.length - 2)
-        message = Ont.utils.sha256(message)
-        message = Ont.utils.sha256(message)
-        message = Ont.utils.hexstr2str(message)
-        let signData = await client.api.message.signMessage({ message });
-        paramsData.pubKeys = signData.publicKey
-        paramsData.sigData = signData.data
-      } catch (error) {
-        this.$message({
-          message: this.$t('common.receipt_fail'),
-          type: 'error',
-          center: true,
-          duration: 2000
-        })
-        return
-      }
-
-      console.log('paramsData', paramsData)
-
-      try {
-        let res = await this.$store.dispatch('sendPass', paramsData)
-        console.log('sendPass', res)
-        if (res.data.desc === 'SUCCESS') {
-          this.$message({
-            message: this.$t('common.receipt_suc'),
-            type: 'success',
-            center: true,
-            duration: 2000
-          })
-        } else {
-          this.$message({
-            message: this.$t('common.receipt_fail'),
-            type: 'error',
-            center: true,
-            duration: 2000
-          })
-          return
-        }
-      } catch (error) {
-        this.$message({
-          message: this.$t('common.receipt_fail'),
-          type: 'error',
-          center: true,
-          duration: 2000
-        })
-        return
+        throw error
+        return false
       }
     },
     handleCurrentChange(val) {

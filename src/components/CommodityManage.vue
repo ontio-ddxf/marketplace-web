@@ -1,7 +1,7 @@
 <template>
   <div class="commoditymanage_box">
     <div class="msg">
-      <div style="overflow: hidden;">
+      <div style="overflow: hidden; margin-bottom: 50px;">
         <el-button
           @click="$router.go(-1)"
           type="primary"
@@ -15,93 +15,78 @@
           style="float: right"
         >{{$t('common.to_home')}}</el-button>
       </div>
-      <div class="msg_item">
+      <!-- <div class="msg_item">
         <p>{{$t('common.kyc')}}</p>
-        <p>KYC: www.baidu.com</p>
+        <p>KYC: https://ont.io/</p>
         <p>
           {{$t('common.not_certified')}}
           <el-link type="danger" @click="certificatKYC()">{{$t('common.to_cer')}}</el-link>
         </p>
-      </div>
-      <div class="msg_item">
-        <p>Wallet Address</p>
-        <p v-if="address">{{address}}</p>
-        <p v-else>
-          <el-link type="danger" @click="walletAddress()">{{$t('common.get_add')}}</el-link>
-        </p>
-      </div>
-      <el-button
-        style="margin-bottom: 20px;"
-        @click="toAddData()"
-        type="primary"
-      >{{$t('common.add_data')}}</el-button>
-      <el-button style="margin-bottom: 20px;" @click="getClaim()" type="primary">Get Claim</el-button>
-      <!-- <el-button style="margin-bottom: 20px;" @click="postClaim()" type="primary">Post Claim</el-button> -->
+      </div> -->
+      <el-upload
+        ref="upload"
+        class="upload-demo"
+        action
+        :on-preview="handlePreview"
+        :on-remove="handleRemove"
+        :before-upload="beforeAvatarUpload"
+        :http-request="fileupload"
+        :on-exceed="handleExceed"
+        :limit="limit"
+        :file-list="fileList"
+      >
+        <el-button size="small" type="primary">{{$t('common.add_data')}}</el-button>
+        <div slot="tip" class="el-upload__tip">Only Txt file</div>
+      </el-upload>
     </div>
-    <div class="table_box">
+    <div class="table_box" style="margin-top: 60px;">
       <el-table :data="tableData" border style="width: 100%" :empty-text="$t('common.no_data')">
         <el-table-column type="index" align="center" width="50" :index="indexMethod"></el-table-column>
-        <el-table-column prop="data.name" align="center" :label="tableLang.name" width="180"></el-table-column>
+        <el-table-column prop="name" align="center" :label="tableLang.name" width="180"></el-table-column>
         <el-table-column align="center" :label="tableLang.tags">
           <template slot-scope="scope">
             <el-tag
               style="margin-right: 10px;"
-              v-for="(item, idx) in scope.row.data.keywords"
+              v-for="(item, idx) in scope.row.tags"
               :key="idx"
             >{{item}}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column align="center" :label="tableLang.state" width="150">
+        <el-table-column align="center" label="Data ID" width="380">
           <template slot-scope="scope">
-            <el-tag
-              style="margin-right: 10px;"
-              type="info"
-              v-if="scope.row.isCertificated === 0"
-            >{{$t('common.no_cert')}}</el-tag>
-            <el-tag style="margin-right: 10px;" v-else type="success">{{$t('common.verified')}}</el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column align="center" label="dataId" width="380">
-          <template slot-scope="scope">
-            <el-button
+            <!-- <el-button
               v-if="scope.row.dataId"
               @click="toDataIDList(scope.row.dataId)"
               size="mini"
               type="primary"
-            >{{scope.row.dataId}}</el-button>
+            >{{scope.row.dataId}}</el-button>-->
+            <el-button v-if="scope.row.dataId" size="mini" type="primary">{{scope.row.dataId}}</el-button>
           </template>
         </el-table-column>
-        <el-table-column prop="createTime" align="center" :label="tableLang.date" width="200"></el-table-column>
+        <el-table-column prop="createTime" align="center" :label="tableLang.date" width="260"></el-table-column>
         <el-table-column :label="tableLang.operating" align="center" width="400">
           <template slot-scope="scope">
-            <!-- <el-button @click="dialog(scope.row)" type="primary" round size="small">DataId</el-button> -->
             <el-button
+             v-if="scope.row.state === 2"
               @click="handleClick(scope.row)"
               type="primary"
               round
               size="small"
             >{{$t('common.detail')}}</el-button>
-            <!-- <el-button
-              @click="prodOperat(scope.row)"
-              v-if="scope.row.state === '1' || scope.row.state === '3' || scope.row.state === '4'"
-              type="warning"
-              round
-              size="small"
-            >{{$t('common.pending_order')}}</el-button>-->
             <el-button
+              v-else
               @click="prodOperat(scope.row)"
               type="warning"
               round
               size="small"
-              v-if="!scope.row.dataId"
             >{{$t('common.pending_order')}}</el-button>
-            <el-button
+            <!-- <el-button
               v-if="scope.row.state === '2'"
               round
               size="small"
               @click="withdrawal(scope.row)"
               type="danger"
-            >{{$t('common.withdrawal')}}</el-button>
+            >{{$t('common.withdrawal')}}</el-button>-->
           </template>
         </el-table-column>
       </el-table>
@@ -145,7 +130,6 @@
 
 <script>
 import { client } from 'ontology-dapi'
-// import { OntidContract, TransactionBuilder, TxSignature, Identity, Crypto, RestClient, utils } from 'ontology-ts-sdk';
 
 import { TEST_NET } from '../assets/control'
 import { sha256 } from 'js-sha256'
@@ -210,7 +194,11 @@ export default {
       getClaimTimer: '',
       postClaimId: '',
       postClaimTimer: '',
-      isClaim: ''
+      isClaim: '',
+      uploadfileTimer: null,
+      fileId: '',
+      limit: 1,
+      fileList: []
     }
   },
   methods: {
@@ -242,7 +230,7 @@ export default {
       // } else {
       //   this.postClaim()
       // }
-        this.postClaim()
+      // this.postClaim()
     },
     indexMethod(idx) {
       return idx + 1
@@ -250,16 +238,19 @@ export default {
     async getSellData() {
       try {
 
-        let params = {
-          ontid: this.ontid,
-          pageNum: 0,
-          pageSize: 10
-        }
-        console.log(params)
-        let res = await this.$store.dispatch('getSellData', params)
+        // let params = {
+        //   ontid: this.ontid,
+        //   pageNum: 0,
+        //   pageSize: 10
+        // }
+        // console.log(params)
+        let res = await this.$store.dispatch('getComList', this.ontid)
         console.log(res);
         if (res.status === 200 && res.data.desc === 'SUCCESS') {
-          this.tableData = res.data.result.recordList
+          this.tableData = res.data.result
+          this.tableData.map((item, idx) => {
+            item.createTime = moment(item.createTime * 1000).format('LLL')
+          })
         } else {
           this.tableData = []
         }
@@ -268,8 +259,7 @@ export default {
       }
     },
     handleClick(row) {
-      sessionStorage.setItem('isCert', 3)
-      this.$router.push({ path: 'commoditydetail', query: { commodityId: row.id } });
+      this.$router.push({ path: 'orderdetail', query: { commodityId: row.id } });
     },
     toEditData(row) {
       if (row.state == 1) {
@@ -298,59 +288,6 @@ export default {
       console.log('params0', params0)
       let result = await this.$store.dispatch('getTID', params0)
       console.log('result', result)
-      // let orderParams = {
-      //   id: this.cortData.id,
-      //   token: "ong",
-      //   price: 1000000000,
-      //   amount: 1,
-      //   ojList: ['did:ont:AN3H8EAC5AtSkXqG3VbXobyeS9tTbNz4S2'],  // to do
-      //   contractVo: {
-      //     argsList: [{
-      //       name: "dataId",
-      //       value: "String:" + identity.ontid  
-      //     }, {
-      //       name: "index",
-      //       value: 1
-      //     }, {
-      //       name: "symbol",
-      //       value: "String:aaa"
-      //     }, {
-      //       name: "name",
-      //       value: "String:bbb"
-      //     }, {
-      //       name: "authAmount",
-      //       value: 1
-      //     }, {
-      //       name: "price",
-      //       value: 1000000000
-      //     }, {
-      //       name: "transferCount",
-      //       value: 1
-      //     }, {
-      //       name: "accessCount",
-      //       value: 99
-      //     }, {
-      //       name: "expireTime",
-      //       value: 0
-      //     }, {
-      //       name: "makerTokenHash",
-      //       value: "ByteArray:3e7d3d82df5e1f951610ffa605af76846802fbae"
-      //     }, {
-      //       name: "makerReceiveAddress",
-      //       value: "Address:" + this.ontid.substring(8)
-      //     }, {
-      //       name: "mpReceiveAddress",
-      //       value: "Address:AePd2vTPeb1DggiFj82mR8F4qQXM2H9YpB"
-      //     }, {
-      //       name: "OJList",
-      //       value: ['did:ont:AN3H8EAC5AtSkXqG3VbXobyeS9tTbNz4S2']
-      //     }],
-      //     contractHash: '57a078f603a6894ea4c3688251b981e543fe1cb1',
-      //     method: 'authOrder'
-      //   }
-      // }
-      // console.log('orderParams', orderParams)
-      // return
       if (result.data.desc === 'SUCCESS') {
         // DId .data.result.id
         this.DId = result.data.result.id
@@ -394,7 +331,7 @@ export default {
               center: true,
               duration: 2000
             });
-          }  else if (result === 4) { clearInterval(this.dataIdTimer) } else {}
+          } else if (result === 4) { clearInterval(this.dataIdTimer) } else { }
         }, 3000)
       } else {
         this.$message({
@@ -566,7 +503,7 @@ export default {
               center: true,
               duration: 2000
             });
-          }   else if (result === 4) { window.clearInterval(this.getClaimTimer) } else {}
+          } else if (result === 4) { window.clearInterval(this.getClaimTimer) } else { }
         }, 3000)
       } catch (error) {
         this.$message({
@@ -621,7 +558,7 @@ export default {
               center: true,
               duration: 2000
             });
-          }   else if (result === 4) { window.clearInterval(this.postClaimTimer) } else {}
+          } else if (result === 4) { window.clearInterval(this.postClaimTimer) } else { }
         }, 3000)
       } catch (error) {
         this.$message({
@@ -631,22 +568,139 @@ export default {
           duration: 2000
         });
       }
-      // let params = {
-      //   action: 'postClaim',
-      //   version: 'v1.0.0',
-      //   params: {
-      //     dappName: 'dapp Name',
-      //     dappIcon: 'dapp Icon',
-      //     claimTemplate: 'claims:yus_chinese_id_authentication',
-      //     expire: 1573549257,
-      //     callback: 'http://101.132.193.149:4027/invoke/callback'
-      //   }
-      // }
-      // let qrparams = {
-      //   params,
-      //   isShow: true
-      // }
-      // this.$store.dispatch('changeQrcode', qrparams)
+    },
+    handlePreview(file) {
+      console.log(file);
+    },
+    handleRemove(file, fileList) {
+      console.log(file, fileList);
+    },
+    async fileupload(param) {
+      let fileObject = param.file;
+      let formData = new FormData();
+      formData.append("file", fileObject);
+      const loading = this.$loading({
+        lock: true,
+        text: 'Loading',
+        spinner: 'el-icon-loading',
+        background: 'rgba(0, 0, 0, 0.2)'
+      });
+      try {
+        let result = await this.$store.dispatch('uploadFile', { file: formData, ontid: this.ontid })
+        console.log(result)
+        if (result.desc === 'SUCCESS') {
+          loading.close();
+          this.fileId = result.result.appId
+          let codeParams = result.result
+          console.log('codeParams', codeParams)
+          let qrparams = {
+            params: codeParams,
+            isShow: true
+          }
+          this.$store.dispatch('changeQrcode', qrparams)
+          clearInterval(this.uploadfileTimer)
+          this.uploadfileTimer = setInterval(async () => {
+            let result = await this.$store.dispatch('getCheckRes', this.fileId)
+            console.log('result orjs', result)
+            if (result === 1) {
+              clearInterval(this.uploadfileTimer)
+              this.$message({
+                message: this.$t('common.data_id_suc'),
+                center: true,
+                type: 'success',
+                offset: 400,
+                duration: 2000
+              });
+              this.$refs.upload.clearFiles()
+              // window.location.reload()
+            } else if (result === 0) {
+              clearInterval(this.uploadfileTimer)
+              this.$message({
+                message: this.$t('common.data_id_fail'),
+                type: 'error',
+                center: true,
+                duration: 2000
+              });
+            } else if (result === 4) { clearInterval(this.uploadfileTimer) } else { }
+          }, 3000)
+        } else {
+          loading.close();
+          this.$message({
+            message: 'Get Message Fail!',
+            center: true,
+            type: 'error'
+          });
+          return false
+        }
+      } catch (error) {
+        loading.close();
+        return false
+      }
+    },
+    beforeAvatarUpload(file) {
+      const isTXT = file.type === 'text/plain';
+      if (!isTXT) {
+        this.$message.error('Only upload txt format files!');
+      }
+      return isTXT
+    },
+    handleExceed(files, fileList) {
+      this.$message.warning(`Please clear the current file list first.!`)
+    },
+    async getfileResult() {
+      if (this.isShow) {
+        try {
+          let res = await this.$store.dispatch('getLoginRes', this.fileId)
+          console.log('getfileResult', res)
+          // if (res.data.desc === 'SUCCESS') {
+          //   if (res.data.result.result === '1') {
+          //     this.$message({
+          //       message: 'Sign In Successful',
+          //       center: true,
+          //       type: 'success'
+          //     });
+          //     this.$store.commit('CHANGE_MODEL_STATE', false)
+          //     clearInterval(this.uploadfileTimer)
+          //     sessionStorage.setItem("ons", res.data.result.userName)
+          //     sessionStorage.setItem("user_ontid", res.data.result.ontid)
+          //     this.userAccount = res.data.result.userName
+          //     this.$router.push({ path: '/' });
+          //     return true
+          //   } else if (res.data.result.result === '0') {
+          //     this.$message({
+          //       message: 'Get Sign In Result Fail!',
+          //       center: true,
+          //       type: 'error'
+          //     });
+          //     clearInterval(this.uploadfileTimer)
+          //     return false
+          //   } else if (res.data.result.result === '2') {
+          //     this.$message({
+          //       message: 'Please Sign Up ONS',
+          //       center: true,
+          //       type: 'error'
+          //     });
+          //     clearInterval(this.uploadfileTimer)
+          //     return false
+          //   } else { }
+          // } else {
+          //   this.$message({
+          //     message: 'Get Sign In Result Fail!',
+          //     center: true,
+          //     type: 'error'
+          //   });
+          //   clearInterval(this.uploadfileTimer)
+          //   return false
+          // }
+        } catch (error) {
+          clearInterval(this.uploadfileTimer)
+          return false
+        }
+      } else {
+        clearInterval(this.uploadfileTimer)
+        return
+      }
+
     }
   },
   async mounted() {
@@ -661,9 +715,9 @@ export default {
     })
   },
   beforeDestroy() {
-   window.clearInterval(this.dataIdTimer) 
-   window.clearInterval(this.getClaimTimer)
-   window.clearInterval(this.postClaimTimer)
+    window.clearInterval(this.dataIdTimer)
+    window.clearInterval(this.getClaimTimer)
+    window.clearInterval(this.postClaimTimer)
   }
 }
 </script>
@@ -677,6 +731,12 @@ export default {
     overflow: hidden;
     width: 50%;
     margin: 0 auto;
+    .msg_item {
+      margin: 30px 0;
+      p {
+        line-height: 30px;
+      }
+    }
   }
 }
 </style>

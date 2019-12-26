@@ -20,31 +20,43 @@
     <div class="dropList" v-show="userAccount">
       <el-dropdown @command="toOrder">
         <span class="el-dropdown-link">
-          {{$t('top.personal_center')}}
+          {{ $t('top.personal_center') }}
           <i class="el-icon-arrow-down el-icon--right"></i>
         </span>
-        <el-dropdown-menu slot="dropdown" style="top:auto; top: 40px; padding-bottom: 0;">
-          <el-dropdown-item command="ordercenter">{{$t('top.order_center')}}</el-dropdown-item>
-          <el-dropdown-item command="commoditymanage">{{$t('top.Commodity_Center')}}</el-dropdown-item>
+        <el-dropdown-menu
+          slot="dropdown"
+          style="top:auto; top: 40px; padding-bottom: 0;"
+        >
+          <el-dropdown-item command="ordercenter">{{
+            $t('top.order_center')
+          }}</el-dropdown-item>
+          <el-dropdown-item command="commoditymanage">{{
+            $t('top.Commodity_Center')
+          }}</el-dropdown-item>
           <!-- <el-dropdown-item command="secondHandCommoditylist">{{$t('top.second_hand_commodity')}}</el-dropdown-item> -->
         </el-dropdown-menu>
       </el-dropdown>
     </div>
-    <el-button round size="small" v-if="userAccount" @click="LoginOut()">{{$t('sign.sign_out')}}</el-button>
+    <el-button round size="small" v-if="userAccount" @click="LoginOut()">{{
+      $t('sign.sign_out')
+    }}</el-button>
     <el-button
       round
       size="small"
       :disabled="logining"
       v-else
       @click="getIdenty()"
-    >{{$t('sign.sign_in')}}</el-button>
-    <el-button round size="small" v-show="!userAccount" @click="toRegister()">{{$t('sign.sign_up')}}</el-button>
-    <span class="userAccount">{{userAccount}}</span>
+      >{{ $t('sign.sign_in') }}</el-button
+    >
+    <el-button round size="small" v-show="!userAccount" @click="toRegister()">{{
+      $t('sign.sign_up')
+    }}</el-button>
+    <span class="userAccount">{{ userAccount }}</span>
   </div>
 </template>
 
 <script>
-import { client } from 'ontology-dapi';
+import { client } from 'ontology-dapi'
 import LangStorage from '../helpers/lang'
 import { mapState } from 'vuex'
 
@@ -53,13 +65,16 @@ export default {
     return {
       userAccount: '',
       logining: false,
-      options: [{
-        value: 'en',
-        label: 'English'
-      }, {
-        value: 'zh',
-        label: '中文'
-      }],
+      options: [
+        {
+          value: 'en',
+          label: 'English'
+        },
+        {
+          value: 'zh',
+          label: '中文'
+        }
+      ],
       value: '',
       getResTimer: null,
       dataId: ''
@@ -77,23 +92,24 @@ export default {
         confirmButtonText: this.$t('common.sure'),
         cancelButtonText: this.$t('common.cancel'),
         type: 'warning'
-      }).then(() => {//确定
-        sessionStorage.removeItem("user_ontid");
-        sessionStorage.removeItem("access_token");
-        sessionStorage.removeItem("ons");
-        this.userAccount = '';
-        this.$router.push({ path: '/' });
-      }).catch(() => {
-
-      });
+      })
+        .then(() => {
+          //确定
+          sessionStorage.removeItem('user_ontid')
+          sessionStorage.removeItem('access_token')
+          sessionStorage.removeItem('ons')
+          this.userAccount = ''
+          this.$router.push({ path: '/' })
+        })
+        .catch(() => {})
     },
     async getIdenty() {
       try {
         let result = await this.$store.dispatch('getLoginMsg')
         console.log('loginmsg', result)
         if (result.data.desc === 'SUCCESS') {
-          this.dataId = result.data.result.appId
-          let codeParams = result.data.result
+          this.dataId = result.data.result.id
+          let codeParams = result.data.result.qrCode
           console.log('codeParams', codeParams)
           let qrparams = {
             params: codeParams,
@@ -109,7 +125,7 @@ export default {
             message: 'Get Message Fail!',
             center: true,
             type: 'error'
-          });
+          })
           return false
         }
       } catch (error) {
@@ -118,10 +134,10 @@ export default {
     },
     toOrder(command) {
       console.log(command)
-      this.$router.push({ path: command });
+      this.$router.push({ path: command })
     },
     toRegister() {
-      this.$router.push({ path: 'register' });
+      this.$router.push({ path: 'register' })
     },
     handlechange(val) {
       this.$i18n.locale = val
@@ -139,20 +155,20 @@ export default {
                 message: 'Sign In Successful',
                 center: true,
                 type: 'success'
-              });
+              })
               this.$store.commit('CHANGE_MODEL_STATE', false)
               clearInterval(this.getResTimer)
-              sessionStorage.setItem("ons", res.data.result.userName)
-              sessionStorage.setItem("user_ontid", res.data.result.ontid)
+              sessionStorage.setItem('ons', res.data.result.userName)
+              sessionStorage.setItem('user_ontid', res.data.result.ontid)
               this.userAccount = res.data.result.userName
-              this.$router.push({ path: '/' });
+              this.$router.push({ path: '/' })
               return true
             } else if (res.data.result.result === '0') {
               this.$message({
                 message: 'Get Sign In Result Fail!',
                 center: true,
                 type: 'error'
-              });
+              })
               clearInterval(this.getResTimer)
               return false
             } else if (res.data.result.result === '2') {
@@ -160,16 +176,17 @@ export default {
                 message: 'Please Sign Up Account',
                 center: true,
                 type: 'error'
-              });
+              })
               clearInterval(this.getResTimer)
               return false
-            } else { }
+            } else {
+            }
           } else {
             this.$message({
               message: 'Get Sign In Result Fail!',
               center: true,
               type: 'error'
-            });
+            })
             clearInterval(this.getResTimer)
             return false
           }
@@ -181,12 +198,11 @@ export default {
         clearInterval(this.getResTimer)
         return
       }
-
     }
   },
   computed: {
     ...mapState({
-      isShow: state => state.qrcodeParams.isShow,
+      isShow: state => state.qrcodeParams.isShow
     })
   },
   beforeDestroy() {

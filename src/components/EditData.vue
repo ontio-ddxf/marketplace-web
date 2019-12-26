@@ -1,19 +1,17 @@
 <template>
   <div class="addBox">
-    <h2>{{$t('common.ready_shelf')}}</h2>
+    <h2>{{ $t('common.ready_shelf') }}</h2>
     <div style="overflow: hidden; margin-bottom: 20px;">
       <el-button
         @click="$router.go(-1)"
         type="primary"
         plain
         style="float: left"
-      >{{$t('common.back_to_prev')}}</el-button>
-      <el-button
-        @click="toIndex()"
-        type="primary"
-        plain
-        style="float: right"
-      >{{$t('common.to_home')}}</el-button>
+        >{{ $t('common.back_to_prev') }}</el-button
+      >
+      <el-button @click="toIndex()" type="primary" plain style="float: right">{{
+        $t('common.to_home')
+      }}</el-button>
     </div>
     <div class="formBox">
       <el-form
@@ -26,9 +24,7 @@
         <el-form-item
           prop="data.name"
           :label="tableLang.name"
-          :rules="[
-            { required: true, message: tableLang.nameTip }
-          ]"
+          :rules="[{ required: true, message: tableLang.nameTip }]"
         >
           <el-input v-model="dynamicValidateForm.data.name"></el-input>
         </el-form-item>
@@ -61,19 +57,24 @@
           :key="tag.key"
           :prop="'tags.' + index + '.value'"
           :rules="{
-            required: true, message: tableLang.tagTip, trigger: 'blur'
-        }"
+            required: true,
+            message: tableLang.tagTip,
+            trigger: 'blur'
+          }"
         >
           <el-input v-model="tag.value"></el-input>
-          <el-button @click.prevent="removetag(tag)">{{$t('common.delete')}}</el-button>
+          <el-button @click.prevent="removetag(tag)">{{
+            $t('common.delete')
+          }}</el-button>
         </el-form-item>
 
         <el-form-item class="no_left">
-          <el-button @click="addtag">{{$t('common.add_new_tag')}}</el-button>
+          <el-button @click="addtag">{{ $t('common.add_new_tag') }}</el-button>
           <el-button
             type="primary"
             @click="submitForm('dynamicValidateForm')"
-          >{{$t('common.shelf')}}</el-button>
+            >{{ $t('common.shelf') }}</el-button
+          >
         </el-form-item>
       </el-form>
     </div>
@@ -85,13 +86,13 @@ import { client } from 'ontology-dapi'
 import { sha256 } from 'js-sha256'
 import moment from 'moment'
 
-
 export default {
   data() {
     return {
       tableLang: {
         name: this.$t('common.commodity_name'),
-        nameTip: this.$t('common.please_enter') + this.$t('common.commodity_name'),
+        nameTip:
+          this.$t('common.please_enter') + this.$t('common.commodity_name'),
         desc: this.$t('common.description'),
         descTip: this.$t('common.please_enter') + this.$t('common.description'),
         imgAddress: this.$t('common.img_address'),
@@ -114,7 +115,7 @@ export default {
         coinTip: this.$t('common.please_enter') + this.$t('common.coin'),
         judger: this.$t('common.judger'),
         tokenNum: this.$t('common.number'),
-        tokenNumTip: this.$t('common.please_enter') + this.$t('common.number'),
+        tokenNumTip: this.$t('common.please_enter') + this.$t('common.number')
       },
       dynamicValidateForm: {
         tags: [
@@ -151,13 +152,13 @@ export default {
       metadata: {
         context: '',
         type: 'Dataset',
-        identifier: '',  //
-        name: '',   // name----name
+        identifier: '', //
+        name: '', // name----name
         description: '', //  description
         keywords: '',
         publisher: {
           type: 'Person',
-          identifier: '',   // ONT ID
+          identifier: '', // ONT ID
           dateCreated: new Date()
         },
         datePublished: new Date()
@@ -171,22 +172,22 @@ export default {
       DId: null,
       dataIdTimer: null,
       currentDataId: ''
-    };
+    }
   },
   methods: {
     submitForm(formName) {
-      this.$refs[formName].validate((valid) => {
+      this.$refs[formName].validate(valid => {
         if (valid) {
           console.log(this.dynamicValidateForm)
           this.addNewData()
         } else {
-          console.log('error submit!!');
-          return false;
+          console.log('error submit!!')
+          return false
         }
-      });
+      })
     },
     resetForm(formName) {
-      this.$refs[formName].resetFields();
+      this.$refs[formName].resetFields()
     },
     removetag(item) {
       var index = this.dynamicValidateForm.tags.indexOf(item)
@@ -198,7 +199,7 @@ export default {
       this.dynamicValidateForm.tags.push({
         value: '',
         key: Date.now()
-      });
+      })
     },
     toIndex() {
       this.$router.push({ path: '/' })
@@ -206,11 +207,14 @@ export default {
     async addNewData() {
       console.log('this.dataParams', this.dataParams)
       try {
-        let result = await this.$store.dispatch('ShelfAuthorization', this.dataParams)
+        let result = await this.$store.dispatch(
+          'ShelfAuthorization',
+          this.dataParams
+        )
         console.log('result', result)
         if (result.data.desc === 'SUCCESS') {
-          this.DId = result.data.result.appId
-          let codeParams = result.data.result
+          this.DId = result.data.result.id
+          let codeParams = result.data.result.qrCode
           let qrparams = {
             params: codeParams,
             isShow: true
@@ -228,7 +232,7 @@ export default {
                 type: 'success',
                 offset: 400,
                 duration: 2000
-              });
+              })
               this.$router.push({ path: '/' })
             } else if (result === 0) {
               clearInterval(this.dataIdTimer)
@@ -237,8 +241,11 @@ export default {
                 type: 'error',
                 center: true,
                 duration: 2000
-              });
-            } else if (result === 4) { clearInterval(this.dataIdTimer) } else { }
+              })
+            } else if (result === 4) {
+              clearInterval(this.dataIdTimer)
+            } else {
+            }
           }, 3000)
         } else {
           this.$message({
@@ -246,7 +253,7 @@ export default {
             type: 'error',
             center: true,
             duration: 2000
-          });
+          })
         }
       } catch (error) {
         this.$message({
@@ -254,9 +261,8 @@ export default {
           type: 'error',
           center: true,
           duration: 2000
-        });
+        })
       }
-
     },
     async getDetail(id) {
       let params = {
@@ -277,8 +283,8 @@ export default {
     }
   },
   async mounted() {
-    this.accountid = sessionStorage.getItem("user_ontid").substring(8)
-    this.ont_id = sessionStorage.getItem("user_ontid")
+    this.accountid = sessionStorage.getItem('user_ontid').substring(8)
+    this.ont_id = sessionStorage.getItem('user_ontid')
     let data_id = this.$route.query.commodityId
     await this.getDetail(data_id)
     let pars = {
@@ -315,7 +321,7 @@ export default {
 }
 </script>
 
-<style lang='less' scoped>
+<style lang="less" scoped>
 .addBox {
   margin: 0 auto;
   width: 80%;

@@ -69,7 +69,7 @@ Vue.use(Loading)
 Vue.prototype.$message = Message
 Vue.prototype.$confirm = MessageBox.confirm
 Vue.prototype.$prompt = MessageBox.prompt
-Vue.prototype.$alert = MessageBox.alert;
+Vue.prototype.$alert = MessageBox.alert
 // import 'element-ui/lib/theme-chalk/index.css'
 import axios from 'axios'
 import { client } from 'ontology-dapi'
@@ -121,22 +121,6 @@ axios.interceptors.response.use(
     return Promise.reject(error)
   }
 )
-// const SECURE_CONTENT_TYPE = 'application/json'
-// Vue.config.errorHandler = (error, vm, info) => {
-//   const { response } = error
-//   if (response) {
-//     // 解密body中result
-//     const contentType = response.headers['content-type']
-//     if (contentType && contentType.includes(SECURE_CONTENT_TYPE)) {
-//       const { data } = response
-//       let message = data.msg || data.message
-//       Message({ message, type: 'error' })
-//     }
-//   } else {
-//     console.error(error)
-//   }
-// }
-
 client.registerClient({})
 // Vue.use(ElementUI)
 Vue.prototype.$http = axios

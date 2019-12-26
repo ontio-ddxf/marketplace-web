@@ -7,13 +7,15 @@
           type="primary"
           plain
           style="float: left"
-        >{{$t('common.back_to_prev')}}</el-button>
+          >{{ $t('common.back_to_prev') }}</el-button
+        >
         <el-button
           @click="toIndex()"
           type="primary"
           plain
           style="float: right"
-        >{{$t('common.to_home')}}</el-button>
+          >{{ $t('common.to_home') }}</el-button
+        >
       </div>
       <!-- <div class="msg_item">
         <p>{{$t('common.kyc')}}</p>
@@ -35,21 +37,39 @@
         :limit="limit"
         :file-list="fileList"
       >
-        <el-button size="small" type="primary">{{$t('common.add_data')}}</el-button>
+        <el-button size="small" type="primary">{{
+          $t('common.add_data')
+        }}</el-button>
         <div slot="tip" class="el-upload__tip">Only Txt file</div>
       </el-upload>
     </div>
     <div class="table_box" style="margin-top: 60px;">
-      <el-table :data="tableData" border style="width: 100%" :empty-text="$t('common.no_data')">
-        <el-table-column type="index" align="center" width="50" :index="indexMethod"></el-table-column>
-        <el-table-column prop="name" align="center" :label="tableLang.name" width="180"></el-table-column>
+      <el-table
+        :data="tableData"
+        border
+        style="width: 100%"
+        :empty-text="$t('common.no_data')"
+      >
+        <el-table-column
+          type="index"
+          align="center"
+          width="50"
+          :index="indexMethod"
+        ></el-table-column>
+        <el-table-column
+          prop="name"
+          align="center"
+          :label="tableLang.name"
+          width="180"
+        ></el-table-column>
         <el-table-column align="center" :label="tableLang.tags">
           <template slot-scope="scope">
             <el-tag
               style="margin-right: 10px;"
               v-for="(item, idx) in scope.row.tags"
               :key="idx"
-            >{{item}}</el-tag>
+              >{{ item }}</el-tag
+            >
           </template>
         </el-table-column>
         <el-table-column align="center" label="Data ID" width="380">
@@ -60,26 +80,39 @@
               size="mini"
               type="primary"
             >{{scope.row.dataId}}</el-button>-->
-            <el-button v-if="scope.row.dataId" size="mini" type="primary">{{scope.row.dataId}}</el-button>
+            <el-button v-if="scope.row.dataId" size="mini" type="primary">{{
+              scope.row.dataId
+            }}</el-button>
           </template>
         </el-table-column>
-        <el-table-column prop="createTime" align="center" :label="tableLang.date" width="260"></el-table-column>
-        <el-table-column :label="tableLang.operating" align="center" width="400">
+        <el-table-column
+          prop="createTime"
+          align="center"
+          :label="tableLang.date"
+          width="260"
+        ></el-table-column>
+        <el-table-column
+          :label="tableLang.operating"
+          align="center"
+          width="400"
+        >
           <template slot-scope="scope">
             <el-button
-             v-if="scope.row.state === 2"
+              v-if="scope.row.state === 3"
               @click="handleClick(scope.row)"
               type="primary"
               round
               size="small"
-            >{{$t('common.detail')}}</el-button>
+              >{{ $t('common.detail') }}</el-button
+            >
             <el-button
               v-else
               @click="prodOperat(scope.row)"
               type="warning"
               round
               size="small"
-            >{{$t('common.pending_order')}}</el-button>
+              >{{ $t('common.pending_order') }}</el-button
+            >
             <!-- <el-button
               v-if="scope.row.state === '2'"
               round
@@ -107,22 +140,42 @@
           <el-input v-model="form.name" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="totalAmount" prop="totalAmount">
-          <el-input type="age" v-model.number="form.totalAmount" autocomplete="off"></el-input>
+          <el-input
+            type="age"
+            v-model.number="form.totalAmount"
+            autocomplete="off"
+          ></el-input>
         </el-form-item>
         <el-form-item label="transferCount" prop="transferCount">
-          <el-input type="age" v-model.number="form.transferCount" autocomplete="off"></el-input>
+          <el-input
+            type="age"
+            v-model.number="form.transferCount"
+            autocomplete="off"
+          ></el-input>
         </el-form-item>
         <el-form-item label="accessCount" prop="accessCount">
-          <el-input type="age" v-model.number="form.accessCount" autocomplete="off"></el-input>
+          <el-input
+            type="age"
+            v-model.number="form.accessCount"
+            autocomplete="off"
+          ></el-input>
         </el-form-item>
         <el-form-item label="expireTime" prop="expireTime">
           <!-- <el-input type="age" v-model.number="form.expireTime" autocomplete="off"></el-input> -->
-          <el-date-picker v-model="form.expireTime" type="datetime" placeholder="选择日期时间"></el-date-picker>
+          <el-date-picker
+            v-model="form.expireTime"
+            type="datetime"
+            placeholder="选择日期时间"
+          ></el-date-picker>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">{{$t('common.cancel')}}</el-button>
-        <el-button type="primary" @click="proDataId('ruleForm')">{{$t('common.sure')}}</el-button>
+        <el-button @click="dialogFormVisible = false">{{
+          $t('common.cancel')
+        }}</el-button>
+        <el-button type="primary" @click="proDataId('ruleForm')">{{
+          $t('common.sure')
+        }}</el-button>
       </div>
     </el-dialog>
   </div>
@@ -133,9 +186,9 @@ import { client } from 'ontology-dapi'
 
 import { TEST_NET } from '../assets/control'
 import { sha256 } from 'js-sha256'
-import { throws } from 'assert';
+import { throws } from 'assert'
 import moment from 'moment'
-import { encode } from 'punycode';
+import { encode } from 'punycode'
 
 import { mapState } from 'vuex'
 export default {
@@ -156,27 +209,47 @@ export default {
       },
       rules: {
         name: [
-          { required: true, message: this.$t('common.please_enter') + 'name', trigger: 'blur' },
+          {
+            required: true,
+            message: this.$t('common.please_enter') + 'name',
+            trigger: 'blur'
+          },
           { min: 3, message: this.$t('common.character3'), trigger: 'blur' }
         ],
         symbol: [
-          { required: true, message: this.$t('common.please_enter') + 'symbol', trigger: 'blur' },
+          {
+            required: true,
+            message: this.$t('common.please_enter') + 'symbol',
+            trigger: 'blur'
+          },
           { min: 3, message: this.$t('common.character3'), trigger: 'blur' }
         ],
         totalAmount: [
-          { required: true, message: this.$t('common.please_enter') + 'totalAmount' },
-          { type: 'number', message: 'totalAmount' + this.$t('common.mbnum') },
+          {
+            required: true,
+            message: this.$t('common.please_enter') + 'totalAmount'
+          },
+          { type: 'number', message: 'totalAmount' + this.$t('common.mbnum') }
         ],
         transferCount: [
-          { required: true, message: this.$t('common.please_enter') + 'transferCount' },
-          { type: 'number', message: 'transferCount' + this.$t('common.mbnum') },
+          {
+            required: true,
+            message: this.$t('common.please_enter') + 'transferCount'
+          },
+          { type: 'number', message: 'transferCount' + this.$t('common.mbnum') }
         ],
         accessCount: [
-          { required: true, message: this.$t('common.please_enter') + 'accessCount' },
-          { type: 'number', message: 'accessCount' + this.$t('common.mbnum') },
+          {
+            required: true,
+            message: this.$t('common.please_enter') + 'accessCount'
+          },
+          { type: 'number', message: 'accessCount' + this.$t('common.mbnum') }
         ],
         expireTime: [
-          { required: true, message: this.$t('common.please_enter') + 'expireTime' }
+          {
+            required: true,
+            message: this.$t('common.please_enter') + 'expireTime'
+          }
           // { type: 'number', message: 'expireTime' + this.$t('common.mbnum') },
         ]
       },
@@ -203,13 +276,16 @@ export default {
   },
   methods: {
     certificatKYC() {
-      let callback_url = window.location.origin + '/#/commoditymanage';
-      let access_token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJhdWQiOiJkaWQ6b250OkFQZUUxcGlKcmhzRVRncG5nSHNUM2htdXZyakFpRFF0NE4iLCJpc3MiOiJkaWQ6b250OkFkajdXNVoyaFRlS0g3WXdKc2ZNekx1d2lENjcxbXZKNlgiLCJleHAiOjE1NTc5OTM3MDEsImlhdCI6MTU1NzkwNzMwMSwianRpIjoiZmY2MWIyNDdmZTZjNGFlNjg3MDNlNjJlZDMxYTM0ODgiLCJjb250ZW50Ijp7InR5cGUiOiJhY2Nlc3NfdG9rZW4iLCJvbnRpZCI6ImRpZDpvbnQ6QWF0YmdWMThhOExRMkhhZWJ6cVEzZmtqUnFURzV0V0FHcSJ9fQ.MDEwYWY0OWI4ZmFhZDRhZjM1MDhmMjg2MGFlYTI3MjZhZDE2NGVhNDIyYjgzNTU0N2U1ODVlODA3ZTRlOWE2MGY1MDE0ZjVjNmZmNWJlODIxNTc5NmZlODVjY2UzMDcxNzI5ZTczNzU4MDA2MGIyN2NhZTlmMzlmMWVmYjFkNDA2NQ'
+      let callback_url = window.location.origin + '/#/commoditymanage'
+      let access_token =
+        'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJhdWQiOiJkaWQ6b250OkFQZUUxcGlKcmhzRVRncG5nSHNUM2htdXZyakFpRFF0NE4iLCJpc3MiOiJkaWQ6b250OkFkajdXNVoyaFRlS0g3WXdKc2ZNekx1d2lENjcxbXZKNlgiLCJleHAiOjE1NTc5OTM3MDEsImlhdCI6MTU1NzkwNzMwMSwianRpIjoiZmY2MWIyNDdmZTZjNGFlNjg3MDNlNjJlZDMxYTM0ODgiLCJjb250ZW50Ijp7InR5cGUiOiJhY2Nlc3NfdG9rZW4iLCJvbnRpZCI6ImRpZDpvbnQ6QWF0YmdWMThhOExRMkhhZWJ6cVEzZmtqUnFURzV0V0FHcSJ9fQ.MDEwYWY0OWI4ZmFhZDRhZjM1MDhmMjg2MGFlYTI3MjZhZDE2NGVhNDIyYjgzNTU0N2U1ODVlODA3ZTRlOWE2MGY1MDE0ZjVjNmZmNWJlODIxNTc5NmZlODVjY2UzMDcxNzI5ZTczNzU4MDA2MGIyN2NhZTlmMzlmMWVmYjFkNDA2NQ'
       let ontid = 'did:ont:AatbgV18a8LQ2HaebzqQ3fkjRqTG5tWAGq'
       console.log(ontid + '&' + access_token + '&' + callback_url + '&' + 'zh')
-      let value = window.encodeURIComponent(ontid + '&' + access_token + '&' + callback_url + '&' + 'zh');
+      let value = window.encodeURIComponent(
+        ontid + '&' + access_token + '&' + callback_url + '&' + 'zh'
+      )
       console.log(value)
-      window.location.href = 'https://kyc.ont.io/#/mgmtHome?params=' + value;
+      window.location.href = 'https://kyc.ont.io/#/mgmtHome?params=' + value
     },
     async walletAddress() {
       this.address = await client.api.asset.getAccount()
@@ -237,7 +313,6 @@ export default {
     },
     async getSellData() {
       try {
-
         // let params = {
         //   ontid: this.ontid,
         //   pageNum: 0,
@@ -245,7 +320,7 @@ export default {
         // }
         // console.log(params)
         let res = await this.$store.dispatch('getComList', this.ontid)
-        console.log(res);
+        console.log(res)
         if (res.status === 200 && res.data.desc === 'SUCCESS') {
           this.tableData = res.data.result
           this.tableData.map((item, idx) => {
@@ -259,7 +334,7 @@ export default {
       }
     },
     handleClick(row) {
-      this.$router.push({ path: 'orderdetail', query: { commodityId: row.id } });
+      this.$router.push({ path: 'orderdetail', query: { commodityId: row.id } })
     },
     toEditData(row) {
       if (row.state == 1) {
@@ -268,16 +343,16 @@ export default {
           type: 'success',
           center: true,
           duration: 2000
-        });
-        return;
+        })
+        return
       }
     },
     async prodOperat(row) {
-      this.$router.push({ path: 'editdata', query: { commodityId: row.id } });
+      this.$router.push({ path: 'editdata', query: { commodityId: row.id } })
       console.log(row)
     },
     async proDataId(formName) {
-      const privateKey = Ont.Crypto.PrivateKey.random();
+      const privateKey = Ont.Crypto.PrivateKey.random()
       var identity = Ont.Identity.create(privateKey, '', '')
       let params0 = {
         dataId: identity.ontid,
@@ -303,7 +378,7 @@ export default {
             type: 'ontid',
             message: message,
             ishex: true,
-            callback: result.data.result.callback,
+            callback: result.data.result.callback
           }
         }
         console.log('codeParams', codeParams)
@@ -322,7 +397,7 @@ export default {
               message: this.$t('common.data_id_suc'),
               center: true,
               type: 'success'
-            });
+            })
           } else if (result === 3) {
             clearInterval(this.dataIdTimer)
             this.$message({
@@ -330,8 +405,11 @@ export default {
               type: 'error',
               center: true,
               duration: 2000
-            });
-          } else if (result === 4) { clearInterval(this.dataIdTimer) } else { }
+            })
+          } else if (result === 4) {
+            clearInterval(this.dataIdTimer)
+          } else {
+          }
         }, 3000)
       } else {
         this.$message({
@@ -339,20 +417,20 @@ export default {
           type: 'error',
           center: true,
           duration: 2000
-        });
+        })
         this.dialogFormVisible = false
         this.$refs[formName].resetFields()
       }
     },
     setUrl() {
-      const net = localStorage.getItem('net');
+      const net = localStorage.getItem('net')
       let url = ''
       if (net === 'TEST_NET') {
         url = TEST_NET + ':20334'
       } else {
         url = MAIN_NET + ':20334'
       }
-      return url;
+      return url
     },
     dialog(data) {
       console.log('data', data)
@@ -371,12 +449,14 @@ export default {
     async withdrawal(data) {
       console.log('withdrawaldata', data)
       let withdrawalParams = {
-        argsList: [{
-          name: "authId",
-          value: "ByteArray:" + data.authId
-        }],
-        contractHash: "57a078f603a6894ea4c3688251b981e543fe1cb1",
-        method: "cancelAuth"
+        argsList: [
+          {
+            name: 'authId',
+            value: 'ByteArray:' + data.authId
+          }
+        ],
+        contractHash: '57a078f603a6894ea4c3688251b981e543fe1cb1',
+        method: 'cancelAuth'
       }
       let paramsData = {
         txHex: '',
@@ -384,7 +464,10 @@ export default {
         sigData: ''
       }
       try {
-        let res = await this.$store.dispatch('makeTransaction', withdrawalParams)
+        let res = await this.$store.dispatch(
+          'makeTransaction',
+          withdrawalParams
+        )
         console.log('makeTransaction', res)
         // return
         if (res.data.desc === 'SUCCESS') {
@@ -416,7 +499,7 @@ export default {
         message = Ont.utils.sha256(message)
         message = Ont.utils.sha256(message)
         message = Ont.utils.hexstr2str(message)
-        let signData = await client.api.message.signMessage({ message });
+        let signData = await client.api.message.signMessage({ message })
         paramsData.pubKeys = signData.publicKey
         paramsData.sigData = signData.data
       } catch (error) {
@@ -485,7 +568,10 @@ export default {
         this.$store.dispatch('changeQrcode', qrparams)
         window.clearInterval(this.getClaimTimer)
         this.getClaimTimer = setInterval(async () => {
-          let result = await this.$store.dispatch('getCheckRes', this.getClaimId)
+          let result = await this.$store.dispatch(
+            'getCheckRes',
+            this.getClaimId
+          )
           console.log('result orjs', result)
           if (result === 1) {
             window.clearInterval(this.getClaimTimer)
@@ -494,7 +580,7 @@ export default {
               message: 'SUCCESS',
               center: true,
               type: 'success'
-            });
+            })
           } else if (result === 3) {
             window.clearInterval(this.getClaimTimer)
             this.$message({
@@ -502,8 +588,11 @@ export default {
               type: 'error',
               center: true,
               duration: 2000
-            });
-          } else if (result === 4) { window.clearInterval(this.getClaimTimer) } else { }
+            })
+          } else if (result === 4) {
+            window.clearInterval(this.getClaimTimer)
+          } else {
+          }
         }, 3000)
       } catch (error) {
         this.$message({
@@ -511,9 +600,8 @@ export default {
           type: 'error',
           center: true,
           duration: 2000
-        });
+        })
       }
-
     },
     async postClaim() {
       try {
@@ -539,17 +627,19 @@ export default {
         this.$store.dispatch('changeQrcode', qrparams)
         window.clearInterval(this.postClaimTimer)
         this.postClaimTimer = setInterval(async () => {
-          let result = await this.$store.dispatch('getCheckRes', this.postClaimId)
+          let result = await this.$store.dispatch(
+            'getCheckRes',
+            this.postClaimId
+          )
           console.log('result orjs', result)
           if (result === 1) {
             window.clearInterval(this.postClaimTimer)
             this.$router.push({ path: 'addnewdata' })
-
             this.$message({
               message: 'SUCCESS',
               center: true,
               type: 'success'
-            });
+            })
           } else if (result === 3) {
             window.clearInterval(this.postClaimTimer)
             this.$message({
@@ -557,8 +647,11 @@ export default {
               type: 'error',
               center: true,
               duration: 2000
-            });
-          } else if (result === 4) { window.clearInterval(this.postClaimTimer) } else { }
+            })
+          } else if (result === 4) {
+            window.clearInterval(this.postClaimTimer)
+          } else {
+          }
         }, 3000)
       } catch (error) {
         this.$message({
@@ -566,32 +659,35 @@ export default {
           type: 'error',
           center: true,
           duration: 2000
-        });
+        })
       }
     },
     handlePreview(file) {
-      console.log(file);
+      console.log(file)
     },
     handleRemove(file, fileList) {
-      console.log(file, fileList);
+      console.log(file, fileList)
     },
     async fileupload(param) {
-      let fileObject = param.file;
-      let formData = new FormData();
-      formData.append("file", fileObject);
+      let fileObject = param.file
+      let formData = new FormData()
+      formData.append('file', fileObject)
       const loading = this.$loading({
         lock: true,
         text: 'Loading',
         spinner: 'el-icon-loading',
         background: 'rgba(0, 0, 0, 0.2)'
-      });
+      })
       try {
-        let result = await this.$store.dispatch('uploadFile', { file: formData, ontid: this.ontid })
+        let result = await this.$store.dispatch('uploadFile', {
+          file: formData,
+          ontid: this.ontid
+        })
         console.log(result)
         if (result.desc === 'SUCCESS') {
-          loading.close();
-          this.fileId = result.result.appId
-          let codeParams = result.result
+          loading.close()
+          this.fileId = result.result.id
+          let codeParams = result.result.qrCode
           console.log('codeParams', codeParams)
           let qrparams = {
             params: codeParams,
@@ -610,7 +706,7 @@ export default {
                 type: 'success',
                 offset: 400,
                 duration: 2000
-              });
+              })
               this.$refs.upload.clearFiles()
               // window.location.reload()
             } else if (result === 0) {
@@ -620,27 +716,30 @@ export default {
                 type: 'error',
                 center: true,
                 duration: 2000
-              });
-            } else if (result === 4) { clearInterval(this.uploadfileTimer) } else { }
+              })
+            } else if (result === 4) {
+              clearInterval(this.uploadfileTimer)
+            } else {
+            }
           }, 3000)
         } else {
-          loading.close();
-          this.$message({
+          loading.close()
+          this.$refs.upload.clearFiles()
+          return this.$message({
             message: 'Get Message Fail!',
             center: true,
             type: 'error'
-          });
-          return false
+          })
         }
       } catch (error) {
-        loading.close();
-        return false
+        this.$refs.upload.clearFiles()
+        return loading.close()
       }
     },
     beforeAvatarUpload(file) {
-      const isTXT = file.type === 'text/plain';
+      const isTXT = file.type === 'text/plain'
       if (!isTXT) {
-        this.$message.error('Only upload txt format files!');
+        this.$message.error('Only upload txt format files!')
       }
       return isTXT
     },
@@ -700,18 +799,17 @@ export default {
         clearInterval(this.uploadfileTimer)
         return
       }
-
     }
   },
   async mounted() {
     this.url = this.setUrl()
-    this.ontid = sessionStorage.getItem("user_ontid")
+    this.ontid = sessionStorage.getItem('user_ontid')
     this.isClaim = sessionStorage.getItem('isclaim')
     this.getSellData()
   },
   computed: {
     ...mapState({
-      isShow: state => state.qrcodeParams.isShow,
+      isShow: state => state.qrcodeParams.isShow
     })
   },
   beforeDestroy() {
@@ -722,7 +820,7 @@ export default {
 }
 </script>
 
-<style lang='less' scoped>
+<style lang="less" scoped>
 .commoditymanage_box {
   margin: 20px auto;
   text-align: left;
@@ -740,6 +838,3 @@ export default {
   }
 }
 </style>
-
-
-

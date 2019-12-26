@@ -13,7 +13,9 @@
         <el-form-item label="Account" prop="domain">
           <el-input v-model="ruleForm.domain"></el-input>
         </el-form-item>
-        <el-button type="primary" @click="submitForm('ruleForm')">{{$t('sign.sign_up')}}</el-button>
+        <el-button type="primary" @click="submitForm('ruleForm')">{{
+          $t('sign.sign_up')
+        }}</el-button>
       </el-form>
     </div>
   </div>
@@ -32,24 +34,34 @@ export default {
       },
       rules: {
         ontid: [
-          { required: true, message: this.$t('common.please_enter') + ' ONT ID', trigger: 'blur' }
+          {
+            required: true,
+            message: this.$t('common.please_enter') + ' ONT ID',
+            trigger: 'blur'
+          }
         ],
         ons: [
-          { required: true, message: this.$t('common.please_enter') + ' Enter ONS', trigger: 'blur' }
+          {
+            required: true,
+            message: this.$t('common.please_enter') + ' Enter ONS',
+            trigger: 'blur'
+          }
         ]
       }
-    };
+    }
   },
   methods: {
     submitForm(formName) {
-      this.$refs[formName].validate(async (valid) => {
+      this.$refs[formName].validate(async valid => {
         if (valid) {
           try {
-            let res = await this.$store.dispatch('sendONS', { userName: this.ruleForm.domain })
+            let res = await this.$store.dispatch('sendONS', {
+              userName: this.ruleForm.domain
+            })
             console.log('res', res)
             if (res.data.desc === 'SUCCESS') {
-              let qrcodeParams = res.data.result
-              this.dataId = res.data.result.appId
+              let qrcodeParams = res.data.result.qrCode
+              this.dataId = res.data.result.id
               let dataParams = {
                 params: qrcodeParams,
                 isShow: true
@@ -64,20 +76,20 @@ export default {
                 message: 'Sign Up Fail!',
                 center: true,
                 type: 'error'
-              });
+              })
               return
             }
           } catch (error) {
             return false
           }
         } else {
-          console.log('error submit!!');
-          return false;
+          console.log('error submit!!')
+          return false
         }
-      });
+      })
     },
     toHome() {
-      this.$router.push({ path: '/' });
+      this.$router.push({ path: '/' })
     },
     async checkResult() {
       if (this.isShow) {
@@ -89,7 +101,7 @@ export default {
                 message: 'Sign Up Successfuly!',
                 center: true,
                 type: 'success'
-              });
+              })
               clearInterval(this.checkTimer)
               this.$store.commit('CHANGE_MODEL_STATE', false)
               // this.$router.push({ path: '/login' })
@@ -100,7 +112,7 @@ export default {
                 message: 'Sign Up Fail!',
                 center: true,
                 type: 'error'
-              });
+              })
               return false
             } else if (res.data.result.result === '2') {
               clearInterval(this.checkTimer)
@@ -108,17 +120,17 @@ export default {
                 message: 'ONT ID Already registered!',
                 center: true,
                 type: 'error'
-              });
+              })
               return false
-            } else { }
-
+            } else {
+            }
           } else {
             clearInterval(this.checkTimer)
             this.$message({
               message: 'Sign Up Fail!',
               center: true,
               type: 'error'
-            });
+            })
             return false
           }
         } catch (error) {
@@ -128,12 +140,11 @@ export default {
       } else {
         clearInterval(this.checkTimer)
       }
-
     }
   },
   computed: {
     ...mapState({
-      isShow: state => state.qrcodeParams.isShow,
+      isShow: state => state.qrcodeParams.isShow
     })
   },
   beforeDestroy() {
@@ -142,7 +153,7 @@ export default {
 }
 </script>
 
-<style lang='less' scoped>
+<style lang="less" scoped>
 .registered {
   width: 100%;
   max-width: 500px;

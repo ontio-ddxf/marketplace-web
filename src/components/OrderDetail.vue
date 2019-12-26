@@ -6,55 +6,59 @@
         type="primary"
         plain
         style="float: left"
-      >{{$t('common.back_to_prev')}}</el-button>
-      <el-button
-        @click="toIndex()"
-        type="primary"
-        plain
-        style="float: right"
-      >{{$t('common.to_home')}}</el-button>
+        >{{ $t('common.back_to_prev') }}</el-button
+      >
+      <el-button @click="toIndex()" type="primary" plain style="float: right">{{
+        $t('common.to_home')
+      }}</el-button>
     </div>
     <div class="item_box">
       <!-- 商品名 -->
       <div class="item">
-        <p>{{$t('common.commodity_name')}}:</p>
-        {{orderData.name}}
+        <p>{{ $t('common.commodity_name') }}:</p>
+        {{ orderData.name }}
       </div>
       <div class="item">
-        <p>{{$t('common.tag')}}:</p>
-        <el-tag v-for="(item, idx) in orderData.tags" :key="idx">{{item}}</el-tag>
+        <p>{{ $t('common.tag') }}:</p>
+        <el-tag v-for="(item, idx) in orderData.tags" :key="idx">{{
+          item
+        }}</el-tag>
       </div>
       <div class="item">
-        <p>{{$t('common.coin')}}:</p>ONG
+        <p>{{ $t('common.coin') }}:</p>
+        ONG
       </div>
       <div class="item" v-show="orderData.price">
-        <p>{{$t('common.price')}}:</p>
-        {{orderData.price * Math.pow(10, -9)}}
+        <p>{{ $t('common.price') }}:</p>
+        {{ orderData.price * Math.pow(10, -9) }}
       </div>
       <!-- 描述 -->
       <div class="item" v-if="orderData.desc">
-        <p>{{$t('common.description')}}:</p>
-        {{orderData.desc}}
+        <p>{{ $t('common.description') }}:</p>
+        {{ orderData.desc }}
       </div>
       <div class="item">
-        <p>{{$t('common.number')}}:</p>
-        {{orderData.amount}}
+        <p>{{ $t('common.number') }}:</p>
+        {{ orderData.amount }}
       </div>
       <div class="item" v-show="orderData.judger">
-        <p>{{$t('common.judger')}}:</p>
+        <p>{{ $t('common.judger') }}:</p>
         <el-radio
           v-for="(item, idx) in orderData.judger"
           :key="idx"
           v-model="OJlist"
           :label="item"
-        >{{item}}</el-radio>
+          >{{ item }}</el-radio
+        >
       </div>
       <div class="item">
-        <p>{{$t('common.create_time')}}:</p>
-        {{orderData.createTime | formatTime}}
+        <p>{{ $t('common.create_time') }}:</p>
+        {{ orderData.createTime | formatTime }}
       </div>
     </div>
-    <el-button type="success" :disabled="signing" @click="toBuy()" round>{{$t('common.buy')}}</el-button>
+    <el-button type="success" :disabled="signing" @click="toBuy()" round>{{
+      $t('common.buy')
+    }}</el-button>
   </div>
 </template>
 
@@ -79,8 +83,8 @@ export default {
   created() {
     let data_id = this.$route.query.commodityId
     this.getDetail(data_id)
-    if (sessionStorage.getItem("user_ontid")) {
-      this.ontid = sessionStorage.getItem("user_ontid")
+    if (sessionStorage.getItem('user_ontid')) {
+      this.ontid = sessionStorage.getItem('user_ontid')
     }
   },
   methods: {
@@ -95,7 +99,7 @@ export default {
           type: 'error',
           center: true,
           duration: 2000
-        });
+        })
         return
       }
       let dataParams = {
@@ -110,8 +114,8 @@ export default {
         let result = await this.$store.dispatch('makeOrder', dataParams)
         console.log('result', result)
         if (result.data.desc === 'SUCCESS') {
-          this.orderHashId = result.data.result.appId
-          let codeParams = result.data.result
+          this.orderHashId = result.data.result.id
+          let codeParams = result.data.result.qrCode
           console.log('codeParams', codeParams)
           let qrparams = {
             params: codeParams,
@@ -120,7 +124,10 @@ export default {
           this.$store.dispatch('changeQrcode', qrparams)
           clearInterval(this.hashTimer)
           this.hashTimer = setInterval(async () => {
-            let result = await this.$store.dispatch('getCheckRes', this.orderHashId)
+            let result = await this.$store.dispatch(
+              'getCheckRes',
+              this.orderHashId
+            )
             console.log('result orjs', result)
             if (result === 1) {
               clearInterval(this.hashTimer)
@@ -128,7 +135,7 @@ export default {
                 message: this.$t('common.buy_suc'),
                 center: true,
                 type: 'success'
-              });
+              })
               this.$router.push({ path: '/' })
             } else if (result === 0) {
               clearInterval(this.hashTimer)
@@ -137,8 +144,11 @@ export default {
                 type: 'error',
                 center: true,
                 duration: 2000
-              });
-            } else if (result === 4) { clearInterval(this.hashTimer) } else { }
+              })
+            } else if (result === 4) {
+              clearInterval(this.hashTimer)
+            } else {
+            }
           }, 3000)
         } else {
           this.$message({
@@ -166,7 +176,7 @@ export default {
       } catch (error) {
         console.log(error)
       }
-    },
+    }
   },
   filters: {
     formatTime(val) {
@@ -183,7 +193,7 @@ export default {
 }
 </script>
 
-<style lang='less' scoped>
+<style lang="less" scoped>
 .detail_box {
   width: 80%;
   margin: 40px auto;

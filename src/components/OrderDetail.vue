@@ -94,81 +94,71 @@ export default {
     async toBuy() {
       let ontid = sessionStorage.getItem('user_ontid')
       if (!ontid) {
-        this.$message({
+        return this.$message({
           message: this.$t('common.lg_by'),
           type: 'error',
           center: true,
           duration: 2000
         })
-        return
       }
-      let dataParams = {
+      let result = await this.$store.dispatch('makeOrder', {
         authId: this.orderData.authId,
         demander: sessionStorage.getItem('user_ontid'),
         price: this.orderData.price,
         provider: this.orderData.ontid,
         tokenAmount: 1
-      }
-
-      try {
-        let result = await this.$store.dispatch('makeOrder', dataParams)
-        console.log('result', result)
-        if (result.data.desc === 'SUCCESS') {
-          this.orderHashId = result.data.result.id
-          let codeParams = result.data.result.qrCode
-          console.log('codeParams', codeParams)
-          let qrparams = {
-            params: codeParams,
-            isShow: true
+      })
+      console.log('result', result)
+      if (result.data.desc === 'SUCCESS') {
+        this.orderHashId = result.data.result.id
+        let codeParams = result.data.result.qrCode
+        console.log('codeParams', codeParams)
+        this.$store.dispatch('changeQrcode', {
+          params: codeParams,
+          isShow: true
+        })
+        clearInterval(this.hashTimer)
+        this.hashTimer = setInterval(async () => {
+          let result = await this.$store.dispatch(
+            'getCheckRes',
+            this.orderHashId
+          )
+          console.log('result orjs', result)
+          if (result === 1) {
+            clearInterval(this.hashTimer)
+            this.$message({
+              message: this.$t('common.buy_suc'),
+              center: true,
+              type: 'success'
+            })
+            this.$router.push({ path: '/' })
+          } else if (result === 0) {
+            clearInterval(this.hashTimer)
+            this.$message({
+              message: this.$t('common.buy_fail'),
+              type: 'error',
+              center: true,
+              duration: 2000
+            })
+          } else if (result === 4) {
+            clearInterval(this.hashTimer)
+          } else {
           }
-          this.$store.dispatch('changeQrcode', qrparams)
-          clearInterval(this.hashTimer)
-          this.hashTimer = setInterval(async () => {
-            let result = await this.$store.dispatch(
-              'getCheckRes',
-              this.orderHashId
-            )
-            console.log('result orjs', result)
-            if (result === 1) {
-              clearInterval(this.hashTimer)
-              this.$message({
-                message: this.$t('common.buy_suc'),
-                center: true,
-                type: 'success'
-              })
-              this.$router.push({ path: '/' })
-            } else if (result === 0) {
-              clearInterval(this.hashTimer)
-              this.$message({
-                message: this.$t('common.buy_fail'),
-                type: 'error',
-                center: true,
-                duration: 2000
-              })
-            } else if (result === 4) {
-              clearInterval(this.hashTimer)
-            } else {
-            }
-          }, 3000)
-        } else {
-          this.$message({
-            message: this.$t('common.buy_fail'),
-            type: 'error',
-            center: true,
-            duration: 2000
-          })
-          return false
-        }
-      } catch (error) {
-        return error
+        }, 3000)
+      } else {
+        return this.$message({
+          message: this.$t('common.buy_fail'),
+          type: 'error',
+          center: true,
+          duration: 2000
+        })
       }
     },
     async getDetail(id) {
-      let params = {
-        id
-      }
       try {
-        let res = await this.$store.dispatch('getCommodityDetail', params)
+        let res = await this.$store.dispatch('getCommodityDetail', {
+          id
+        })
         console.log(res)
         if (res.status === 200 && res.data.desc === 'SUCCESS') {
           this.orderData = res.data.result

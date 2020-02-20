@@ -17,14 +17,6 @@
           >{{ $t('common.to_home') }}</el-button
         >
       </div>
-      <!-- <div class="msg_item">
-        <p>{{$t('common.kyc')}}</p>
-        <p>KYC: https://ont.io/</p>
-        <p>
-          {{$t('common.not_certified')}}
-          <el-link type="danger" @click="certificatKYC()">{{$t('common.to_cer')}}</el-link>
-        </p>
-      </div> -->
       <el-upload
         ref="upload"
         class="upload-demo"
@@ -74,12 +66,6 @@
         </el-table-column>
         <el-table-column align="center" label="Data ID" width="380">
           <template slot-scope="scope">
-            <!-- <el-button
-              v-if="scope.row.dataId"
-              @click="toDataIDList(scope.row.dataId)"
-              size="mini"
-              type="primary"
-            >{{scope.row.dataId}}</el-button>-->
             <el-button v-if="scope.row.dataId" size="mini" type="primary">{{
               scope.row.dataId
             }}</el-button>
@@ -113,13 +99,6 @@
               size="small"
               >{{ $t('common.pending_order') }}</el-button
             >
-            <!-- <el-button
-              v-if="scope.row.state === '2'"
-              round
-              size="small"
-              @click="withdrawal(scope.row)"
-              type="danger"
-            >{{$t('common.withdrawal')}}</el-button>-->
           </template>
         </el-table-column>
       </el-table>
@@ -312,25 +291,13 @@ export default {
       return idx + 1
     },
     async getSellData() {
-      try {
-        // let params = {
-        //   ontid: this.ontid,
-        //   pageNum: 0,
-        //   pageSize: 10
-        // }
-        // console.log(params)
-        let res = await this.$store.dispatch('getComList', this.ontid)
-        console.log(res)
-        if (res.status === 200 && res.data.desc === 'SUCCESS') {
-          this.tableData = res.data.result
-          this.tableData.map((item, idx) => {
-            item.createTime = moment(item.createTime * 1000).format('LLL')
-          })
-        } else {
-          this.tableData = []
-        }
-      } catch (error) {
-        this.tableData = []
+      let res = await this.$store.dispatch('getComList', this.ontid)
+      console.log(res)
+      if (res.status === 200 && res.data.desc === 'SUCCESS') {
+        this.tableData = res.data.result
+        this.tableData.map((item, idx) => {
+          item.createTime = moment(item.createTime * 1000).format('LLL')
+        })
       }
     },
     handleClick(row) {
@@ -338,13 +305,12 @@ export default {
     },
     toEditData(row) {
       if (row.state == 1) {
-        this.$message({
+        return this.$message({
           message: this.$t('common.remove'),
           type: 'success',
           center: true,
           duration: 2000
         })
-        return
       }
     },
     async prodOperat(row) {
@@ -354,17 +320,15 @@ export default {
     async proDataId(formName) {
       const privateKey = Ont.Crypto.PrivateKey.random()
       var identity = Ont.Identity.create(privateKey, '', '')
-      let params0 = {
+      console.log('params0', params0)
+      let result = await this.$store.dispatch('getTID', {
         dataId: identity.ontid,
         id: this.cortData.id,
         ontid: this.ontid,
         pubKey: 1
-      }
-      console.log('params0', params0)
-      let result = await this.$store.dispatch('getTID', params0)
+      })
       console.log('result', result)
       if (result.data.desc === 'SUCCESS') {
-        // DId .data.result.id
         this.DId = result.data.result.id
         let message = result.data.result.message
         message = message.slice(0, message.length - 2)
@@ -434,15 +398,6 @@ export default {
     },
     dialog(data) {
       console.log('data', data)
-      // if (data.isCertificated == 0) {
-      //   this.$message({
-      //     message: this.$t('common.b_dataid'),
-      //     type: 'error',
-      //     center: true,
-      //     duration: 2000
-      //   });
-      //   return
-      // }
       this.cortData = data
       this.proDataId()
     },

@@ -54,37 +54,28 @@ export default {
     submitForm(formName) {
       this.$refs[formName].validate(async valid => {
         if (valid) {
-          try {
-            let res = await this.$store.dispatch('sendONS', {
-              userName: this.ruleForm.domain
+          let res = await this.$store.dispatch('sendONS', {
+            userName: this.ruleForm.domain
+          })
+          console.log('res', res)
+          if (res.data.desc === 'SUCCESS') {
+            let qrcodeParams = res.data.result.qrCode
+            this.dataId = res.data.result.id
+            this.$store.dispatch('changeQrcode', {
+              params: qrcodeParams,
+              isShow: true
             })
-            console.log('res', res)
-            if (res.data.desc === 'SUCCESS') {
-              let qrcodeParams = res.data.result.qrCode
-              this.dataId = res.data.result.id
-              let dataParams = {
-                params: qrcodeParams,
-                isShow: true
-              }
-              this.$store.dispatch('changeQrcode', dataParams)
-              clearInterval(this.checkTimer)
-              this.checkTimer = setInterval(() => {
-                this.checkResult()
-              }, 3000)
-            } else {
-              this.$message({
-                message: 'Sign Up Fail!',
-                center: true,
-                type: 'error'
-              })
-              return
-            }
-          } catch (error) {
-            return false
+            clearInterval(this.checkTimer)
+            this.checkTimer = setInterval(() => {
+              this.checkResult()
+            }, 3000)
+          } else {
+            return this.$message({
+              message: 'Sign Up Fail!',
+              center: true,
+              type: 'error'
+            })
           }
-        } else {
-          console.log('error submit!!')
-          return false
         }
       })
     },
@@ -116,26 +107,23 @@ export default {
               return false
             } else if (res.data.result.result === '2') {
               clearInterval(this.checkTimer)
-              this.$message({
+              return this.$message({
                 message: 'ONT ID Already registered!',
                 center: true,
                 type: 'error'
               })
-              return false
             } else {
             }
           } else {
             clearInterval(this.checkTimer)
-            this.$message({
+            return this.$message({
               message: 'Sign Up Fail!',
               center: true,
               type: 'error'
             })
-            return false
           }
         } catch (error) {
-          clearInterval(this.checkTimer)
-          return false
+          return clearInterval(this.checkTimer)
         }
       } else {
         clearInterval(this.checkTimer)

@@ -488,7 +488,7 @@ export default {
           console.log('getdataResult', res)
           if (res.data.desc === 'SUCCESS') {
             if (res.data.result.result === '2') {
-              let jwt = res.data.result.jwt
+              let jwt = res.data.result.downloadUrl
               this.$message({
                 message: 'Successful',
                 center: true,
@@ -496,10 +496,12 @@ export default {
               })
               this.$store.commit('CHANGE_MODEL_STATE', false)
               clearInterval(this.viewTimer)
-              let url =
-                process.env.VUE_APP_API + '/api/v1/data/access?token=' + jwt
-              window.open(url, '_self')
-              return true
+              // let url =
+              //   process.env.VUE_APP_FILE_API +
+              //   '/api/v1/data/access?token=' +
+              //   jwt
+              window.open(jwt, '_self')
+              // return true
             } else if (res.data.result.result === '0') {
               this.$message({
                 message: this.$t('common.view_fail_to'),
